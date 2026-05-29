@@ -1,0 +1,106 @@
+# Projeto em si
+
+- [ ] Regras de negócio
+	- [ ] O projeto mantém a tradição antiga?
+		- [ ] Continua sendo um ambiente acolhedor e familiar?
+	- [ ] O sistema mantém a agilidade do processo anterior?
+
+- [ ] Parte técnica
+	- [ ] A ferramente cumpre o que foi requisitado?
+	- [ ] As ambiguidades da compreensão foram resolvidas?
+	- [ ] Funcionaria em um contexto real?
+	- [ ] A sequência das etapas é compreensível e fácil de operar?
+
+- [ ] Execução
+	- [ ] Repositório no GIT
+		- [ ] Link funcionando?
+		- [ ] Apenas os arquivos necessários upados?
+		- [ ] Documentação explica bem como executar o código?
+
+- [ ] Documento
+	- [x] Capa e Sumário
+	- [x] Introdução
+		- [x] Contexto do estudo de caso
+		- [x] Objetivos do Projeto
+		- [x] Principais usuários
+		- [x] Relevância do sistema
+	- [x] Análise de requisitos (em formato de tabela? lista?) (com foco em regras de negócio, persistência, integrações e segurança)
+		- [x] Requisitos funcionais
+		- [x] Requisitos não funcionais
+	- [ ] Modelagem e Arquitetura
+		- [ ] Diagrama de caso de uso
+		- [ ] Diagrama de classes
+		- [ ] Diagrama Entidade-Relacionamento (1-n)
+		- [ ] Descrição dos endpoints da API
+		- [ ] Tecnologia de persistência
+	- [ ] Entrega Técnica
+	- [ ] Plano de Testes
+		- [ ] Estratégia de validação
+		- [ ] Cenários de teste com critérios de aceitação
+			- [ ] Entradas inseridas
+			- [ ] Passos realizados
+			- [ ] Saídas esperadas
+		- [ ] Inclusão de cenários positivos e negativos
+		- [ ] Apresentar conforme requisitado
+			- [ ] Coleção Postman e/ou testes automatizados
+			- [ ] Prints
+			- [ ] Relatórios de teste
+			- [ ] Registros de execução
+	- [ ] Conclusão
+		- [ ] Lições aprendidas
+		- [ ] Desafios
+		- [ ] Pontos de evolução futura
+	- [ ] Referências
+		- [ ] Livros, sites, artigos, etc
+			- [ ] Playlist Hashtag treinamentos
+			- [ ] Documentação FastAPI
+	- [ ] Materiais suplementares
+		- [ ] Modelos UML
+			- [ ] Diagrama de atividade
+			- [ ] Diagrama de sequência
+			- [ ] Diagrama de estados
+			- [ ] Diagrama dos componentes
+			- [ ] Diagramas de implantação
+		- [ ] Código fonte relevante (para apoiar o texto)
+		- [ ] Scripts de teste/resultados das automações
+
+# Apresentação dos pontos
+
+- [ ] Estrutura, Organização e Clareza do Trabalho (10%)
+	- [ ] Apresenta claramente o contexto da rede Raízes do Nordeste, e o problema a ser resolvido
+	- [ ] Organiza o conteúdo de maneira lógica, com textos coerentes e objetivos.
+	- [ ] Identifica corretamente a trilha escolhida (Back-end, Front-end ou Qualidade de Software).
+	- [ ] Utiliza diagramação, tabelas, fluxos, diagramas ou protótipos que facilitem o entendimento do trabalho.
+- [ ] Qualidade da Documentação e Análise do Negócio (30%)
+	- [ ] Levantou e descreveu corretamente os requisitos funcionais e não funcionais do sistema
+	- [ ] Considerou aspectos como:
+		- [ ] Múltiplos canais de atendimento
+		- [ ] Diferença entre unidades da rede]
+		- [ ] Controle de estoque e relatórios para a matriz
+		- [ ] Programa de fidelização e conformidade com a LGPD
+		- [ ] Integração com serviços externos de pagamento
+	- [ ] Justificou as decisões técnicas com base no cenário
+	- [ ] Demonstrou atenção às ambiguidades e desafios reais do problema
+- [ ] Modelagem, Arquitetura da Solução ou Protótipo (30%)
+	- [ ] Apresenta solução coerente com os requisitos definidos
+	- [ ] Desenvolveu diagramas, arquiteturas ou protótipos consistentes e claros
+	- [ ] Considerou aspectos como:
+		- [ ] escalabilidade
+		- [ ] integração entre sistemas
+		- [ ] tolerância a falhas
+		- [ ] crescimento da rede
+	- [ ] Informou o link do repositório do código corretamente, e/ou da ferramenta de prototipagem utilizada
+- [ ] Plano de Testes e Estratégia de Qualidade (20%)
+	- [ ] Definiu estratégia de teste adequada ao cenário da rede
+	- [ ] Incluiu testes:
+		- [ ] funcionais
+		- [ ] não funcionais (desempenho, disponibilidade, usabilidade, etc.)
+		- [ ] de segurança e privacidade (LGPD)
+		- [ ] de integração com serviços externos
+	- [ ] Descreveu claramente cenários de teste e critérios de aceite
+	- [ ] Demonstrou atenção aos riscos do sistema em horário de pico
+- [ ] Aplicação Prática, Originalidade e Postura Profissional
+	- [ ] Propôs solução aderente ao contexto apresentado
+	- [ ] Apresentou decisões técnicas bem fundamentadas
+	- [ ] Utilizou boas práticas e referências do mercado
+	- [ ] Demonstrou postura profissional, pensando no trabalho como algo que poderia ser apresentado em uma empresa, um estágio, ou entrevista técnica
