@@ -8,3 +8,6 @@ Requisitos funcionais
 - [x] Colocar requisito não-funcional de monitoramento de data pelo sistema
 - [x] Especificar que a escalabilidade para 4000 usuários deve ser sem degradação de desempenho das operações
 - [x] Incluir consentimento da fidelização nos requisitos
+
+Ideia
+Login de usuario por CPF e senha/reconhecimento facial
