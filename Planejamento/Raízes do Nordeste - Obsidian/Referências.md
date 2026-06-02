@@ -7,3 +7,6 @@ Diagrama de classes UML
 https://www.youtube.com/watch?v=niGtsDAaqzc (Lucid Software)
 https://www.youtube.com/watch?v=rDidOn6KN9k (Pisani da ArcH)
 https://edraw.wondershare.com.br/uml-class-symbols.html 
+
+Diagrama de casos de uso
+https://www.youtube.com/watch?v=ab6eDdwS3rA&list=LL&index=11 (Lucid Software)
