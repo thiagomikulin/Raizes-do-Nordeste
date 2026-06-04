@@ -10,3 +10,4 @@ https://edraw.wondershare.com.br/uml-class-symbols.html
 
 Diagrama de casos de uso
 https://www.youtube.com/watch?v=ab6eDdwS3rA&list=LL&index=11 (Lucid Software)
+
