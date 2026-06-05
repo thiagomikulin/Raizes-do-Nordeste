@@ -5522,7 +5522,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="BDdsxtAWACssGserIApk" name="Diagrama de Arquitetura">
-    <mxGraphModel dx="1058" dy="2552" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="413" pageHeight="291" math="0" shadow="0">
+    <mxGraphModel dx="1528" dy="3139" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="413" pageHeight="291" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -5647,7 +5647,7 @@
           <mxGeometry height="490" width="740" x="-110" y="-1080" as="geometry" />
         </mxCell>
         <mxCell id="A5ahSg1aKjgwFK91_RbF-63" parent="Ko7vb6Hl_bRthu0WvnzJ-10" style="rounded=0;whiteSpace=wrap;html=1;" value="main.py" vertex="1">
-          <mxGeometry height="60" width="120" x="160" y="100" as="geometry" />
+          <mxGeometry height="60" width="120" x="60" y="70" as="geometry" />
         </mxCell>
         <mxCell id="Ko7vb6Hl_bRthu0WvnzJ-11" parent="1" style="swimlane;" value="Domain" vertex="1">
           <mxGeometry height="490" width="1104" x="-110" y="-1570" as="geometry" />
