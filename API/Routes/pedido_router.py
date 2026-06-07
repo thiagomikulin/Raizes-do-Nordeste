@@ -8,3 +8,5 @@ async def novo_pedido():
     Cria um novo pedido a partir dos dados passados
     """
     return {'pedido':1}
+
+
