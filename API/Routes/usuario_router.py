@@ -74,7 +74,14 @@ async def login(schema: LoginSchema, sessao:Session = Depends(criar_sessao)):
                 ],
                 path='/usuarios/criar'
             )
-    return {'teste':'teste'}
+    else:
+        access_token = criar_token(usuario.id)
+        refresh_token = criar_token(usuario.id, duracao_token=timedelta(days=7))
+        return {
+            'access-token':access_token,
+            "refresh_token":refresh_token,
+            "token_type":"Bearer"
+        }
 
 
 

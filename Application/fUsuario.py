@@ -18,10 +18,10 @@ def validar_schema_usuario_logar(schema: LoginSchema):
         return True
 
 def autenticar_usuario(email: str, senha: str, sessao: Session):
-    usuario = verificar_usuario(email, sessao)
+    usuario = verificar_usuario_existe(email, sessao)
     if type(usuario) != Usuario:
-        return [404, 'USUÁRIO INVÁLIDO!','Este usuário não existe']
         #Este usuário não existe
+        return [404, 'USUÁRIO INVÁLIDO!','Este usuário não existe']
     elif not bcrypt_context.verify(senha, usuario.senha):
         return ['CREDENCIAIS INVÁLIDAS!','Credenciais inválidas']
     return usuario
