@@ -1,4 +1,4 @@
-from Models.base import Base, Column, String, Integer, Boolean
+from Infrastructure.Models.base import Base, Column, String, Integer, Boolean
 
 class Usuario(Base):
     __tablename__ = 'usuarios'

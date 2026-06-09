@@ -10,3 +10,6 @@ async def criar_sessao():
         yield sessao
     finally:
         sessao.close()
+
+def verificar_token(*args):
+    pass

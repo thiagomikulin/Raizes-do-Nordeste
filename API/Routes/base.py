@@ -9,12 +9,11 @@ from main import app
 
 
 class ExceptionHTTP(Exception):
-    def __init__(self, code, error:str, message:str, detail: list, timestamp, path):
+    def __init__(self, code, error:str, message:str, detail: list, path):
         self.code = code
         self.error = error
         self.message = message
         self.detail = detail
-        self.timestamp = timestamp
         self.path = path
 
 @app.exception_handler(ExceptionHTTP)
@@ -25,7 +24,7 @@ async def handler_de_excecao(request: Request, exc: ExceptionHTTP):
             "error":exc.error,
             "message":exc.message,
             "details":exc.detail,
-            "timestamp":exc.timestamp,
+            "timestamp":datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
             "path":exc.path
         }
     )
