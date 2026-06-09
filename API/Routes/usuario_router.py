@@ -3,8 +3,7 @@ from API.Routes.base import *
 #API - Schemas
 from API.Schemas.usuario_schema import CriacaoSchema
 
-#Infrastructure
-from Infrastructure.dependencies import *
+from Application.fUsuario import *
 
 usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 
@@ -14,7 +13,7 @@ async def criar_usuario(schema: CriacaoSchema):
     Cria um novo usuário
     """
     # Para o uso inicial do sistema, deve ser utilizado o usuário master
-    if not schema.nome or not schema.email or not schema.senha:
+    if not validar_schema_usuario(schema):
         raise ExceptionHTTP(
             code=400, 
             error='CAMPOS PREENCHIDOS INCORRETAMENTE',
@@ -23,5 +22,14 @@ async def criar_usuario(schema: CriacaoSchema):
             timestamp=datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
             path='/usuarios/criar'
         )
+    check_token = verificar_token(schema.email, schema.senha)
+    if type(check_token) != Usuario:
+        if 
+            raise ExceptionHTTP(
+                code = 401
+            )
+        
+    
+    
     
         
