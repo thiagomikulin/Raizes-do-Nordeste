@@ -41,3 +41,27 @@ class SchemaInvalido(ExceptionHTTP):
             path=path
         )
 
+class SemPermissao(ExceptionHTTP):
+    def __init__(self, path):
+        super().__init__(
+            code=403,
+            error='NÃO AUTORIZADO',
+            message='Seu acesso não tem permissão para verificar este conteúdo! Entre em contato com a equipe técnica!',
+            detail=[
+                {'field':'cargo' if 'usuario' in path else 'cliente', 'issue': 'not authorized'}
+            ],
+            path=path
+        )
+
+class Conflito(ExceptionHTTP):
+    def __init__(self, entidade, campo, valor_campo, path):
+        super().__init__(
+            code=409,
+            error=f"CONFLITO DE CRIAÇÃO DE {entidade.upper()}",
+            message=f"Já existe um {entidade} com {campo} {valor_campo} cadastrado no sistema",
+            detail=[
+                {"field":"email","issue":"duplicated value"}
+            ],
+            path=path
+        )
+

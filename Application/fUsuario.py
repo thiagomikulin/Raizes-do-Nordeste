@@ -7,33 +7,31 @@ from API.Schemas.usuario_schema import *
 
 from Infrastructure.Repositories.reUsuario import *
 
-with open('./Domain/Persona/Usuario.json', 'r', encoding='utf-8') as arquivo:
-    dominio = json.load(arquivo)
-
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def validar_schema_usuario_criar(schema: CriacaoSchema):
-    if not schema.nome or not schema.email or not schema.senha:
+    if (not schema.nome) or (not schema.email) or (not schema.senha):
         raise SchemaExcept
     
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def validar_schema_usuario_logar(schema: LoginSchema):
     if not schema.email or not schema.senha:
-        return False
-    else:
-        return True
+        raise SchemaExcept
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def autenticar_usuario(email: str, senha: str, sessao: Session):
-    usuario = verificar_usuario_existe(email, sessao)
-    if type(usuario) != Usuario:
-        #Este usuário não existe
-        return 404
-    elif not bcrypt_context.verify(senha, usuario.senha):
-        return 403
-    return usuario
+    try:
+        usuario = verificar_usuario_existe(email, sessao)
+        if not bcrypt_context.verify(senha, usuario.senha):
+            raise IncorrectPWExcept
+    except NotFoundExcept:
+        raise NotFoundExcept
+    except IncorrectPWExcept:
+        raise IncorrectPWExcept
+    else:
+        return usuario
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -45,13 +43,26 @@ def verificar_token_usuario(request: Request, token:str=Depends(oauth2_schema), 
         print(error)
         raise NaoAutenticado(request.url.path)
     usuario = sessao.query(Usuario).filter(Usuario.id==id_user).first()
-    if not usuario or usuario.ativo == False:
+    if not usuario:
         raise NaoEncontrado(request.url.path)
+    elif usuario.ativo == False:
+        raise 
+
     return usuario
+
+def verificar_permissao_usu(usuario:Usuario, modulo, permissao):
+
+    with open(f'./Domain/path_global.json', 'r', encoding='utf-8') as arquivo:
+        caminhos = json.load(arquivo)
+        rota = caminhos[modulo]
+
+    with open(f'./Domain/{rota}', 'r', encoding='utf-8') as arquivo:
+        dominio = json.load(arquivo)
+        if usuario.cargo not in dominio[permissao]:
+            raise PermissionExcept
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def exec_busca(id, nome, email, cargo, sessao: Session, usuario: Usuario):
-    if usuario.cargo not in dominio['buscar']:
-        return 403
     return buscar_usuarios(id, nome, email, cargo, sessao)

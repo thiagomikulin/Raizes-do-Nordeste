@@ -13,7 +13,6 @@ def criar_token(id, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         "sub":str(id),
         "exp":data_expiracao
     }
-    print(type(SECRET_KEY))
     encoded_jwt =jwt.encode(dict_info, SECRET_KEY, ALGORITHM)
     #JWT
     #ID
@@ -27,8 +26,21 @@ def criar_token(id, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 class SchemaExcept(Exception):
     pass
 
-# class 
+class PermissionExcept(Exception):
+    pass
 
+class ConflictExcept(Exception):
+    pass
+
+class NotFoundExcept(Exception):
+    pass
+
+class IncorrectPWExcept(Exception):
+    pass
+
+#==============================================================================================
+
+#Requisições diretas (dependem do Depends)
 class NaoAutenticado(ExceptionHTTP):
     def __init__(self, path):
         super().__init__(
@@ -41,7 +53,7 @@ class NaoAutenticado(ExceptionHTTP):
             path=path
         )
     
-class NaoEncontrado(ExceptionHTTP):
+class Desativado(ExceptionHTTP):
     def __init__(self, path):
         super().__init__(
             code=404,
@@ -49,6 +61,30 @@ class NaoEncontrado(ExceptionHTTP):
             message='Parece que seu acesso foi desativado! Entre em contato com a equipe técnica!',
             detail=[
                 {"field":"ativo", "issue":"deactivated"}
+            ],
+            path=path
+        )
+
+class NaoEncontrado(ExceptionHTTP):
+    def __init__(self, path):
+        super().__init__(
+            code=404,
+            error='NÃO ENCONTRADO',
+            message='Seu acesso não foi localizado em nosso sistema! Entre em contato com a equipe técnica!',
+            detail=[
+                {"field":"email", "issue":"not found"}
+            ],
+            path=path
+        )
+
+class AcessoInvalido(ExceptionHTTP):
+    def __init__(self, path):
+        super().__init__(
+            code=401,
+            error='ACESSO INVÁLIDO',
+            message='Senha Incorreta! Tente novamente ou reinicie a senha!',
+            detail=[
+                {"field":"password", "issue":"incorrect"}
             ],
             path=path
         )
