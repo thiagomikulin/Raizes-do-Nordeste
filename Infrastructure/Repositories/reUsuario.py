@@ -5,11 +5,15 @@ from Application.base import *
 from Infrastructure.Repositories.base import *
 from Infrastructure.Models.Persona.mUsuario import *
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 def verificar_usuario_criacao(email, sessao:Session):
     usuario = sessao.query(Usuario).filter(Usuario.email == email).first()
     if usuario:
         return 409
     return usuario
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def verificar_usuario_existe(email, sessao: Session):
     usuario = sessao.query(Usuario).filter(Usuario.email == email).first()
@@ -17,10 +21,12 @@ def verificar_usuario_existe(email, sessao: Session):
         return 404
     return usuario
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 def criar_usuario_bd(nome, email, senha, sessao: Session):
     print('teste')
     senha_criptografada = bcrypt_context.hash(senha)
-    novo_usuario = Usuario(nome, email, senha_criptografada, ativo=False, cargo='Não Classificado')
+    novo_usuario = Usuario(nome, email, senha_criptografada, ativo=True, cargo='Não Classificado')
     sessao.add(novo_usuario)
     sessao.commit()
     return {
@@ -34,3 +40,8 @@ def criar_usuario_bd(nome, email, senha, sessao: Session):
         }
 
     }
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+def buscar_usuarios(id, nome, email, cargo, sessao: Session):
+    lista = sessao.query(Usuario).all()
+    return lista

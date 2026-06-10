@@ -1,8 +1,10 @@
-from fastapi import Depends
+from fastapi import Depends, Request
+
+from API.Routes.base import ExceptionHTTP
 
 from datetime import datetime, timedelta, timezone
-from main import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
-from jose import jwt
+from main import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, oauth2_schema
+from jose import jwt, JWTError
 
 
 def criar_token(id, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
@@ -17,3 +19,36 @@ def criar_token(id, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     #ID
     #data_expiracao #passou desse período, tem que gerar um novo
     return encoded_jwt
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+#Erros
+
+class SchemaExcept(Exception):
+    pass
+
+# class 
+
+class NaoAutenticado(ExceptionHTTP):
+    def __init__(self, path):
+        super().__init__(
+            code = 401,
+            error="NÃO AUTENTICADO",
+            message=f"É necessário estar autenticado para realizar esta ação!",
+            detail=[
+                {"field":"token","issue":"invalid token"}
+            ],
+            path=path
+        )
+    
+class NaoEncontrado(ExceptionHTTP):
+    def __init__(self, path):
+        super().__init__(
+            code=404,
+            error='ACESSO INATIVO',
+            message='Parece que seu acesso foi desativado! Entre em contato com a equipe técnica!',
+            detail=[
+                {"field":"ativo", "issue":"deactivated"}
+            ],
+            path=path
+        )

@@ -29,5 +29,15 @@ async def handler_de_excecao(request: Request, exc: ExceptionHTTP):
         }
     )
 
+#Padrões de erro geral
 
-    
+class SchemaInvalido(ExceptionHTTP):
+    def __init__(self, schema, path):
+        super().__init__(
+            code = 400,
+            error='CAMPOS PREENCHIDOS INCORRETAMENTE',
+            message="Os campos não foram preenchidos corretamente! Verifique e tente novamente",
+            detail=[{"field":attr, "issue":"required"} for attr, val in schema.__dict__.items() if not val], #Retorna o atributo na lista de atributos e valores se o valor não existir
+            path=path
+        )
+
