@@ -3,6 +3,8 @@ from fastapi.responses import JSONResponse
 
 from datetime import datetime
 
+from Infrastructure.Models.Persona.mUsuario import Usuario
+
 from main import app
 
 # https://fastapi.tiangolo.com/tutorial/handling-errors/#install-custom-exception-handlers
@@ -43,7 +45,8 @@ class ConflictExcept(Exception):
     pass
 
 class NotFoundExcept(Exception):
-    pass
+    def __init__(self, **kwargs):
+        self.campos = kwargs
 
 class IncorrectPWExcept(Exception):
     pass
@@ -94,15 +97,27 @@ class Desativado(ExceptionHTTP):
             path=path
         )
 
-class NaoEncontrado(ExceptionHTTP):
+class AcessoNaoEncontrado(ExceptionHTTP):
     def __init__(self, path):
         super().__init__(
             code=404,
-            error='NÃO ENCONTRADO',
+            error='ACESSO NÃO ENCONTRADO',
             message='Seu acesso não foi localizado em nosso sistema! Entre em contato com a equipe técnica!',
             detail=[
                 {"field":"email", "issue":"not found"}
             ],
+            path=path
+        )
+
+class NaoEncontrado(ExceptionHTTP):
+    def __init__(self, path, campos):
+        print(campos)
+        chave= list(campos.keys())[0]
+        super().__init__(
+            code=404,
+            error='NÃO ENCONTRADO',
+            message=f'O {path[1:-2]} com este filtro não foi localizado em nosso sistema! Entre em contato com a equipe técnica!',
+            detail=[{"field":chave, "issue":f"'{campos[chave]}' not found"}],
             path=path
         )
 
@@ -119,13 +134,13 @@ class SchemaInvalido(ExceptionHTTP):
         )
 
 class SemPermissao(ExceptionHTTP):
-    def __init__(self, path):
+    def __init__(self, path, ator):
         super().__init__(
             code=403,
             error='NÃO AUTORIZADO',
             message='Seu acesso não tem permissão para verificar este conteúdo! Entre em contato com a equipe técnica!',
             detail=[
-                {'field':'cargo' if 'usuario' in path else 'cliente', 'issue': 'not authorized'}
+                {'field':'cargo' if type(ator)==Usuario else 'cliente', 'issue': 'not authorized'}
             ],
             path=path
         )

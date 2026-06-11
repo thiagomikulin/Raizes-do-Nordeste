@@ -39,5 +39,6 @@ def autenticar_usuario(email: str, senha: str, sessao: Session):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def exec_busca(id, nome, email, cargo, sessao: Session, usuario: Usuario):
-    return buscar_usuarios(id, nome, email, cargo, sessao)
+def exec_busca(id, nome, email, cargo, ativo, sessao: Session, usuario: Usuario):
+    #Se tiver algum filtro, e o filtro não for validado, levanta NotFoundException
+    return buscar_usuarios(id, nome, email, cargo, ativo, sessao)

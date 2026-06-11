@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from main import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, oauth2_schema
 
 #Exceções
-from Domain.exceptions import NaoAutenticado, NaoEncontrado
+from Domain.exceptions import NaoAutenticado, AcessoNaoEncontrado
 
 #Bases
 from Infrastructure.Repositories.base import Session, criar_sessao
@@ -49,7 +49,7 @@ def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:S
         raise NaoAutenticado(request.url.path)
     ator = sessao.query(model).filter(model.id==id_user).first()
     if not ator:
-        raise NaoEncontrado(request.url.path)
+        raise AcessoNaoEncontrado(request.url.path)
     elif ator.ativo == False:
         raise 
 

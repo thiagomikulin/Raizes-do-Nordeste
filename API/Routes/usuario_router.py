@@ -1,12 +1,12 @@
 
 # Bases
 from API.Routes.base import * #Exceptions HTTP apenas
-from Application.base import verificar_permissao, verificar_token, timedelta, NaoEncontrado, NaoAutenticado
+from Application.base import verificar_permissao, verificar_token, timedelta, AcessoNaoEncontrado, NaoAutenticado
 from Infrastructure.Repositories.base import criar_sessao, Session, Depends
 from Application.base import criar_token
 
 #Exceções (para tratar)
-from Domain.exceptions import SchemaExcept, PermissionExcept, NotFoundExcept, ConflictExcept, IncorrectPWExcept, SchemaInvalido, SemPermissao, Conflito, AcessoInvalido, ExceptionGenerica
+from Domain.exceptions import SchemaExcept, PermissionExcept, NotFoundExcept, ConflictExcept, IncorrectPWExcept, SchemaInvalido, SemPermissao, Conflito, AcessoInvalido, ExceptionGenerica, NaoEncontrado
 
 #Schema
 from API.Schemas.sUsuario import * #Apenas Schemas
@@ -37,7 +37,7 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     except SchemaExcept: 
         raise SchemaInvalido(schema, path)
     except PermissionExcept:
-        raise SemPermissao(path)
+        raise SemPermissao(path, ator)
     except ConflictExcept:
         raise Conflito(entidade='usuário', campo='e-mail', valor_campo=schema.email, path=path)
     except Exception as e:
@@ -54,7 +54,7 @@ async def login(schema: LoginSchema, sessao:Session = Depends(criar_sessao)):
         validar_schema_usuario_logar(schema)
         usuario = autenticar_usuario(schema.email, schema.senha, sessao)
     except NotFoundExcept:
-        raise NaoEncontrado(path)
+        raise AcessoNaoEncontrado(path)
     except IncorrectPWExcept:
         raise AcessoInvalido(path)
     else:
@@ -69,12 +69,27 @@ async def login(schema: LoginSchema, sessao:Session = Depends(criar_sessao)):
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 @usuario_router.get('/')
-async def listar_usuarios(id: int = 0,nome: str = None,email: str = None,cargo:str = None, sessao: Session = Depends(criar_sessao), ator = Depends(verificar_token)):
+async def listar_usuarios(
+    id: int | None = 0,
+    nome: str | None = None,
+    email: str | None = None,
+    cargo:str | None = None, 
+    ativo: bool | None = True,
+    sessao: Session = 
+    Depends(criar_sessao), 
+    ator = Depends(verificar_token)
+    ):
+
+    path = '/usuarios/'
     try:
         verificar_permissao(ator, 'usuario' ,'buscar')
-        lista = exec_busca(id, nome, email, cargo, sessao, ator)
+        lista = exec_busca(id, nome, email, cargo, ativo, sessao, ator)
     except PermissionExcept:
-        raise SemPermissao('/')
+        raise SemPermissao(path, ator)
+    except NotFoundExcept as e:
+        raise NaoEncontrado(path, e.campos)
+    except Exception as e:
+        raise ExceptionGenerica(e, path)
     return lista
 
 

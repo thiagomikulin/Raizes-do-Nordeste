@@ -43,6 +43,36 @@ def criar_usuario_bd(schema: CriacaoSchema, sessao: Session):
     }
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-def buscar_usuarios(id, nome, email, cargo, sessao: Session):
+def buscar_usuarios(id, nome, email, cargo, ativo, sessao: Session):
+
     lista = sessao.query(Usuario).all()
-    return lista
+    print(lista)
+    if id:
+        lista = [item for item in lista if item.id == id]
+        if lista == []:
+            raise NotFoundExcept(id=id)
+    if nome:
+        lista = [item for item in lista if nome in item.nome.lower()]
+        if lista == []:
+            raise NotFoundExcept(nome=nome)
+    if email:
+        lista = [item for item in lista if email in item.email.lower()]
+        if lista == []:
+            raise NotFoundExcept(email=email)
+    if cargo:
+        lista = [item for item in lista if item.cargo == cargo]
+        if lista == []:
+            raise NotFoundExcept(cargo=cargo)
+    if ativo:
+        lista = [item for item in lista if item.ativo == ativo]
+        if lista == []:
+            raise NotFoundExcept(ativo=ativo)
+    return [
+        {
+            "id":item.id,
+            "nome":item.nome,
+            "email":item.email,
+            "cargo":item.cargo,
+            "ativo":item.ativo
+        } for item in lista
+    ]
