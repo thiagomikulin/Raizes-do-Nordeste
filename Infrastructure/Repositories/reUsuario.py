@@ -2,8 +2,10 @@ from main import bcrypt_context
 
 from API.Schemas.sUsuario import *
 
-from Infrastructure.Repositories.base import *
+from Infrastructure.Repositories.base import Session
 from Infrastructure.Models.Persona.mUsuario import *
+
+from Domain.exceptions import ConflictExcept, NotFoundExcept
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

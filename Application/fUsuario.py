@@ -9,6 +9,8 @@ from API.Schemas.sUsuario import *
 from Infrastructure.Repositories.reUsuario import *
 from Infrastructure.Repositories.reCliente import *
 
+from Domain.exceptions import SchemaExcept, IncorrectPWExcept
+
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def validar_schema_usuario_criar(schema: CriacaoSchema):
@@ -34,13 +36,6 @@ def autenticar_usuario(email: str, senha: str, sessao: Session):
         raise IncorrectPWExcept
     else:
         return usuario
-
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-
-
-
-
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

@@ -1,18 +1,28 @@
-from fastapi import Depends, Request
+#Módulos externos
+from fastapi import Depends, Request # type: ignore
 import json
-from jose import jwt, JWTError
+from jose import jwt, JWTError  # type: ignore
 from datetime import datetime, timedelta, timezone
 
-from API.Routes.base import ExceptionHTTP
-
+#Secrets
 from main import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, oauth2_schema
 
+#Exceções
+from Domain.exceptions import NaoAutenticado, NaoEncontrado
+
+#Bases
+from Infrastructure.Repositories.base import Session, criar_sessao
+
 #Infrastructure - Repositories
-from Infrastructure.Repositories.reUsuario import *
-from Infrastructure.Repositories.reCliente import *
+from Infrastructure.Repositories.reUsuario import Usuario
+from Infrastructure.Repositories.reCliente import Cliente
 
 #Infrastructure - Models
 
+#Infrastructure - 
+
+#Application - exceptions
+from Domain.exceptions import PermissionExcept
 
 def criar_token(id, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
     data_expiracao = datetime.now(timezone.utc)+duracao_token
@@ -34,6 +44,8 @@ def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:S
         id_user = int(dict_info.get('sub'))
     except JWTError as error:
         print(error)
+        raise NaoAutenticado(request.url.path)
+    except:
         raise NaoAutenticado(request.url.path)
     ator = sessao.query(model).filter(model.id==id_user).first()
     if not ator:
@@ -60,72 +72,5 @@ def verificar_permissao(ator, modulo, permissao):
             if 'cliente' not in dominio[permissao]:
                 raise PermissionExcept
 
-#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#Erros
 
-class SchemaExcept(Exception):
-    pass
-
-class PermissionExcept(Exception):
-    pass
-
-class ConflictExcept(Exception):
-    pass
-
-class NotFoundExcept(Exception):
-    pass
-
-class IncorrectPWExcept(Exception):
-    pass
-
-#==============================================================================================
-
-#Requisições diretas (dependem do Depends)
-class NaoAutenticado(ExceptionHTTP):
-    def __init__(self, path):
-        super().__init__(
-            code = 401,
-            error="NÃO AUTENTICADO",
-            message=f"É necessário estar autenticado para realizar esta ação!",
-            detail=[
-                {"field":"token","issue":"invalid token"}
-            ],
-            path=path
-        )
-    
-class Desativado(ExceptionHTTP):
-    def __init__(self, path):
-        super().__init__(
-            code=404,
-            error='ACESSO INATIVO',
-            message='Parece que seu acesso foi desativado! Entre em contato com a equipe técnica!',
-            detail=[
-                {"field":"ativo", "issue":"deactivated"}
-            ],
-            path=path
-        )
-
-class NaoEncontrado(ExceptionHTTP):
-    def __init__(self, path):
-        super().__init__(
-            code=404,
-            error='NÃO ENCONTRADO',
-            message='Seu acesso não foi localizado em nosso sistema! Entre em contato com a equipe técnica!',
-            detail=[
-                {"field":"email", "issue":"not found"}
-            ],
-            path=path
-        )
-
-class AcessoInvalido(ExceptionHTTP):
-    def __init__(self, path):
-        super().__init__(
-            code=401,
-            error='ACESSO INVÁLIDO',
-            message='Senha Incorreta! Tente novamente ou reinicie a senha!',
-            detail=[
-                {"field":"password", "issue":"incorrect"}
-            ],
-            path=path
-        )

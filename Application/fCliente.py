@@ -1,4 +1,4 @@
-from Application.base import *
+from Application.Permissions.base import *
 
 from API.Schemas.sCliente import *
 

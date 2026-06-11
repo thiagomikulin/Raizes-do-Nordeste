@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from API.Routes.base import *
 from API.Schemas.sCliente import *
 
-from Application.fCliente import *
+from .Application.Permissions.fCliente import *
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

@@ -1,10 +1,21 @@
 
-#API - Rotas e Schemas
-from API.Routes.base import *
-from API.Schemas.sUsuario import *
+# Bases
+from API.Routes.base import * #Exceptions HTTP apenas
+from Application.base import verificar_permissao, verificar_token, timedelta, NaoEncontrado, NaoAutenticado
+from Infrastructure.Repositories.base import criar_sessao, Session, Depends
+from Application.base import criar_token
 
-#Application - Funções
-from Application.fUsuario import *
+#Exceções (para tratar)
+from Domain.exceptions import SchemaExcept, PermissionExcept, NotFoundExcept, ConflictExcept, IncorrectPWExcept, SchemaInvalido, SemPermissao, Conflito, AcessoInvalido, ExceptionGenerica
+
+#Schema
+from API.Schemas.sUsuario import * #Apenas Schemas
+
+#Application
+from Application.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
+
+#Repositories - banco de dados
+from Infrastructure.Repositories.reUsuario import criar_usuario_bd, verificar_usuario_criacao
 
 usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 
@@ -29,6 +40,8 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
         raise SemPermissao(path)
     except ConflictExcept:
         raise Conflito(entidade='usuário', campo='e-mail', valor_campo=schema.email, path=path)
+    except Exception as e:
+        raise ExceptionGenerica(e, path)
     else:
         return criacao
 
@@ -38,6 +51,7 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
 async def login(schema: LoginSchema, sessao:Session = Depends(criar_sessao)):
     path='/usuarios/login'
     try:
+        validar_schema_usuario_logar(schema)
         usuario = autenticar_usuario(schema.email, schema.senha, sessao)
     except NotFoundExcept:
         raise NaoEncontrado(path)
