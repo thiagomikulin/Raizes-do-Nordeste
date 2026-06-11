@@ -1,11 +1,13 @@
-import json
 
+#Application
 from Application.base import *
 
 #API - Schemas
-from API.Schemas.usuario_schema import *
+from API.Schemas.sUsuario import *
 
+#Infrastructure
 from Infrastructure.Repositories.reUsuario import *
+from Infrastructure.Repositories.reCliente import *
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -35,31 +37,9 @@ def autenticar_usuario(email: str, senha: str, sessao: Session):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_token_usuario(request: Request, token:str=Depends(oauth2_schema), sessao:Session=Depends(criar_sessao)):
-    try:
-        dict_info = jwt.decode(token, SECRET_KEY, ALGORITHM)
-        id_user = int(dict_info.get('sub'))
-    except JWTError as error:
-        print(error)
-        raise NaoAutenticado(request.url.path)
-    usuario = sessao.query(Usuario).filter(Usuario.id==id_user).first()
-    if not usuario:
-        raise NaoEncontrado(request.url.path)
-    elif usuario.ativo == False:
-        raise 
 
-    return usuario
 
-def verificar_permissao_usu(usuario:Usuario, modulo, permissao):
 
-    with open(f'./Domain/path_global.json', 'r', encoding='utf-8') as arquivo:
-        caminhos = json.load(arquivo)
-        rota = caminhos[modulo]
-
-    with open(f'./Domain/{rota}', 'r', encoding='utf-8') as arquivo:
-        dominio = json.load(arquivo)
-        if usuario.cargo not in dominio[permissao]:
-            raise PermissionExcept
 
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

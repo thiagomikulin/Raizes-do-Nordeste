@@ -1,6 +1,6 @@
 from main import bcrypt_context
 
-from Application.base import *
+from API.Schemas.sUsuario import *
 
 from Infrastructure.Repositories.base import *
 from Infrastructure.Models.Persona.mUsuario import *
@@ -23,9 +23,9 @@ def verificar_usuario_existe(email, sessao: Session):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def criar_usuario_bd(nome, email, senha, sessao: Session):
-    senha_criptografada = bcrypt_context.hash(senha)
-    novo_usuario = Usuario(nome, email, senha_criptografada, ativo=True, cargo='Não Classificado')
+def criar_usuario_bd(schema: CriacaoSchema, sessao: Session):
+    senha_criptografada = bcrypt_context.hash(schema.senha)
+    novo_usuario = Usuario(schema.nome, schema.email, senha_criptografada, ativo=True, cargo='Não Classificado')
     sessao.add(novo_usuario)
     sessao.commit()
     return {

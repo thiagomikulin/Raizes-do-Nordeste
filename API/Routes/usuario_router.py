@@ -1,8 +1,9 @@
 
-#API
+#API - Rotas e Schemas
 from API.Routes.base import *
-from API.Schemas.usuario_schema import *
+from API.Schemas.sUsuario import *
 
+#Application - Funções
 from Application.fUsuario import *
 
 usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
@@ -10,7 +11,7 @@ usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 @usuario_router.post('/criar', status_code=201)
-async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_sessao), usuario: Usuario=Depends(verificar_token_usuario)):
+async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     """
     Cria um novo usuário
     """
@@ -19,9 +20,9 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     path='/usuarios/criar'
     try:
         validar_schema_usuario_criar(schema) #Schema está ok?
-        verificar_permissao_usu(usuario, 'usuario', 'criar') #Usuário tem permissão de criar?
-        verificar_usuario_criacao(schema.email, sessao) #Usuário existe?
-        criacao = criar_usuario_bd(schema.nome, schema.email, schema.senha, sessao) #Tentativa de criação
+        verificar_permissao(ator, 'usuario', 'criar') #Ator tem permissão de criar?
+        verificar_usuario_criacao(schema.email, sessao) #Usuário a ser criado já existe no sistema?
+        criacao = criar_usuario_bd(schema, sessao) #Tentativa de criação
     except SchemaExcept: 
         raise SchemaInvalido(schema, path)
     except PermissionExcept:
@@ -54,10 +55,10 @@ async def login(schema: LoginSchema, sessao:Session = Depends(criar_sessao)):
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 @usuario_router.get('/')
-async def listar_usuarios(id: int = 0,nome: str = None,email: str = None,cargo:str = None, sessao: Session = Depends(criar_sessao), usuario: Usuario = Depends(verificar_token_usuario)):
+async def listar_usuarios(id: int = 0,nome: str = None,email: str = None,cargo:str = None, sessao: Session = Depends(criar_sessao), ator = Depends(verificar_token)):
     try:
-        verificar_permissao_usu(usuario, 'usuario' ,'buscar')
-        lista = exec_busca(id, nome, email, cargo, sessao, usuario)
+        verificar_permissao(ator, 'usuario' ,'buscar')
+        lista = exec_busca(id, nome, email, cargo, sessao, ator)
     except PermissionExcept:
         raise SemPermissao('/')
     return lista
