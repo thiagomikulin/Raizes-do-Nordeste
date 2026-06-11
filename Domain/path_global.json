@@ -1,3 +1,17 @@
 {
-    "usuario":"/Persona/Usuario.json"
+    "usuario":"/Persona/Usuario.json", 
+    "cliente":"/Persona/Cliente.json",
+
+    "filial": "/Empresa/Filial.json",
+    "estoque":"/Empresa/Estoque.json",
+    "campanha":"/Empresa/CampanhaPromo.json",
+    "movimento": "/Empresa/Movimentos.json",
+    
+    "produto": "/Itens/Produto.json",
+    "variacao": "/Itens/Variacao.json",
+    "ingredientes": "/Itens/Ingredientes.json",
+
+    "log":"/Log/Log.json",
+    
+    "pedido": "/Pedidos/Pedido.json",
 }
