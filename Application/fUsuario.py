@@ -3,7 +3,7 @@
 from Application.base import *
 
 #API - Schemas
-from API.Schemas.sUsuario import *
+from API.Schemas.Autenticacao.sUsuario import *
 
 #Infrastructure
 from Infrastructure.Repositories.reUsuario import *

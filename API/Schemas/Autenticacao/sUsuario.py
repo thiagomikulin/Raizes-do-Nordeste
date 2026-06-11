@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from API.Schemas.base import *
 
 class LoginSchema(BaseModel):
     email:str

@@ -111,13 +111,12 @@ class AcessoNaoEncontrado(ExceptionHTTP):
 
 class NaoEncontrado(ExceptionHTTP):
     def __init__(self, path, campos):
-        print(campos)
         chave= list(campos.keys())[0]
         super().__init__(
             code=404,
             error='NÃO ENCONTRADO',
             message=f'O {path[1:-2]} com este filtro não foi localizado em nosso sistema! Entre em contato com a equipe técnica!',
-            detail=[{"field":chave, "issue":f"'{campos[chave]}' not found"}],
+            detail=[{"field":chave, "issue":f" '{campos[chave]}' not found"}],
             path=path
         )
 

@@ -9,7 +9,7 @@ from Application.base import criar_token
 from Domain.exceptions import SchemaExcept, PermissionExcept, NotFoundExcept, ConflictExcept, IncorrectPWExcept, SchemaInvalido, SemPermissao, Conflito, AcessoInvalido, ExceptionGenerica, NaoEncontrado
 
 #Schema
-from API.Schemas.sUsuario import * #Apenas Schemas
+from API.Schemas.Autenticacao.sUsuario import * #Apenas Schemas
 
 #Application
 from Application.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
@@ -21,6 +21,7 @@ usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#Usuário - Criar (RF-U01)
 @usuario_router.post('/criar', status_code=201)
 async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     """
@@ -47,27 +48,7 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@usuario_router.post('/login')
-async def login(schema: LoginSchema, sessao:Session = Depends(criar_sessao)):
-    path='/usuarios/login'
-    try:
-        validar_schema_usuario_logar(schema)
-        usuario = autenticar_usuario(schema.email, schema.senha, sessao)
-    except NotFoundExcept:
-        raise AcessoNaoEncontrado(path)
-    except IncorrectPWExcept:
-        raise AcessoInvalido(path)
-    else:
-        access_token = criar_token(usuario.id)
-        refresh_token = criar_token(usuario.id, duracao_token=timedelta(days=7))
-        return {
-            'access-token':access_token,
-            "refresh_token":refresh_token,
-            "token_type":"Bearer"
-        }
-
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
+#Usuário - Listar (RF-U02)
 @usuario_router.get('/')
 async def listar_usuarios(
     id: int | None = 0,
@@ -92,9 +73,78 @@ async def listar_usuarios(
         raise ExceptionGenerica(e, path)
     return lista
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        
+@usuario_router.put('/{id}')
+async def atualizar_usuario():
+    pass
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+@usuario_router.put('/{id}/ativar')
+async def ativar_usuario():
+    pass
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+@usuario_router.put('/{id}/desativar')
+async def desativar_usuario():
+    pass
+
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+@usuario_router.post('/login')
+async def login(schema: LoginSchema, sessao:Session = Depends(criar_sessao)):
+    path='/usuarios/login'
+    try:
+        validar_schema_usuario_logar(schema)
+        usuario = autenticar_usuario(schema.email, schema.senha, sessao)
+    except NotFoundExcept:
+        raise AcessoNaoEncontrado(path)
+    except IncorrectPWExcept:
+        raise AcessoInvalido(path)
+    else:
+        access_token = criar_token(usuario.id)
+        refresh_token = criar_token(usuario.id, duracao_token=timedelta(days=7))
+        return {
+            'access-token':access_token,
+            "refresh_token":refresh_token,
+            "token_type":"Bearer"
+        }
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+@usuario_router.post('/logout')
+async def logout():
+    pass
+    #Pega o token e muda o limite para o horário atual
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+@usuario_router.post('/refresh')
+async def refresh_token():
+    pass
+    #Pega o refresh_token e entrega um token normal
     
-    
-    
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+@usuario_router.post('/reset_senha')
+async def reset_senha():
+    pass
+    #Recebe o usuário autenticado e envia um request de troca de senha para o email
+    #Se não tiver email cadastrado, retorna erro e indica para contatar equipe técnica
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+@usuario_router.post('/{id}/filiais/vincular')
+async def vincular_filial():
+    pass
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+@usuario_router.post('/{id}/filiais/desvincular')
+async def desvincular_filial():
+    pass
+
         

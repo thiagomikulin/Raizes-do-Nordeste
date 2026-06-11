@@ -1,6 +1,6 @@
-from Application.Permissions.base import *
+from Application.base import *
 
-from API.Schemas.sCliente import *
+from API.Schemas.Autenticacao.sCliente import LoginSchema, CriacaoSchema
 
 def validar_schema_cliente_criar(schema: CriacaoSchema):
     #Aqui, delimita-se os campos necessários para validação do cliente

@@ -1,5 +1,5 @@
 
-from API.Schemas.sCliente import *
+from API.Schemas.Autenticacao.sCliente import *
 
 from Infrastructure.Repositories.base import Session
 from Infrastructure.Models.Persona.mCliente import *

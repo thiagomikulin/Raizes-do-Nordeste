@@ -1,6 +1,6 @@
 from main import bcrypt_context
 
-from API.Schemas.sUsuario import *
+from API.Schemas.Autenticacao.sUsuario import *
 
 from Infrastructure.Repositories.base import Session
 from Infrastructure.Models.Persona.mUsuario import *
@@ -46,7 +46,6 @@ def criar_usuario_bd(schema: CriacaoSchema, sessao: Session):
 def buscar_usuarios(id, nome, email, cargo, ativo, sessao: Session):
 
     lista = sessao.query(Usuario).all()
-    print(lista)
     if id:
         lista = [item for item in lista if item.id == id]
         if lista == []:
