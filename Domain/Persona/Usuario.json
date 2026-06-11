@@ -1,4 +1,9 @@
 {
     "criar":["Gerente", "CEO", "TI"],
-    "buscar":["Gerente", "CEO", "TI"]
+    "buscar":["Gerente", "CEO", "TI"],
+    "editar":["Gerente", "CEO", "TI"],
+    "ativar":["Gerente", "CEO", "TI"],
+    "desativar":["Gerente", "CEO", "TI"],
+    "associar":["Gerente", "CEO", "TI"],
+    "desassociar":["Gerente", "CEO", "TI"]
 }
