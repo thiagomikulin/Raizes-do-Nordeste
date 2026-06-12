@@ -1,5 +1,8 @@
 from API.Schemas.base import *
 
+class StatusPedido(str,Enum):
+    ABERTO = "Aberto"
+
 class CriacaoSchema(BaseModel):
   filial: int
   status: StatusPedido
@@ -19,6 +22,3 @@ class CriacaoSchema(BaseModel):
   frete: float
   total: float
   pontos_fidelidade_desconto: int
-
-class StatusPedido(str,ENUM):
-    ABERTO: "Aberto:

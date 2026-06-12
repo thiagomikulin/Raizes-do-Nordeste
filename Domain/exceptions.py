@@ -52,9 +52,24 @@ class NotFoundExcept(Exception):
 class IncorrectPWExcept(Exception):
     pass
 
+class UnalteredExcept(Exception):
+    pass
+
 #==============================================================================================
 
 #Exceções HTTP
+
+class NaoAlterado(ExceptionHTTP):
+    def __init__(self, entidade, path):
+        super().__init__(
+            code=400,
+            error=f"NÃO ALTERADO",
+            message=f"O {entidade} enviado é idêntico ao salvo, portanto a requisição não será realizada!",
+            detail=[
+                {"field":f"{entidade}","issue":"identical value"}
+            ],
+            path=path
+        )
 
 # 401
 class NaoAutenticado(ExceptionHTTP):
@@ -125,12 +140,11 @@ class NaoEncontrado(ExceptionHTTP):
 
 class SchemaInvalido(ExceptionHTTP):
     def __init__(self, schema, path):
-        print(type(val) for attr, val in schema.__dict__.items())
         super().__init__(
             code = 400,
             error='CAMPOS PREENCHIDOS INCORRETAMENTE',
             message="Os campos não foram preenchidos corretamente! Verifique e tente novamente",
-            detail=[{"field":attr, "issue":"required"} for attr, val in schema.__dict__.items() if not val and not schema.model_fields[attr].is_required()], #Retorna o atributo na lista de atributos e valores se o valor não existir
+            detail=[{"field":attr, "issue":"required"} for attr, val in schema.__dict__.items() if not val and schema.model_fields[attr].is_required()], #Retorna o atributo na lista de atributos e valores se o valor não existir
             path=path
         )
 
@@ -165,7 +179,7 @@ class ExceptionGenerica(ExceptionHTTP):
             error="ERRO INTERNO",
             message="Ops! Parece que algo deu errado",
             detail=[
-                {"field":"exception","issue":exception}
+                {"field":"exception","issue":str(exception)}
             ],
             path=path
         )

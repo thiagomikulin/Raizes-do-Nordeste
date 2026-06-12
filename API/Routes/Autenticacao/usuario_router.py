@@ -1,4 +1,6 @@
 
+from fastapi.security import OAuth2PasswordRequestForm
+
 # Bases
 from API.Routes.base import * #Exceptions HTTP apenas
 from Application.base import verificar_permissao, verificar_token, timedelta, AcessoNaoEncontrado, NaoAutenticado
@@ -6,16 +8,16 @@ from Infrastructure.Repositories.base import criar_sessao, Session, Depends
 from Application.base import criar_token
 
 #Exceções (para tratar)
-from Domain.exceptions import SchemaExcept, PermissionExcept, NotFoundExcept, ConflictExcept, IncorrectPWExcept, SchemaInvalido, SemPermissao, Conflito, AcessoInvalido, ExceptionGenerica, NaoEncontrado
+from Domain.exceptions import SchemaExcept, PermissionExcept, NotFoundExcept, ConflictExcept, IncorrectPWExcept, UnalteredExcept, SchemaInvalido, SemPermissao, Conflito, AcessoInvalido, ExceptionGenerica, NaoEncontrado, NaoAlterado
 
 #Schema
 from API.Schemas.Autenticacao.sUsuario import * #Apenas Schemas
 
 #Application
-from Application.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
+from Application.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_editar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
 
 #Repositories - banco de dados
-from Infrastructure.Repositories.Autenticacao.reUsuario import criar_usuario_bd, verificar_usuario_criacao
+from Infrastructure.Repositories.Autenticacao.reUsuario import criar_usuario_bd, verificar_usuario_criacao, editar_usuario_bd, verificar_usuario_existe, verificar_usuario_atualizacao
 
 usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 
@@ -32,7 +34,7 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     path='/usuarios/criar'
     try:
         validar_schema_usuario_criar(schema) #Schema está ok?
-        verificar_permissao(ator, 'usuario', 'criar') #Ator tem permissão de criar?
+        verificar_permissao(ator, 'usuario', 'criar', 'Não Classificado') #Ator tem permissão de criar?
         verificar_usuario_criacao(schema.email, sessao) #Usuário a ser criado já existe no sistema?
         criacao = criar_usuario_bd(schema, sessao) #Tentativa de criação
     except SchemaExcept: 
@@ -63,8 +65,8 @@ async def listar_usuarios(
 
     path = '/usuarios/'
     try:
-        verificar_permissao(ator, 'usuario' ,'buscar')
-        lista = exec_busca(id, nome, email, cargo, ativo, sessao, ator)
+        tipo = verificar_permissao(ator, 'usuario' ,'buscar', cargo if cargo else None, id)
+        lista = exec_busca(id, nome, email, cargo, ativo, sessao, ator, tipo)
     except PermissionExcept:
         raise SemPermissao(path, ator)
     except NotFoundExcept as e:
@@ -75,17 +77,26 @@ async def listar_usuarios(
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@usuario_router.put('/{id}')
-async def atualizar_usuario(id: int,  sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+@usuario_router.patch('/{id}')
+async def atualizar_usuario(id: int, schema: EdicaoSchema,  sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     path = f'/usuarios/{str(id)}'
     try:
-        validar_schema_usuario_editar(schema) 
-        verificar_permissao(ator, 'usuario', 'editar')
-        verificar_usuario_atualizacao(schema.id, cpf)
+        print('teste')
+        validar_schema_usuario_editar(schema) #O schema está correto?
+        verificar_permissao(ator, 'usuario', 'editar', schema.cargo) #O usuário pode editar outro?
+        verificar_usuario_existe(schema.email, sessao)
+        verificar_usuario_atualizacao(id, schema, sessao)
         edicao = editar_usuario_bd(schema, sessao)
-    except:
-        pass
-    return edicao
+    except SchemaExcept:
+        raise SchemaInvalido(schema, path)
+    except PermissionExcept:
+        raise SemPermissao(path, ator)
+    except NotFoundExcept as e:
+        raise NaoEncontrado(path, e.campos)
+    except UnalteredExcept:
+        raise NaoAlterado
+    else:
+        return edicao
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -120,6 +131,23 @@ async def login(schema: LoginSchema, sessao:Session = Depends(criar_sessao)):
             "refresh_token":refresh_token,
             "token_type":"Bearer"
         }
+
+#--------------------------
+
+@usuario_router.post('/login-form')
+async def login_form(dados_formulario:OAuth2PasswordRequestForm = Depends(), sessao:Session=Depends(criar_sessao)):
+    path = '/usuarios/login-form'
+    try:
+        usuario = autenticar_usuario(email=dados_formulario.username, senha=dados_formulario.password, sessao=sessao)
+    except Exception as e:
+        raise NaoEncontrado(path, e.campos)
+    #OBS: tem que ter validação de senha também!!!!!!!!!
+    else:
+        access_token = criar_token(usuario.id)
+        return {
+            "access_token":access_token,
+            "token_type":"Bearer"
+            }
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

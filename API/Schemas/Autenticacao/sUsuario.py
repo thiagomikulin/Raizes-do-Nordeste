@@ -15,3 +15,7 @@ class CriacaoSchema(BaseModel):
     class Config:
         from_attributes = True
 
+class EdicaoSchema(BaseModel):
+    nome: str
+    email: str
+    cargo: str

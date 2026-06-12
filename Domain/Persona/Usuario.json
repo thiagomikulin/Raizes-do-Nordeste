@@ -1,9 +1,133 @@
 {
-    "criar":["Gerente", "CEO", "TI"],
-    "buscar":["Gerente", "CEO", "TI"],
-    "editar":["Gerente", "CEO", "TI"],
-    "ativar":["Gerente", "CEO", "TI"],
-    "desativar":["Gerente", "CEO", "TI"],
-    "associar":["Gerente", "CEO", "TI"],
-    "desassociar":["Gerente", "CEO", "TI"]
+    "criar":{
+        "Gerente":[
+            "Não Classificado"
+        ], 
+        "CEO":[
+            "Não Classificado"
+        ], 
+        "TI":[
+            "Não Classificado"
+        ]
+    },
+    "buscar":{
+        "Gerente":[
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ], 
+        "CEO":[
+            "Gerente",
+            "TI",
+            "Atendente",
+            "Não Classificado",
+            "Cozinheiro"
+        ], 
+        "TI":[
+            "Gerente",
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ]
+    },
+    "editar":{
+        "Gerente":[
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ], 
+        "CEO":[
+            "Gerente",
+            "TI",
+            "Atendente",
+            "Não Classificado",
+            "Cozinheiro"
+        ], 
+        "TI":[
+            "Gerente",
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ]
+    },
+    "ativar":{
+        "Gerente":[
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ], 
+        "CEO":[
+            "CEO", 
+            "TI",
+            "Gerente",
+            "Atendente",
+            "Cozinheiro", "Não Classificado"
+        ], 
+        "TI":[
+            "Gerente",
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ]
+    },
+    "desativar":{
+        "Gerente":[
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ], 
+        "CEO":[
+            "CEO", 
+            "TI",
+            "Gerente",
+            "Atendente",
+            "Cozinheiro", "Não Classificado"
+        ], 
+        "TI":[
+            "Gerente",
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ]
+    },
+    "associar":{
+        "Gerente":[
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ], 
+        "CEO":[
+            "CEO", 
+            "TI",
+            "Gerente",
+            "Atendente",
+            "Cozinheiro", "Não Classificado"
+        ], 
+        "TI":[
+            "Gerente",
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ]
+    },
+    "desassociar":{
+        "Gerente":[
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ], 
+        "CEO":[
+            "CEO", 
+            "TI",
+            "Gerente",
+            "Atendente",
+            "Cozinheiro", "Não Classificado"
+        ], 
+        "TI":[
+            "Gerente",
+            "Atendente",
+            "Cozinheiro",
+            "Não Classificado"
+        ]
+    }
 }

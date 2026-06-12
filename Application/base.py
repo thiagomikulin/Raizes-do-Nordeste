@@ -57,7 +57,7 @@ def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:S
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_permissao(ator, modulo:str, permissao:str):
+def verificar_permissao(ator, modulo:str, permissao:str, tipo: str, id:int=0):
 
     with open(f"./Domain/path_global.json", 'r', encoding='utf-8') as arquivo:
         caminhos = json.load(arquivo)
@@ -68,6 +68,17 @@ def verificar_permissao(ator, modulo:str, permissao:str):
         if type(ator) == Usuario:
             if ator.cargo not in dominio[permissao]:
                 raise PermissionExcept
+            else:
+                print(id)
+                if id != 0 or ator.id == id:
+                    return dominio[permissao][ator.cargo]
+                elif id == 0:
+                    return dominio[permissao][ator.cargo]
+                elif tipo not in dominio[permissao][ator.cargo] and tipo != None and not id:
+                    print(tipo)
+                    raise PermissionExcept
+                else:
+                    return dominio[permissao][ator.cargo]
         elif type(ator) == Cliente:
             if 'Cliente' not in dominio[permissao]:
                 raise PermissionExcept

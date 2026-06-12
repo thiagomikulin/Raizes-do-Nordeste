@@ -16,7 +16,15 @@ class Usuario(Base):
     email = Column('Email', String(50), nullable=False)
     senha = Column('Senha', String(200), nullable=False)
     ativo = Column('Ativo', Boolean, default=True, nullable=False)
-    cargo = Column('Cargo', AlEnum(Cargo, values_callable=lambda enum: [e.value for e in enum]), default=Cargo.NCLASSIFICADO, nullable=False)
+    cargo = Column(
+        'Cargo', 
+        AlEnum(
+            Cargo, 
+            values_callable=lambda enum: [e.value for e in enum]
+        ), 
+        default=Cargo.NCLASSIFICADO, 
+        nullable=False
+    )
     #filiais
 
     def __init__(self, nome, email, senha, ativo=True, cargo=Cargo.NCLASSIFICADO):
