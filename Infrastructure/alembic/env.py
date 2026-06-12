@@ -25,9 +25,9 @@ if config.config_file_name is not None:
 from Models.base import Base
 
 #importa modelos para validar no metadata
-from Infrastructure.Models.Vendas.mPedido import *
-from Infrastructure.Models.Persona.mUsuario import *
-from Infrastructure.Models.Persona.mCliente import *
+from Models.Vendas.mPedido import *
+from Models.Persona.mUsuario import *
+from Models.Persona.mCliente import *
 
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata

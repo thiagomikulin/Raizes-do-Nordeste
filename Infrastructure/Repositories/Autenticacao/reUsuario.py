@@ -5,7 +5,7 @@ from API.Schemas.Autenticacao.sUsuario import *
 from Infrastructure.Repositories.base import Session
 from Infrastructure.Models.Persona.mUsuario import *
 
-from Domain.exceptions import ConflictExcept, NotFoundExcept
+from Domain.exceptions import ConflictExcept, NotFoundExcept, UnalteredExcept
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -22,6 +22,15 @@ def verificar_usuario_existe(email, sessao: Session):
     if not usuario:
         raise NotFoundExcept
     return usuario
+
+def verificar_usuario_atualizacao(id, schema, sessao):
+    '''
+    Verifica se há alguma diferença entre o usuário salvo e o schema enviado
+    Se não houver diferença, a requisição retorna um erro 400, informando que a requisição é a mesma salva, portanto não será realizada
+    '''
+    usuario_bd = sessao.query(Usuario).filter(Usuario.id == id).first()
+    if usuario_bd.nome == schema.nome and usuario_bd.email == schema.email and usuario_bd.cargo == schema.cargo:
+        raise UnalteredExcept
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -43,7 +52,7 @@ def criar_usuario_bd(schema: CriacaoSchema, sessao: Session):
     }
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-def buscar_usuarios(id, nome, email, cargo, ativo, sessao: Session):
+def buscar_usuarios(id, nome, email, cargo, ativo, sessao: Session, ator:Usuario=None, tipo=None):
 
     lista = sessao.query(Usuario).all()
     if id:
@@ -51,17 +60,19 @@ def buscar_usuarios(id, nome, email, cargo, ativo, sessao: Session):
         if lista == []:
             raise NotFoundExcept(id=id)
     if nome:
-        lista = [item for item in lista if nome in item.nome.lower()]
+        lista = [item for item in lista if nome in item.nome]
         if lista == []:
             raise NotFoundExcept(nome=nome)
     if email:
-        lista = [item for item in lista if email in item.email.lower()]
+        lista = [item for item in lista if email in item.email]
         if lista == []:
             raise NotFoundExcept(email=email)
     if cargo:
-        lista = [item for item in lista if item.cargo == cargo]
+        lista = [item for item in lista if item.cargo in cargo]
         if lista == []:
             raise NotFoundExcept(cargo=cargo)
+    elif not cargo:
+        lista = [item for item in lista if (ator.cargo in item.cargo) or (ator.id == item.id)]
     if ativo:
         lista = [item for item in lista if item.ativo == ativo]
         if lista == []:
@@ -75,3 +86,6 @@ def buscar_usuarios(id, nome, email, cargo, ativo, sessao: Session):
             "ativo":item.ativo
         } for item in lista
     ]
+
+def editar_usuario_bd(schema: EdicaoSchema, sessao: Session):
+    return 'teste'
