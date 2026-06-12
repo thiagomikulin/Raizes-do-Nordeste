@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Date, Enum as AlEnum
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, Date, Float, Enum as AlEnum
 from sqlalchemy.orm import declarative_base
 from enum import Enum as EnumPy
 
