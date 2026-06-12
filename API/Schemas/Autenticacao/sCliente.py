@@ -5,12 +5,10 @@ class CriacaoSchema(BaseModel):
     nome: str
     email: str
     cpf: str
-    scanFace:str
+    scanFace:Optional[str]
     senha:str
-    endereco:str
-    fidelidade:str
-    # data_nasc:
-    ativo: bool
+    endereco:Optional[str]
+    data_nasc:Optional[date]
 
     class Config:
         from_attributes = True

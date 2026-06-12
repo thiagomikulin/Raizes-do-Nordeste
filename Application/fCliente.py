@@ -2,6 +2,8 @@ from Application.base import *
 
 from API.Schemas.Autenticacao.sCliente import LoginSchema, CriacaoSchema
 
+from Domain.exceptions import SchemaExcept
+
 def validar_schema_cliente_criar(schema: CriacaoSchema):
     #Aqui, delimita-se os campos necessários para validação do cliente
     '''

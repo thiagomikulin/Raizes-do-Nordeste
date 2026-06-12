@@ -2,6 +2,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from datetime import datetime
+from typing import Optional
 
 from Infrastructure.Models.Persona.mUsuario import Usuario
 
@@ -124,11 +125,12 @@ class NaoEncontrado(ExceptionHTTP):
 
 class SchemaInvalido(ExceptionHTTP):
     def __init__(self, schema, path):
+        print(type(val) for attr, val in schema.__dict__.items())
         super().__init__(
             code = 400,
             error='CAMPOS PREENCHIDOS INCORRETAMENTE',
             message="Os campos não foram preenchidos corretamente! Verifique e tente novamente",
-            detail=[{"field":attr, "issue":"required"} for attr, val in schema.__dict__.items() if not val], #Retorna o atributo na lista de atributos e valores se o valor não existir
+            detail=[{"field":attr, "issue":"required"} for attr, val in schema.__dict__.items() if not val and not schema.model_fields[attr].is_required()], #Retorna o atributo na lista de atributos e valores se o valor não existir
             path=path
         )
 
@@ -137,7 +139,7 @@ class SemPermissao(ExceptionHTTP):
         super().__init__(
             code=403,
             error='NÃO AUTORIZADO',
-            message='Seu acesso não tem permissão para verificar este conteúdo! Entre em contato com a equipe técnica!',
+            message=f'Seu acesso não tem permissão para {'gerar' if 'criar' in path else 'verificar'} este conteúdo! Entre em contato com a equipe técnica!',
             detail=[
                 {'field':'cargo' if type(ator)==Usuario else 'cliente', 'issue': 'not authorized'}
             ],

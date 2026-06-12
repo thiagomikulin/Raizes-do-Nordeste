@@ -6,8 +6,8 @@ from Application.base import *
 from API.Schemas.Autenticacao.sUsuario import *
 
 #Infrastructure
-from Infrastructure.Repositories.reUsuario import *
-from Infrastructure.Repositories.reCliente import *
+from Infrastructure.Repositories.Autenticacao.reUsuario import *
+from Infrastructure.Repositories.Autenticacao.reCliente import *
 
 from Domain.exceptions import SchemaExcept, IncorrectPWExcept
 

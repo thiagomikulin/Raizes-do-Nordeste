@@ -1,11 +1,22 @@
+#Bases
 from API.Routes.base import *
+from Application.base import verificar_permissao, verificar_token
+from Infrastructure.Repositories.base import Session, Depends, criar_sessao
+
+from Domain.exceptions import SchemaExcept, PermissionExcept, ConflictExcept, SchemaInvalido, Conflito, SemPermissao
+
+#Schema
 from API.Schemas.Autenticacao.sCliente import *
 
-from Application.fCliente import *
+#Application
+from Application.fCliente import validar_schema_cliente_criar
+
+#Repositories
+from Infrastructure.Repositories.Autenticacao.reCliente import criar_cliente_bd, verificar_cliente_criacao
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-cliente_router = APIRouter(prefix='/cliente', tags=['cliente'])
+cliente_router = APIRouter(prefix='/clientes', tags=['cliente'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -28,15 +39,15 @@ async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_s
         validar_schema_cliente_criar(schema)
         verificar_permissao(ator, 'cliente', 'criar')
         verificar_cliente_criacao(schema.cpf, sessao)
-        criacao = criar_cliente_db(schema)
+        criacao = criar_cliente_bd(schema, sessao)
     except SchemaExcept:
         raise SchemaInvalido(schema, path)
     except PermissionExcept:
-        raise SemPermissao(path)
+        raise SemPermissao(path, ator)
     except ConflictExcept:
         raise Conflito(entidade='cliente', campo='cpf', valor_campo=schema.cpf, path=path)
     else:
-        return 
+        return criacao
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -47,8 +58,8 @@ async def listar_clientes():
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 @cliente_router.put('/{id}')
-async def atualizar_cliente():
-    pass
+async def atualizar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    path = f'/clientes/{str(id)}'
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

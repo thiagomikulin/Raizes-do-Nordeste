@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from API.Schemas.Empresa.sCampanhaPromo import *
 
 class CriacaoSchema(BaseModel):
     nome: str

@@ -15,7 +15,7 @@ from API.Schemas.Autenticacao.sUsuario import * #Apenas Schemas
 from Application.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
 
 #Repositories - banco de dados
-from Infrastructure.Repositories.reUsuario import criar_usuario_bd, verificar_usuario_criacao
+from Infrastructure.Repositories.Autenticacao.reUsuario import criar_usuario_bd, verificar_usuario_criacao
 
 usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 
@@ -76,8 +76,16 @@ async def listar_usuarios(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 @usuario_router.put('/{id}')
-async def atualizar_usuario():
-    pass
+async def atualizar_usuario(id: int,  sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    path = f'/usuarios/{str(id)}'
+    try:
+        validar_schema_usuario_editar(schema) 
+        verificar_permissao(ator, 'usuario', 'editar')
+        verificar_usuario_atualizacao(schema.id, cpf)
+        edicao = editar_usuario_bd(schema, sessao)
+    except:
+        pass
+    return edicao
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

@@ -14,8 +14,8 @@ from Domain.exceptions import NaoAutenticado, AcessoNaoEncontrado
 from Infrastructure.Repositories.base import Session, criar_sessao
 
 #Infrastructure - Repositories
-from Infrastructure.Repositories.reUsuario import Usuario
-from Infrastructure.Repositories.reCliente import Cliente
+from Infrastructure.Repositories.Autenticacao.reUsuario import Usuario
+from Infrastructure.Repositories.Autenticacao.reCliente import Cliente
 
 #Infrastructure - Models
 
@@ -57,19 +57,19 @@ def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:S
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_permissao(ator, modulo, permissao):
+def verificar_permissao(ator, modulo:str, permissao:str):
 
-    with open(f'./Domain/path_global.json', 'r', encoding='utf-8') as arquivo:
+    with open(f"./Domain/path_global.json", 'r', encoding='utf-8') as arquivo:
         caminhos = json.load(arquivo)
         rota = caminhos[modulo]
 
-    with open(f'./Domain/{rota}', 'r', encoding='utf-8') as arquivo:
+    with open(f"./Domain/{rota}", 'r', encoding='utf-8') as arquivo:
         dominio = json.load(arquivo)
         if type(ator) == Usuario:
             if ator.cargo not in dominio[permissao]:
                 raise PermissionExcept
         elif type(ator) == Cliente:
-            if 'cliente' not in dominio[permissao]:
+            if 'Cliente' not in dominio[permissao]:
                 raise PermissionExcept
 
 
