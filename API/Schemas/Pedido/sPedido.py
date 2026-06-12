@@ -2,7 +2,7 @@ from API.Schemas.base import *
 
 class CriacaoSchema(BaseModel):
   filial: int
-  #status: ENUM
+  status: StatusPedido
   #tipoPedido: ENUM
   #canalPedido: ENUM
   #tipo_criador: ENUM 
@@ -19,3 +19,6 @@ class CriacaoSchema(BaseModel):
   frete: float
   total: float
   pontos_fidelidade_desconto: int
+
+class StatusPedido(str,ENUM):
+    ABERTO: "Aberto:
