@@ -1,6 +1,12 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Date, Float, ForeignKey, Enum as AlEnum
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum as AlEnum, Time
+from sqlalchemy.orm import declarative_base, relationship
 from enum import Enum as EnumPy
+import datetime
+from main import SECRET_KEY, ALGORITHM
+from jose import jwt
+
+from Models.Persona.mCliente import Cliente
+from Models.Persona.mUsuario import Usuario
 
 
 #Criação do BD
@@ -11,5 +17,8 @@ Base = declarative_base()
 
 Base.metadata.create_all(db)
 
+class TipoLogin(Usuario, Cliente, EnumPy):
+    USUARIO = Usuario
+    CLIENTE = Cliente
 
         

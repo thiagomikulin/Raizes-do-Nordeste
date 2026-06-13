@@ -1,4 +1,4 @@
-from Models.base import Base, Column, String, Integer, Boolean, EnumPy, AlEnum
+from Models.base import Base, Column, String, Integer, Boolean, EnumPy, AlEnum, relationship
 
 class Cargo(str, EnumPy):
     NCLASSIFICADO = "Não Classificado"
@@ -25,7 +25,7 @@ class Usuario(Base):
         default=Cargo.NCLASSIFICADO, 
         nullable=False
     )
-    #filiais
+    filiais = relationship('UsuarioFilial')
 
     def __init__(self, nome, email, senha, ativo=True, cargo=Cargo.NCLASSIFICADO):
         self.nome = nome
@@ -33,3 +33,4 @@ class Usuario(Base):
         self.senha = senha
         self.ativo = ativo
         self.cargo = cargo
+        

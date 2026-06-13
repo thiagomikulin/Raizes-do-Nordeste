@@ -8,4 +8,9 @@ class ItensPed(Base):
     variacao = Column('Variacao', ForeignKey('variacoes.id'))
     quantidade = Column('Quantidade', Integer, default=0, nullable=False)
     
+    def __init__(self,id_ped, variacao, quantidade=0):
+        self.id_ped = id_ped
+        self.variacao = variacao
+        self.quantidade = quantidade
+
 

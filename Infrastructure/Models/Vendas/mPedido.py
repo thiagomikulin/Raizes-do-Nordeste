@@ -1,6 +1,4 @@
-from Models.base import Base, Column, String, Integer, Float, Date, ForeignKey, AlEnum, EnumPy
-from Models.Persona.mCliente import Cliente
-from Models.Persona.mUsuario import Usuario
+from Models.base import Base, Column, String, Integer, Float, DateTime, ForeignKey, AlEnum, EnumPy, TipoLogin, datetime, relationship
 
 class StatusCode(str, EnumPy):
     ABERTO = "Aberto"
@@ -30,15 +28,11 @@ class FormaPagamento(str, EnumPy):
     CREDITO = "Crédito"
     DEBITO = "Débito"
 
-class TipoLogin(Usuario, Cliente, EnumPy):
-    USUARIO = Usuario
-    CLIENTE = Cliente
-
 class Pedido(Base):
     __tablename__ = 'pedidos'
 
     id = Column("ID", Integer, primary_key=True, autoincrement=True)
-    #filial
+    filial = Column('Filial', ForeignKey('filiais.id'))
     status = Column(
         'Status', 
         AlEnum(
@@ -85,9 +79,9 @@ class Pedido(Base):
         nullable=False
     )
     id_modificador = Column("IdModificador", Integer, nullable=False)
-    data = Column("Data", Date, nullable=False)
+    datahora = Column("DataHora", DateTime, nullable=False)
     mesa = Column("Mesa", Integer, nullable=False)
-    #itens = Relationship()
+    itens = relationship('ItensPed', cascade='all, delete')
     chamada = Column("Chamada", Integer)
     endereco = Column("Endereco", String)
     soma_itens = Column("SomaItens", Float, default=0, nullable=False)
@@ -103,3 +97,20 @@ class Pedido(Base):
         nullable=False
         )
     desconto_fidelidade = Column("PontosFidelidade", Integer, default=0, nullable=False)
+
+    def __init__(self, filial, tipo_ped, canal, tipo_criador, id_criador, cliente=0, mesa=None, chamada=None, endereco = None, forma_pagamento=None):
+        self.filial = filial
+        self.status = StatusCode.ABERTO
+        self.tipo = tipo_ped
+        self.canal = canal
+        self.tipo_criador = tipo_criador
+        self.id_criador = id_criador
+        self.cliente = cliente
+        self.tipo_modificador = tipo_criador #Incialmente, e apenas na criação
+        self.id_modificador = id_criador
+        self.datahora = datetime.datetime
+        self.mesa = mesa
+        self.chamada = chamada
+        self.endereco = endereco
+        self.forma_pagamento = forma_pagamento
+        
