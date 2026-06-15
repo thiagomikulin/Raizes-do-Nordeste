@@ -9,7 +9,7 @@ from Domain.exceptions import SchemaExcept, PermissionExcept, ConflictExcept, Sc
 from API.Schemas.Autenticacao.sCliente import *
 
 #Application
-from Application.fCliente import validar_schema_cliente_criar
+from Application.Persona.fCliente import validar_schema_cliente_criar
 
 #Repositories
 from Infrastructure.Repositories.Persona.reCliente import criar_cliente_bd, verificar_cliente_criacao
@@ -19,6 +19,7 @@ from Infrastructure.Repositories.Persona.reCliente import criar_cliente_bd, veri
 cliente_router = APIRouter(prefix='/clientes', tags=['cliente'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 
 @cliente_router.post('/criar')
 async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
@@ -64,27 +65,50 @@ async def atualizar_cliente(id: int, sessao: Session = Depends(criar_sessao), at
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Ativar
+@cliente_router.put('/{id}/ativar')
+async def ativar_cliente(id: int):
+    pass
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Desativar
+@cliente_router.put('/{id}/desativar')
+async def desativar_cliente(id: int):
+    pass
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Atualizar fidelidade
+@cliente_router.put('/{id}/fidelidade')
+async def atualizar_fidelidade(id: int):
+    pass
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Solicitar Reset Senha
+@cliente_router.post('/{id}/reset')
+async def resetar_senha(id: int):
+    pass
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Autenticar
+@cliente_router.post('/login')
+async def login(schema, sessao):
+    pass
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Desautenticar
+@cliente_router.post('/logout')
+async def logout():
+    pass
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Atualizar Token
+@cliente_router.post('/refresh')
+async def refresh_token():
+    pass
+    #Pega o refresh_token e entrega um token normal

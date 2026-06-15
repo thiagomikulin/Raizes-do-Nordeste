@@ -14,10 +14,12 @@ from Domain.exceptions import SchemaExcept, PermissionExcept, NotFoundExcept, Co
 from API.Schemas.Autenticacao.sUsuario import * #Apenas Schemas
 
 #Application
-from Application.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_editar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
+from Application.Persona.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_editar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
+# from Application.Conectores.fUsuarioFilial import 
 
 #Repositories - banco de dados
-from Infrastructure.Repositories.Autenticacao.reUsuario import criar_usuario_bd, verificar_usuario_criacao, editar_usuario_bd, verificar_usuario_existe, verificar_usuario_atualizacao
+from Infrastructure.Repositories.Persona.reUsuario import criar_usuario_bd, verificar_usuario_criacao, editar_usuario_bd, verificar_usuario_existe, verificar_usuario_atualizacao
+from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial
 
 usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 
@@ -58,6 +60,7 @@ async def listar_usuarios(
     email: str | None = None,
     cargo:str | None = None, 
     ativo: bool | None = True,
+    filial: int | None = None,
     sessao: Session = 
     Depends(criar_sessao), 
     ator = Depends(verificar_token)
@@ -66,7 +69,7 @@ async def listar_usuarios(
     path = '/usuarios/'
     try:
         tipo = verificar_permissao(ator, 'usuario' ,'buscar', cargo if cargo else None, id)
-        lista = exec_busca(id, nome, email, cargo, ativo, sessao, ator, tipo)
+        lista = exec_busca(id, nome, email, cargo, ativo, filial, sessao, ator, tipo)
     except PermissionExcept:
         raise SemPermissao(path, ator)
     except NotFoundExcept as e:
@@ -77,6 +80,7 @@ async def listar_usuarios(
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#Usuário - Atualizar (RF-U03)
 @usuario_router.patch('/{id}')
 async def atualizar_usuario(id: int, schema: EdicaoSchema,  sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     path = f'/usuarios/{str(id)}'
@@ -151,6 +155,7 @@ async def login_form(dados_formulario:OAuth2PasswordRequestForm = Depends(), ses
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#Desautenticar
 @usuario_router.post('/logout')
 async def logout():
     pass
@@ -173,9 +178,23 @@ async def reset_senha():
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@usuario_router.post('/{id}/filiais/vincular')
-async def vincular_filial():
-    pass
+@usuario_router.post('/{id}/filiais/{filial}/vincular')
+async def vincular_filial(id: int=0, filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    path = '/usuarios/login-form'
+    try:
+        usuario = verificar_usuario_existe(id=id, sessao=sessao)
+        verificar_vinculo_filial(id_usuario = id, id_filial = filial, sessao=sessao)
+        verificar_permissao(ator, 'usuario', 'associar', usuario.cargo)
+        vinculo = criar_vinculo_usufil_bd(usuario.id, filial)
+    except ConflictExcept:
+        raise Conflito('Vínculo', 'Usuário/Filial', f'{id}/{filial}', path)
+    except PermissionExcept:
+        raise SemPermissao(path, ator)
+    except Exception as e:
+        raise ExceptionGenerica(e, path)
+    else:
+        return 
+        
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

@@ -4,6 +4,7 @@ campanha_router = APIRouter(prefix='/campanhas', tags=['campanha']) #organizar p
 
 
 # Criar
+@
 
 # Consultar
 

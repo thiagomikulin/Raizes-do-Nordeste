@@ -6,8 +6,8 @@ from Application.base import *
 from API.Schemas.Autenticacao.sUsuario import *
 
 #Infrastructure
-from Infrastructure.Repositories.Autenticacao.reUsuario import *
-from Infrastructure.Repositories.Autenticacao.reCliente import *
+from Infrastructure.Repositories.Persona.reUsuario import *
+from Infrastructure.Repositories.Persona.reCliente import *
 
 from Domain.exceptions import SchemaExcept, IncorrectPWExcept
 
@@ -44,13 +44,14 @@ def autenticar_usuario(email: str, senha: str, sessao: Session):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def exec_busca(id, nome, email, cargo, ativo, sessao: Session, usuario: Usuario, tipo=None):
+def exec_busca(id, nome, email, cargo, ativo, filial, sessao: Session, usuario: Usuario, tipo=None):
     #Se tiver algum filtro, e o filtro não for validado, levanta NotFoundException
     lista = buscar_usuarios(id, nome, email, cargo, ativo, sessao, usuario, tipo)
     ator_na_lista = [item for item in lista if item['id'] == usuario.id]
-    print(ator_na_lista)
+    #Validação se o usuário é da mesma filial da qual a consulta realizada está sendo feita
+    mesma_filial = True if filial in usuario.filiais else False
     if ator_na_lista != []:
         return ator_na_lista
-    elif cargo not in tipo:
+    elif cargo not in tipo or not mesma_filial:
         raise PermissionExcept
     return lista

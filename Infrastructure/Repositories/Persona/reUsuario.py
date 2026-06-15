@@ -17,11 +17,18 @@ def verificar_usuario_criacao(email, sessao:Session):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_usuario_existe(email, sessao: Session):
-    usuario = sessao.query(Usuario).filter(Usuario.email == email).first()
+def verificar_usuario_existe(sessao: Session, email=None, id=None):
+    if email:
+        usuario = sessao.query(Usuario).filter(Usuario.email == email).first()
+    elif id:
+        usuario = sessao.query(Usuario).filter(Usuario.id == id).first()
+    else:
+        raise 
     if not usuario:
         raise NotFoundExcept
     return usuario
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def verificar_usuario_atualizacao(id, schema, sessao):
     '''
