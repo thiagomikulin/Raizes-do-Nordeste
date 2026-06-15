@@ -1,1 +1,1 @@
-from Models.base import Base
+from Repositories.base import Session, Depends, criar_sessao
