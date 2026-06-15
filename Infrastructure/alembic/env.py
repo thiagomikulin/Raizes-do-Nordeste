@@ -22,12 +22,38 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 
-from Models.base import Base
+from Infrastructure.Models.base import Base
 
 #importa modelos para validar no metadata
-from Models.Vendas.mPedido import *
-from Models.Persona.mUsuario import *
-from Models.Persona.mCliente import *
+#Vendas
+from Infrastructure.Models.Vendas.mPedido import *
+from Infrastructure.Models.Vendas.mPedidoItens import *
+
+#Persona
+from Infrastructure.Models.Persona.mUsuario import *
+from Infrastructure.Models.Persona.mCliente import *
+
+#Registros
+from Infrastructure.Models.Registros.mLogs import *
+from Infrastructure.Models.Registros.mMovimentos import *
+from Infrastructure.Models.Registros.mMovimentoItens import *
+
+#Item
+from Infrastructure.Models.Item.mIngrediente import *
+from Infrastructure.Models.Item.mProduto import *
+from Infrastructure.Models.Item.mVariacao import *
+
+#Empresa
+from Infrastructure.Models.Empresa.mCampanhaPromo import *
+from Infrastructure.Models.Empresa.mEstoque import *
+from Infrastructure.Models.Empresa.mEstoqueItens import *
+from Infrastructure.Models.Empresa.mFilial import *
+
+#Conectores
+from Infrastructure.Models.Conectores.mItemReceita import *
+from Infrastructure.Models.Conectores.mPromoFilial import *
+from Infrastructure.Models.Conectores.mUsuarioFilial import *
+from Infrastructure.Models.Conectores.mVariacaoFilial import *
 
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata

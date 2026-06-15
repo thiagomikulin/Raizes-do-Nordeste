@@ -12,7 +12,7 @@ from API.Schemas.Autenticacao.sCliente import *
 from Application.fCliente import validar_schema_cliente_criar
 
 #Repositories
-from Infrastructure.Repositories.Autenticacao.reCliente import criar_cliente_bd, verificar_cliente_criacao
+from Infrastructure.Repositories.Persona.reCliente import criar_cliente_bd, verificar_cliente_criacao
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

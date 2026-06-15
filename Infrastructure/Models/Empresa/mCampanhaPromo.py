@@ -1,4 +1,4 @@
-from Models.base import Base, Column, Integer, String, DateTime, Bool, relationship
+from Infrastructure.Models.base import Base, Column, Integer, String, DateTime, Boolean, relationship
 
 class CampanhaPromo(Base):
     __tablename__ = 'campanhaPromos'
@@ -7,7 +7,7 @@ class CampanhaPromo(Base):
     nome=Column('Nome', String(80), nullable=False)
     desconto = Column('Desconto(%)',Integer, default=0, nullable=False) 
     validade = Column('Validade', DateTime, nullable=False)
-    ativo = Column('Ativo', Bool, default=False, nullable=False)
+    ativo = Column('Ativo', Boolean, default=False, nullable=False)
     filiais = relationship('PromoFilial', cascade="all, delete-orphan")
 
     def __init__(self, nome, desconto, validade):

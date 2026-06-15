@@ -1,4 +1,4 @@
-from Models.base import Base, Column, Integer, String, AlEnum, EnumPy, DateTime, TipoLogin, datetime
+from Infrastructure.Models.base import Base, Column, Integer, String, AlEnum, EnumPy, DateTime, TipoLogin, datetime
 
 class Tabelas(str, EnumPy):
     PEDIDO = 'pedidos'

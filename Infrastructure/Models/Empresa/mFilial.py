@@ -1,5 +1,5 @@
-from Models.base import Base, Column, Integer, String, Bool, EnumPy, AlEnum, relationship, jwt, ALGORITHM, SECRET_KEY, ForeignKey
-from Repositories.Empresa.reEstoque import criar_estoque_bd
+from Infrastructure.Models.base import Base, Column, Integer, String, Boolean, EnumPy, AlEnum, relationship,  ForeignKey
+
 
 class Estrutura(str, EnumPy):
     COMPLETA = 'Completa'
@@ -9,7 +9,7 @@ class Filial(Base):
     __tablename__ = 'filiais'
 
     id = Column('ID', Integer, primary_key=True, autoincrement=True)
-    cidade = Column('Cidade', String, nullable=False)
+    cidade = Column('Cidade', String(100), nullable=False)
     estrutura = Column(
         'Estrutura',
         AlEnum(
@@ -19,15 +19,14 @@ class Filial(Base):
         default=Estrutura.REDUZIDA,
         nullable=False
     )
-    endereco = Column('Endereco', String, nullable=False)
-    ativo = Column('Ativo', Bool, default=True, nullable=False)
+    endereco = Column('Endereco', String(100), nullable=False)
+    ativo = Column('Ativo', Boolean, default=True, nullable=False)
     estoque = relationship("Estoque")
-    conta_banc = Column('ContaBanco', String, nullable=False)
+    conta_banc = Column('ContaBanco', String(32), nullable=False)
     campanha_promo = relationship('CampanhaPromo')
 
     def __init__(self, cidade, endereco, conta_banc, estoque=0,):
         self.cidade = cidade
         self.endereco = endereco
         self.estoque = estoque  #Primeiro cria a filial, depois cria o estoque e vincula com a filial
-        dict_conta = {"conta": conta_banc}
-        self.conta_banc = jwt.encode(dict_conta, SECRET_KEY, ALGORITHM)
+        self.conta_banc = conta_banc #Na hora de salvar efetivamente, através da func, encripta

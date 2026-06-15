@@ -1,4 +1,4 @@
-from Models.base import Base, Column, Integer, DateTime, datetime, EnumPy, AlEnum, ForeignKey, relationship, String
+from Infrastructure.Models.base import Base, Column, Integer, DateTime, datetime, EnumPy, AlEnum, ForeignKey, relationship, String
 
 class StatusMov(str, EnumPy):
     ENTREGA = 'Aguardando Entrega'
@@ -25,7 +25,7 @@ class Movimento(Base):
         nullable=False,
         default=StatusMov.ENTREGA
     )
-    filial = Column('Filial', ForeignKey('filiais.id'))
+    filial = Column('Filial', ForeignKey('filiais.ID'))
     tipoMov = Column(
         'Tipo',
         AlEnum(

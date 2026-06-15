@@ -1,4 +1,4 @@
-from Models.base import Base, Column, ForeignKey, Integer, String, relationship, Bool, Float
+from Infrastructure.Models.base import Base, Column, ForeignKey, Integer, String, relationship, Boolean, Float
 
 class Variacao(Base):
     __tablename__ = 'variacoes'
@@ -8,7 +8,7 @@ class Variacao(Base):
     filiais = relationship('VariacaoFilial')
     ingredientes = relationship('ItemReceita')
     preco_unitario = Column('PrecoUnitario', Float, default=0)
-    ativo = Column('Ativo', Bool, default=True)
+    ativo = Column('Ativo', Boolean, default=True)
 
     def __init__(self, nome, preco):
         self.nome = nome

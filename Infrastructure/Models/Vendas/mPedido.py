@@ -1,4 +1,4 @@
-from Models.base import Base, Column, String, Integer, Float, DateTime, ForeignKey, AlEnum, EnumPy, TipoLogin, datetime, relationship
+from Infrastructure.Models.base import Base, Column, String, Integer, Float, DateTime, ForeignKey, AlEnum, EnumPy, TipoLogin, datetime, relationship
 
 class StatusCode(str, EnumPy):
     ABERTO = "Aberto"
@@ -32,7 +32,7 @@ class Pedido(Base):
     __tablename__ = 'pedidos'
 
     id = Column("ID", Integer, primary_key=True, autoincrement=True)
-    filial = Column('Filial', ForeignKey('filiais.id'))
+    filial = Column('Filial', ForeignKey('filiais.ID'))
     status = Column(
         'Status', 
         AlEnum(
@@ -69,7 +69,7 @@ class Pedido(Base):
         nullable=False
     )
     id_criador = Column("IdCriador", Integer, nullable=False)
-    cliente = Column("Cliente", ForeignKey('clientes.id'), nullable=True)
+    cliente = Column("Cliente", ForeignKey('clientes.ID'), nullable=True)
     tipo_modificador = Column(
         'Modificador',
         AlEnum(
@@ -83,7 +83,7 @@ class Pedido(Base):
     mesa = Column("Mesa", Integer, nullable=True)
     itens = relationship('ItensPed', cascade='all, delete')
     chamada = Column("Chamada", Integer)
-    endereco = Column("Endereco", String)
+    endereco = Column("Endereco", String(80))
     soma_itens = Column("SomaItens", Float, default=0, nullable=False)
     frete = Column("Frete", Float, default=0, nullable=False)
     total = Column("Total", Float, default=0, nullable=False)

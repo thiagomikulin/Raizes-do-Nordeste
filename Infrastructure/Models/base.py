@@ -1,9 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum as AlEnum, Time
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum as AlEnum, Date
 from sqlalchemy.orm import declarative_base, relationship
 from enum import Enum as EnumPy
 import datetime
-from main import SECRET_KEY, ALGORITHM
-from jose import jwt
 
 
 #Criação do BD

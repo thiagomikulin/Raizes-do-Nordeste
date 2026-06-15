@@ -1,4 +1,4 @@
-from Models.base import Base, Column, String, Integer, Boolean, EnumPy, AlEnum, relationship
+from Infrastructure.Models.base import Base, Column, String, Integer, Boolean, EnumPy, AlEnum, relationship
 
 class Cargo(str, EnumPy):
     NCLASSIFICADO = "Não Classificado"
