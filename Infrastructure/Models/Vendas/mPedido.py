@@ -24,7 +24,7 @@ class CanalPedido(str, EnumPy):
     WEB = "Web"
 
 class FormaPagamento(str, EnumPy):
-    MOCK = "Mock",
+    MOCK = "Mock"
     CREDITO = "Crédito"
     DEBITO = "Débito"
 
@@ -80,7 +80,7 @@ class Pedido(Base):
     )
     id_modificador = Column("IdModificador", Integer, nullable=False)
     datahora = Column("DataHora", DateTime, nullable=False)
-    mesa = Column("Mesa", Integer, nullable=False)
+    mesa = Column("Mesa", Integer, nullable=True)
     itens = relationship('ItensPed', cascade='all, delete')
     chamada = Column("Chamada", Integer)
     endereco = Column("Endereco", String)
@@ -88,7 +88,7 @@ class Pedido(Base):
     frete = Column("Frete", Float, default=0, nullable=False)
     total = Column("Total", Float, default=0, nullable=False)
     forma_pagamento = Column(
-        "Total",
+        "FormaPagamento",
         AlEnum(
             FormaPagamento,
             values_callable=lambda enum: [e.value for e in enum]
@@ -98,7 +98,7 @@ class Pedido(Base):
         )
     desconto_fidelidade = Column("PontosFidelidade", Integer, default=0, nullable=False)
 
-    def __init__(self, filial, tipo_ped, canal, tipo_criador, id_criador, cliente=0, mesa=None, chamada=None, endereco = None, forma_pagamento=None):
+    def __init__(self, filial, tipo_ped, canal, tipo_criador, id_criador, cliente=None, mesa=None, chamada=None, endereco = None, forma_pagamento=None):
         self.filial = filial
         self.status = StatusCode.ABERTO
         self.tipo = tipo_ped
@@ -108,7 +108,7 @@ class Pedido(Base):
         self.cliente = cliente
         self.tipo_modificador = tipo_criador #Incialmente, e apenas na criação
         self.id_modificador = id_criador
-        self.datahora = datetime.datetime
+        self.datahora = datetime.datetime.now()
         self.mesa = mesa
         self.chamada = chamada
         self.endereco = endereco

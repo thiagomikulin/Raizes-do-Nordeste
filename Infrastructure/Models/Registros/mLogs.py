@@ -20,6 +20,8 @@ class Tabelas(str, EnumPy):
     ITEMRECEITA = 'itensReceitas'
 
 class Log(Base):
+    __tablename__ = 'logs'
+
     id = Column('ID', Integer, primary_key=True, autoincrement=True)
     acao = Column('Acao', String(80), nullable=False)
     tabela = Column(

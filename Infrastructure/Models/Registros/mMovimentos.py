@@ -12,6 +12,8 @@ class TipoMov(str, EnumPy):
     SAIDA = 'Saída'
 
 class Movimento(Base):
+    __tablename__ = 'movimentos'
+
     id = Column('ID',Integer, primary_key=True, autoincrement=True)
     datahora = Column('DataHora', DateTime, nullable=False)
     status = Column(

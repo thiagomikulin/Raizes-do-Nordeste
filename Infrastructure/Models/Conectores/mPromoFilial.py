@@ -1,8 +1,10 @@
 from Models.base import Base, Column, ForeignKey, Bool
 
 class PromoFilial(Base):
-    promocao = Column('CampanhaPromo', ForeignKey('campanhaspromos.id')
-    filial = Column('Filial', ForeignKey('filiais.id')
+    __tablename__ = 'filiaisPromos'
+
+    promocao = Column('CampanhaPromo', ForeignKey('campanhaspromos.id'), primary_key=True)
+    filial = Column('Filial', ForeignKey('filiais.id'), primary_key=True)
     ativo = Column('Ativo', Bool, default=True)
 
     def __init__(self, promo, filial):

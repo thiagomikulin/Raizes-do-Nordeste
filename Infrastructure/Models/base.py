@@ -5,9 +5,6 @@ import datetime
 from main import SECRET_KEY, ALGORITHM
 from jose import jwt
 
-from Models.Persona.mCliente import Cliente
-from Models.Persona.mUsuario import Usuario
-
 
 #Criação do BD
 db = create_engine('mysql://root:root@localhost:3306/raizes_do_nordeste')
@@ -17,8 +14,8 @@ Base = declarative_base()
 
 Base.metadata.create_all(db)
 
-class TipoLogin(Usuario, Cliente, EnumPy):
-    USUARIO = Usuario
-    CLIENTE = Cliente
+class TipoLogin(str, EnumPy):
+    USUARIO = "Usuario"
+    CLIENTE = "Cliente"
 
         

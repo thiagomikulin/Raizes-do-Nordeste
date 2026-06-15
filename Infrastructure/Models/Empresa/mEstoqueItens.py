@@ -1,6 +1,8 @@
 from Models.base import Base, Column, Integer, ForeignKey
 
 class EstoqueItens(Base):
+    __tablename__ = 'estoqueItens'
+
     id = Column('ID', Integer, primary_key=True, autoincrement=True)
     estoque = Column('Estoque', ForeignKey('estoques.id'))
     ingrediente = Column('Ingrediente', ForeignKey('ingredientes.id'))

@@ -1,6 +1,8 @@
 from Models.base import Base, Column, Integer, ForeignKey, DateTime
 
 class ItensMovimento(Base):
+    __tablename__ = 'movimentoItens'
+
     id = Column('ID', Integer, primary_key=True, autoincrement=True)
     ingrediente = Column('Ingrediente', ForeignKey('ingredientes.id'))
     movimentacao = Column('Movimento', ForeignKey('movimentos.id'))

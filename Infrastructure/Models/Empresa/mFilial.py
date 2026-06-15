@@ -21,13 +21,13 @@ class Filial(Base):
     )
     endereco = Column('Endereco', String, nullable=False)
     ativo = Column('Ativo', Bool, default=True, nullable=False)
-    estoque = Column('Estoque', ForeignKey('estoques.id'))
+    estoque = relationship("Estoque")
     conta_banc = Column('ContaBanco', String, nullable=False)
     campanha_promo = relationship('CampanhaPromo')
 
     def __init__(self, cidade, endereco, conta_banc, estoque=0,):
         self.cidade = cidade
         self.endereco = endereco
-        self.estoque = estoque  #Primeiro cria a filia, depois cria o estoque e vincula com a filial
+        self.estoque = estoque  #Primeiro cria a filial, depois cria o estoque e vincula com a filial
         dict_conta = {"conta": conta_banc}
         self.conta_banc = jwt.encode(dict_conta, SECRET_KEY, ALGORITHM)
