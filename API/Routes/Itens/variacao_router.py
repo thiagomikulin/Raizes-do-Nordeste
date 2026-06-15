@@ -1,1 +1,19 @@
+from Routes.base import *
 
+variacao_router = APIRouter(prefix='/variacoes', tags=['variacao'])
+
+# Criar
+
+# Visualizar
+
+# Editar
+
+# Ativar
+
+# Desativar
+
+# Alterar Receita
+
+# Associar com filial
+
+# Desassociar com filial
