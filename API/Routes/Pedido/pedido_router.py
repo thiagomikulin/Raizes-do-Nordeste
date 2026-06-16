@@ -9,6 +9,8 @@ from Application.Vendas.fPedido import verificar_pedido_schema_criar, verificar_
 
 from Infrastructure.Repositories.Vendas.rePedido import cliente_existe, criar_pedido_bd
 
+from Infrastructure.Repositories.Registros.reLogs import criar_log_bd
+
 from Domain.exceptions import SchemaExcept, SchemaInvalido, PermissionExcept, SemPermissao, MandatoryForFillingExcept, CamposObrigatorios
 
 pedido_router = APIRouter(prefix='/pedidos', tags=['pedido'])
@@ -28,6 +30,7 @@ async def criar_pedido(schema: CriacaoSchema, sessao: Session = Depends(criar_se
         verificar_tipo_pedido(schema) #consistência de mesas, clientes e entregas
         cliente_existe(schema.cliente, sessao)
         pedido = criar_pedido_bd(schema, sessao, ator)
+        salvar_log_bd()
     except SchemaExcept:
         raise SchemaInvalido(schema, path)
     except PermissionExcept:
