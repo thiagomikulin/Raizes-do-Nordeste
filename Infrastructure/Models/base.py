@@ -7,6 +7,9 @@ import datetime
 #Criação do BD
 db = create_engine('mysql+mysqldb://user:password@mysql:3306/mydb')
 
+# BD de teste (para desenvolvimento apenas)
+# db = create_engine('mysql://root:root@localhost:3306/raizes_do_nordeste')
+
 #Base do banco
 Base = declarative_base()
 
