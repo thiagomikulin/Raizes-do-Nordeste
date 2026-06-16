@@ -8,16 +8,21 @@ from API.Schemas.Pedido.sPedido import CriacaoSchema
 from Domain.exceptions import NotFoundExcept
 
 def cliente_existe(id, sessao: Session):
-    cliente = sessao.query(Cliente).filter(Cliente.id == id).first()
-    if not cliente:
-        raise NotFoundExcept
+    if id:
+        cliente = sessao.query(Cliente).filter(Cliente.id == id).first()
+        if not cliente:
+            raise NotFoundExcept
+        else:
+            return
+    else:
+        return
 
 def criar_pedido_bd(schema:CriacaoSchema, sessao:Session, ator):
     novo_pedido = Pedido(
         schema.filial, 
-        'Aberto',
+        schema.tipoPedido,
         schema.canalPedido,
-        str(type(ator)),
+        type(ator).__name__,
         ator.id,
         schema.cliente,
         schema.mesa,

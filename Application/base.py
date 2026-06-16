@@ -70,7 +70,7 @@ def verificar_permissao(ator, modulo:str, permissao:str, tipo: str=None, id:int=
         caminhos = json.load(arquivo)
         rota = caminhos[modulo]
 
-    with open(f"./Domain/{rota}", 'r', encoding='utf-8') as arquivo:
+    with open(f"./Domain{rota}", 'r', encoding='utf-8') as arquivo:
         dominio = json.load(arquivo)
         if type(ator) == Usuario:
             if ator.cargo not in dominio[permissao]:

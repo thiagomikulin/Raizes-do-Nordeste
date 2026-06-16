@@ -13,5 +13,5 @@
 
     "log":"/Log/Log.json",
     
-    "pedido": "/Pedidos/Pedido.json"
+    "pedido": "/Vendas/Pedido.json"
 }

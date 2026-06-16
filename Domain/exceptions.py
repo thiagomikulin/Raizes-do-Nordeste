@@ -55,6 +55,10 @@ class IncorrectPWExcept(Exception):
 class UnalteredExcept(Exception):
     pass
 
+class MandatoryForFillingExcept(Exception):
+    def __init__(self, campos):
+        self.campos = campos
+
 #==============================================================================================
 
 #Exceções HTTP
@@ -145,6 +149,16 @@ class SchemaInvalido(ExceptionHTTP):
             error='CAMPOS PREENCHIDOS INCORRETAMENTE',
             message="Os campos não foram preenchidos corretamente! Verifique e tente novamente",
             detail=[{"field":attr, "issue":"required"} for attr, val in schema.__dict__.items() if not val and schema.model_fields[attr].is_required()], #Retorna o atributo na lista de atributos e valores se o valor não existir
+            path=path
+        )
+
+class CamposObrigatorios(ExceptionHTTP):
+    def __init__(self, campos, path):
+        super().__init__(
+            code = 400,
+            error='CAMPOS PREENCHIDOS INCORRETAMENTE',
+            message="Alguns campos obrigatórios requisitados não foram preenchidos! Tente novamente",
+            detail=[{"field":attr, "issue":f"{val} required"} for attr, val in campos.items()],
             path=path
         )
 

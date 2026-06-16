@@ -13,7 +13,7 @@ class CriacaoSchema(BaseModel):
   #data: date
   mesa: Optional[int]
   chamada: Optional[int]
-  endereco: Optional[int]
+  endereco: Optional[str]
   forma_pagamento: str
   #soma_itens: float
   #frete: float
