@@ -9,7 +9,7 @@ from Application.Vendas.fPedido import verificar_pedido_schema_criar, verificar_
 
 from Infrastructure.Repositories.Vendas.rePedido import cliente_existe, criar_pedido_bd
 
-from Infrastructure.Repositories.Registros.reLogs import criar_log_bd
+from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 from Domain.exceptions import SchemaExcept, SchemaInvalido, PermissionExcept, SemPermissao, MandatoryForFillingExcept, CamposObrigatorios
 
