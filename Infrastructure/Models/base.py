@@ -5,12 +5,10 @@ import datetime
 
 
 #Criação do BD
-db = create_engine('mysql://root:root@localhost:3306/raizes_do_nordeste')
+db = create_engine('mysql+mysqldb://user:password@mysql:3306/mydb')
 
 #Base do banco
 Base = declarative_base()
-
-Base.metadata.create_all(db)
 
 class TipoLogin(str, EnumPy):
     USUARIO = "Usuario"

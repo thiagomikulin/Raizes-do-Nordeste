@@ -1,4 +1,7 @@
-FROM python
+FROM python:3.13
+
+#Cria o usuário-base do dockerfile
+RUN useradd -ms /bin/bash python
 
 #Cria a pasta inicial e dá permissão ao usuário de alterar
 RUN mkdir -p /home/python/server && chown -R python:python /home/python/server
@@ -6,20 +9,15 @@ RUN mkdir -p /home/python/server && chown -R python:python /home/python/server
 #Configura a pasta de trabalho padrão (não precisa mexer em outras)
 WORKDIR /home/python/server
 
-#Cria pastas dos pacotes-padrão
-RUN mkdir -p python_packages && chown -R python:python python_packages
-
 #Traz os arquivos de dependência para dentro do arquivo - para criar dependências a partir do container
-COPY --chown=python:python Database Models Routes Schemas dependencies.py main.py requirements.txt ./
+COPY --chown=python:python . .
+
+RUN ls -R
+
+RUN pip install --no-cache-dir -r Infrastructure/requirements.txt
 
 USER python
 
-RUN python3 -m venv .venv
+EXPOSE 8000
 
-RUN source .venv/bin/activate
-
-RUN pip install -r requirements.txt
-
-EXPOSE ${PORT}
-
-CMD ['uvicorn', 'main:app', '--reload']
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

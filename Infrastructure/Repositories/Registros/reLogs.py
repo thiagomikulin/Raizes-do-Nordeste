@@ -1,6 +1,6 @@
 from Infrastructure.Repositories.base import Session
 
-from Infrastructure.Models.Registros.mLogs import Logs
+from Infrastructure.Models.Registros.mLogs import Log
 
 def salvar_log_bd(sessao: Session):
     novo_log = Log()

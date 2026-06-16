@@ -1,0 +1,22 @@
+services:
+  api:
+    build: 
+      context: ..
+      dockerfile: Infrastructure/dockerfile
+    container_name: raizes_do_nordeste
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    restart: always
+
+  mysql:
+    image: mysql:lts
+    container_name: db_mysql
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3307:3306"

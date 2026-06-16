@@ -27,6 +27,7 @@ async def criar_pedido(schema: CriacaoSchema, sessao: Session = Depends(criar_se
     try:
         verificar_pedido_schema_criar(schema)
         verificar_permissao(ator, 'pedido', 'criar')
+        #Pode verificar também se o usuário (se for usuário) é um trabalhador da mesma filial que o pedido. Se não for, deve impedir a criação (implementação futura)
         verificar_tipo_pedido(schema) #consistência de mesas, clientes e entregas
         cliente_existe(schema.cliente, sessao)
         pedido = criar_pedido_bd(schema, sessao, ator)
