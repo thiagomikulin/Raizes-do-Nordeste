@@ -16,4 +16,3 @@ class TipoLogin(str, EnumPy):
     USUARIO = "Usuario"
     CLIENTE = "Cliente"
 
-        

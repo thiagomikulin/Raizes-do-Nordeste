@@ -32,7 +32,7 @@ def validar_schema_usuario_logar(schema: LoginSchema):
 
 def autenticar_usuario(email: str, senha: str, sessao: Session):
     try:
-        usuario = verificar_usuario_existe(email, sessao)
+        usuario = verificar_usuario_existe(sessao, email)
         if not bcrypt_context.verify(senha, usuario.senha):
             raise IncorrectPWExcept
     except NotFoundExcept:

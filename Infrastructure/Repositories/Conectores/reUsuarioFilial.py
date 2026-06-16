@@ -1,6 +1,6 @@
-from Repositories.base import Session
+from Infrastructure.Repositories.base import Session
 
-from Models.Conectores.mUsuarioFilial import *
+from Infrastructure.Models.Conectores.mUsuarioFilial import *
 
 from Domain.exceptions import ConflictExcept
 

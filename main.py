@@ -10,6 +10,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
+from Infrastructure.Models.__init__ import *
+
 app = FastAPI()
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -19,6 +21,7 @@ from API.Routes.Pedido.pedido_router import pedido_router
 from API.Routes.Itens.produto_router import produto_router
 from API.Routes.Autenticacao.usuario_router import usuario_router
 from API.Routes.Autenticacao.cliente_router import cliente_router
+from API.Routes.Empresa.filial_router import filial_router
 
 app.include_router(pedido_router)
 app.include_router(produto_router)
@@ -26,3 +29,5 @@ app.include_router(produto_router)
 #Autenticação
 app.include_router(usuario_router)
 app.include_router(cliente_router)
+
+app.include_router(filial_router)

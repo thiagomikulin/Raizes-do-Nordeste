@@ -14,8 +14,8 @@ from Domain.exceptions import NaoAutenticado, AcessoNaoEncontrado
 from Infrastructure.Repositories.base import Session, criar_sessao
 
 #Infrastructure - Repositories
-from Infrastructure.Repositories.Autenticacao.reUsuario import Usuario
-from Infrastructure.Repositories.Autenticacao.reCliente import Cliente
+from Infrastructure.Repositories.Persona.reUsuario import Usuario
+from Infrastructure.Repositories.Persona.reCliente import Cliente
 
 #Infrastructure - Models
 
@@ -57,7 +57,14 @@ def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:S
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_permissao(ator, modulo:str, permissao:str, tipo: str, id:int=0):
+def verificar_permissao(ator, modulo:str, permissao:str, tipo: str=None, id:int=0):
+    '''
+    ator - o acesso que modifica
+    modulo - a tabela que modifica
+    permissao - o que pode fazer
+    tipo - em que tipo de entidade pode editar
+    id - identificador do que está sendo alterado (opcional)
+    '''
 
     with open(f"./Domain/path_global.json", 'r', encoding='utf-8') as arquivo:
         caminhos = json.load(arquivo)
@@ -69,16 +76,17 @@ def verificar_permissao(ator, modulo:str, permissao:str, tipo: str, id:int=0):
             if ator.cargo not in dominio[permissao]:
                 raise PermissionExcept
             else:
-                print(id)
-                if id != 0 or ator.id == id:
-                    return dominio[permissao][ator.cargo]
-                elif id == 0:
-                    return dominio[permissao][ator.cargo]
-                elif tipo not in dominio[permissao][ator.cargo] and tipo != None and not id:
-                    print(tipo)
-                    raise PermissionExcept
+                if type(dominio[permissao]) != list:
+                    if id != 0 and ator.id == id:
+                        return dominio[permissao][ator.cargo]
+                    elif id == 0:
+                        return dominio[permissao][ator.cargo]
+                    elif tipo not in dominio[permissao][ator.cargo] and tipo != None and not id:
+                        raise PermissionExcept
+                    else:
+                        return dominio[permissao][ator.cargo]
                 else:
-                    return dominio[permissao][ator.cargo]
+                    return TypeError
         elif type(ator) == Cliente:
             if 'Cliente' not in dominio[permissao]:
                 raise PermissionExcept

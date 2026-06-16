@@ -5,6 +5,7 @@ class Variacao(Base):
 
     id = Column('ID', Integer, primary_key=True, autoincrement=True)
     nome = Column('Nome', String(80), nullable=False)
+    produto = Column('Produto', ForeignKey('produtos.ID'))
     filiais = relationship('VariacaoFilial')
     ingredientes = relationship('ItemReceita')
     preco_unitario = Column('PrecoUnitario', Float, default=0)
