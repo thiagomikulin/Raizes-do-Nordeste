@@ -5,4 +5,5 @@ class CriacaoSchema(BaseModel):
   produto: int
   # filiais: relationship
   # ingredientes: relationship
+  preco_unitario = float
   ativo: bool
