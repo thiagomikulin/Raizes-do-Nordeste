@@ -1,6 +1,6 @@
-from sqlalchemy.orm import sessionmaker, Session
 
-from Infrastructure.Models.base import db
+
+from main import db, sessionmaker, Session
 
 from Application.base import *
 

@@ -1,0 +1,32 @@
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: dockerfile
+    container_name: raizes_do_nordeste
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    restart: always
+
+#https://docs.docker.com/engine/storage/volumes/#use-a-volume-with-docker-compose
+
+  mysql:
+    image: mysql:lts
+    container_name: db_mysql
+    environment:
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_HOST: ${DB_HOST}
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+    external: false
+    name: "banco_raizes_do_nordeste"
