@@ -21,7 +21,6 @@ filial_router = APIRouter(prefix='/filiais', tags=['filial'])
 #Criar
 @filial_router.post('/criar')
 async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    path='/filiais/criar'
     try:
         verificar_schema_criacao(schema)
         verificar_permissao(ator, 'filial', 'criar')
@@ -31,55 +30,142 @@ async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_ses
     except ExceptionHTTP:
         raise
     except Exception as e:
-        raise ExceptionGenerica
+        raise ExceptionGenerica(e)
     return filial
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Atualizar
 @filial_router.put('/{id}')
-async def atualizar_filial():
-    pass
+async def atualizar_filial(id: int, schema: EdicaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_schema_edicao(schema)
+        verificar_permissao(ator, 'filial', 'editar')
+        filial = verificar_filial_existe(schema.id, sessao)
+        verificar_alteracao(filial, schema)
+        filial_alterada = atualizar_filial_db(schema, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return filial_alterada
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Listar
 @filial_router.get('/')
-async def listar_filial():
-    pass
+async def listar_filial(
+    id: int | None = None, 
+    cidade: str | None=None,
+    estrutura: str | None=None,
+    endereco: str | None=None,
+    ativo: bool | None=None,
+    sessao:Session = Depends(criar_sessao), 
+    ator=Depends(verificar_token)
+):
+    try:
+        verificar_permissao(ator, 'filial', 'listar')
+        lista = exec_busca(id, cidade, estrutura, endereco, ativo, sessao, ator)
+        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return lista
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Ativar
 @filial_router.patch('/{id}/ativar')
-async def ativar_filial():
-    pass
+async def ativar_filial(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_permissao(ator, 'filial', 'ativar')
+        verificar_filial_existe(id, sessao)
+        filial_ativa = ativar_filial_bd(id, sessao)
+        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return filial_ativa
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Desativar
 @filial_router.patch('/{id}/desativar')
-async def desativar_filial():
-    pass
+async def desativar_filial(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_permissao(ator, 'filial', 'ativar')
+        verificar_filial_existe(id, sessao)
+        filial_desativa = desativar_filial_bd(id, sessao)
+        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return filial_desativa
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Consultar Vendas
-@filial_router.get('/vendas')
-async def consultar_vendas_filial():
-    pass
+@filial_router.get('/{id}/vendas')
+async def consultar_vendas_filial(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_permissao(ator, 'filial', 'listar vendas')
+        verificar_filial_existe(id, sessao)
+        listar_vendas(filial=id)
+        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return 
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Associar Campanhas
-@filial_router.post('/{id}/campanha/associar/{id_campanha}')
-async def associar_filial_campanha():
-    pass
+@filial_router.post('/{id}/campanha/{id_campanha}/associar')
+async def associar_filial_campanha(id: int, id_campanha: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_permissao(ator, 'filial', 'associar') #O usuário tem permissão de associar campanha com filial?
+        filial = verificar_filial_existe(id, sessao) #A filial passada pelo id é válida?
+        campanha = verificar_campanha_existe(id_campanha, sessao) #A campanha passada pelo id é válida?
+        relacao = verificar_vinculo_filial(filial.id, campanha.id, sessao) #O vínculo entre campanha e filial já existe?
+        relacao_criada = associar_filial_campanha_db(filial.id, campanha.id, relacao, sessao) #Se o vínculo NÃO existir, retorna erro
+        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return relacao_criada
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Desassociar campanhas
 @filial_router.post('/{id}/campanha/desassociar/{id_campanha}')
-async def desassociar_filial_campanha():
-    pass
+async def desassociar_filial_campanha(id: int, id_campanha: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_permissao(ator, 'filial', 'associar') #O usuário tem permissão de associar campanha com filial?
+        filial = verificar_filial_existe(id, sessao) #A filial passada pelo id é válida?
+        campanha = verificar_campanha_existe(id_campanha, sessao) #A campanha passada pelo id é válida?
+        relacao = verificar_vinculo_filial(filial.id, campanha.id, sessao) #O vínculo entre campanha e filial já existe?
+        relacao_criada = desassociar_filial_campanha_db(filial.id, campanha.id, relacao, sessao) #Se o vínculo não existir, retorna erro
+        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return relacao_criada
+
 

@@ -4,7 +4,7 @@ class CriacaoSchema(BaseModel):
     # data: date
     # status: enum
     filial: int
-    # tipo_mov: enum
+    tipo_mov: str
     # itens: Relationship
-    # validade: date
+    validade: date
     chave_nota: str
