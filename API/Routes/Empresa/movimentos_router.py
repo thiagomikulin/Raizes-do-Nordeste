@@ -1,4 +1,4 @@
-from Routes.base import *
+from API.Routes.base import *
 
 movimentos_router = APIRouter(prefix='/movimentos', tags=['movimento'])
 

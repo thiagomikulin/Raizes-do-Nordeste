@@ -7,7 +7,7 @@ from API.Schemas.Itens.sIngredientes import CriacaoSchema
 from Domain.exceptions import Conflito
 
 def verificar_ingrediente_existe(nome, sessao: Session):
-    ingrediente = sessao.query(Ingrediente).filter(ingrediente.nome==nome).first()
+    ingrediente = sessao.query(Ingrediente).filter(Ingrediente.nome==nome).first()
     if ingrediente:
         raise Conflito('ingrediente', 'nome', nome)
 

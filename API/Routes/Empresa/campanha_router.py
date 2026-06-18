@@ -1,21 +1,155 @@
-from Routes.base import *
+#Bases
+from API.Routes.base import *
+from Infrastructure.Repositories.base import Session, Depends, criar_sessao
+from Application.base import verificar_permissao, verificar_token
+
+#Exceptions
+from Domain.exceptions import ExceptionGenerica, ExceptionHTTP
+
+#Logs
+from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
+
+#Requisitos 
+from API.Schemas.Empresa.sCampanhaPromo import CriacaoSchema, EdicaoSchema
+from Application.Empresa.fCampanhaPromo import verificar_schema_criacao_campanha, verificar_schema_edicao_campanha, verificar_alteracao_campanha
+from Infrastructure.Repositories.Empresa.reCampanhaPromo import verificar_campanha_existe, criar_campanha_bd, exec_busca, editar_campanha_bd, ativar_campanhapromo_bd, desativar_campanhapromo_bd
+
+#Conectores
+
+
+#Complementares
+from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_existe
 
 campanha_router = APIRouter(prefix='/campanhas', tags=['campanha']) #organizar por pasta pai pode ser interessante
 
 
 # Criar
+@campanha_router.post('/criar')
+async def criar_campanha(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_schema_criacao_campanha(schema)
+        verificar_permissao(ator, 'campanha', 'criar')
+        verificar_campanha_existe(schema.nome, sessao)
+        campanha = criar_campanha_bd(schema, sessao)
+        salvar_log_bd('criar','campanha','id',campanha['campanha']['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica
+    else:
+        return campanha
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Consultar
+@campanha_router.get('/')
+async def buscar_campanha(
+    id:int | None = None, 
+    nome:str | None=None,
+    desconto: int | None = None,
+    validade: date | None = None, #ADD FORMATO DATE
+    ativo: bool | None = None,
+    filial:  int | None = None,
+    sessao:Session = Depends(criar_sessao), 
+    ator=Depends(verificar_token)):
+    try:
+        verificar_permissao(ator, 'campanha', 'consultar')
+        lista = exec_busca(id, nome, desconto, validade, ativo, filial, sessao, ator)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica
+    else:
+        return lista
+
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Editar
+@campanha_router.put('/{id}')
+async def editar_campanha(schema: EdicaoSchema, id: int,  sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_schema_edicao_campanha(schema)
+        verificar_permissao(ator, 'campanha', 'editar')
+        campanha = verificar_campanha_existe(id, sessao)
+        verificar_alteracao_campanha(schema, campanha)
+        campanha_edit = editar_campanha_bd(schema, sessao)
+        salvar_log_bd('editar','campanha','campo',campanha['campanha']['campo'], ator, sessao) #VERIFICAR
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica
+    else:
+        return campanha_edit
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Ativar
+@campanha_router.patch('/{id}/ativar')
+async def ativar_campanhapromo(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_permissao(ator, 'campanha', 'ativar')
+        campanha = verificar_campanha_existe(id, sessao)
+        campanha_ativa = ativar_campanhapromo_bd(campanha, sessao)
+        salvar_log_bd('ativar','campanha','ativo',campanha_ativa['campanha']['ativo'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica
+    else:
+        return campanha_ativa
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Desativar
+@campanha_router.patch('/{id}/desativar')
+async def desativar_campanhapromo(sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_permissao(ator, 'campanha', 'desativar')
+        campanha = verificar_campanha_existe(id, sessao)
+        campanha_desativa = desativar_campanhapromo_bd(campanha, sessao)
+        salvar_log_bd('desativar','campanha','ativo',campanha_desativa['campanha']['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica
+    else:
+        return campanha_desativa
 
-# Vincular Filial
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-# Desvincular Filial
+# Vincular Filial (UsuarioFilial)
+@campanha_router.post('/{id}/filial/{id_filial}/vincular')
+async def vincular_filial(id: int, id_filial: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_permissao(ator, 'campanha', 'vincular')
+        campanha = verificar_campanha_existe(id, sessao)
+        filial = verificar_filial_existe(id_filial, sessao)
+        vinculo = vincular_filial_bd(campanha.id, filial.id, sessao)
+        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica
+    else:
+        return vinculo
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+# Desvincular Filial (UsuarioFilial)
+@campanha_router.post('/{id}/filial/{id_filial}/desvincular')
+async def desvincular_filial(id: int, id_filial: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_permissao(ator, 'campanha', 'vincular')
+        campanha = verificar_campanha_existe(id, sessao)
+        filial = verificar_filial_existe(id_filial, sessao)
+        vinculo = desvincular_filial_bd(campanha.id, filial.id, sessao)
+        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica
+    else:
+        return vinculo
 
 

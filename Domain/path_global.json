@@ -9,7 +9,7 @@
     
     "produto": "/Itens/Produto.json",
     "variacao": "/Itens/Variacao.json",
-    "ingredientes": "/Itens/Ingredientes.json",
+    "ingrediente": "/Itens/Ingredientes.json",
 
     "log":"/Log/Log.json",
     

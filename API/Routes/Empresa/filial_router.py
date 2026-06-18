@@ -12,7 +12,9 @@ from Application.Empresa.fFilial import verificar_schema_criacao
 #Repositories
 from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_criacao, criar_filial_bd
 
-from Domain.exceptions import SchemaInvalido, PermissionExcept, SemPermissao, ConflictExcept, Conflito
+from Domain.exceptions import ExceptionHTTP, ExceptionGenerica
+
+from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 filial_router = APIRouter(prefix='/filiais', tags=['filial'])
 
@@ -25,27 +27,38 @@ async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_ses
         verificar_permissao(ator, 'filial', 'criar')
         verificar_filial_criacao(schema.conta_banc, sessao)
         filial = criar_filial_bd(schema, sessao)
-    except SchemaExcept:
-        raise SchemaInvalido(schema, path)
-    except PermissionExcept:
-        raise SemPermissao(ator)
-    except ConflictExcept:
-        raise Conflito('Filial', 'conta', schema.conta_banc, path)
+        salvar_log_bd('criar','filial','id',filial['filial']['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica
     return filial
 
-    
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Atualizar
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 # Listar
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Ativar
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 # Desativar
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Consultar Vendas
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 # Associar Campanhas
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Desassociar campanhas
 

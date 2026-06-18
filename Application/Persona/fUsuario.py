@@ -53,6 +53,5 @@ def exec_busca(id, nome, email, cargo, ativo, filial, sessao: Session, usuario: 
     if ator_na_lista != []:
         return ator_na_lista
     elif (cargo not in tipo or not mesma_filial) and usuario.cargo not in [Cargo.CEO, Cargo.TI]:
-        print(usuario.cargo in [Cargo.CEO, Cargo.TI])
         raise SemPermissao(usuario, 'listar')
     return lista

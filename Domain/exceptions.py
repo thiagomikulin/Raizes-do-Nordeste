@@ -167,7 +167,7 @@ class Conflito(ExceptionHTTP):
             error=f"CONFLITO DE CRIAÇÃO DE {entidade.upper()}",
             message=f"Já existe um {entidade} com {campo} {valor_campo} cadastrado no sistema",
             detail=[
-                {"field":"email","issue":"duplicated value"}
+                {"field":campo,"issue":"duplicated value"}
             ],
         )
 

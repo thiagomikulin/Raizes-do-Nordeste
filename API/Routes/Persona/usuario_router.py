@@ -11,7 +11,7 @@ from Application.base import criar_token
 from Domain.exceptions import ExceptionHTTP, PermissionExcept, NotFoundExcept, ConflictExcept, IncorrectPWExcept, UnalteredExcept, SchemaInvalido, SemPermissao, Conflito, AcessoInvalido, ExceptionGenerica, NaoEncontrado, NaoAlterado
 
 #Schema
-from API.Schemas.Autenticacao.sUsuario import * #Apenas Schemas
+from API.Schemas.Autenticacao.sUsuario import CriacaoSchema, LoginSchema, EdicaoSchema #Apenas Schemas
 
 #Application
 from Application.Persona.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_editar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
@@ -74,7 +74,7 @@ async def listar_usuarios(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Usuário - Atualizar (RF-U03)
-@usuario_router.patch('/{id}')
+@usuario_router.put('/{id}')
 async def atualizar_usuario(id: int, schema: EdicaoSchema,  sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     path = f'/usuarios/{str(id)}'
     try:
