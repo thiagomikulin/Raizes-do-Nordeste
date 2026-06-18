@@ -1,21 +1,20 @@
 from Infrastructure.Repositories.base import Session
 
-from Infrastructure.Models.Persona.mCliente import Cliente
+
 from Infrastructure.Models.Vendas.mPedido import Pedido
 
 from API.Schemas.Pedido.sPedido import CriacaoSchema
 
 from Domain.exceptions import NotFoundExcept
 
-def cliente_existe(id, sessao: Session):
-    if id:
-        cliente = sessao.query(Cliente).filter(Cliente.id == id).first()
-        if not cliente:
-            raise NotFoundExcept
-        else:
-            return
+def pedido_existe(id, sessao: Session):
+    pedido = sessao.query(Pedido).filter(Pedido.id==id).first()
+    if not pedido:
+        raise NotFoundExcept(id)
     else:
-        return
+        return pedido
+    
+
 
 def criar_pedido_bd(schema:CriacaoSchema, sessao:Session, ator):
     novo_pedido = Pedido(
@@ -48,3 +47,16 @@ def criar_pedido_bd(schema:CriacaoSchema, sessao:Session, ator):
             "formaPagamento":novo_pedido.forma_pagamento
         }
     }
+
+def status_pedido_db(pedido:Pedido, status: str, sessao: Session):
+    pedido.status == status
+    sessao.commit()
+    return {
+        "message":"Status atualizado com sucesso!",
+        "pedido":{
+            "id":pedido.id,
+            "status":pedido.status
+        }
+    }
+    
+

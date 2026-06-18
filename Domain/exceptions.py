@@ -132,10 +132,11 @@ class AcessoNaoEncontrado(ExceptionHTTP):
 class NaoEncontrado(ExceptionHTTP):
     def __init__(self, path, campos):
         chave= list(campos.keys())[0]
+        entidade = path.split('/')
         super().__init__(
             code=404,
             error='NÃO ENCONTRADO',
-            message=f'O {path[1:-2]} com este filtro não foi localizado em nosso sistema! Entre em contato com a equipe técnica!',
+            message=f'O {entidade[1][:-1]} com este filtro não foi localizado em nosso sistema! Entre em contato com a equipe técnica!',
             detail=[{"field":chave, "issue":f" '{campos[chave]}' not found"}],
             path=path
         )
@@ -182,6 +183,18 @@ class Conflito(ExceptionHTTP):
             message=f"Já existe um {entidade} com {campo} {valor_campo} cadastrado no sistema",
             detail=[
                 {"field":"email","issue":"duplicated value"}
+            ],
+            path=path
+        )
+
+class NaoAtivo(ExceptionHTTP):
+    def __init__(self, ator, path):
+        super().__init__(
+            code=500,
+            error="ACESSO DESATIVADO",
+            message="Parece que este acesso foi desativado! Entre em contato com o suporte!",
+            detail=[
+                {"field":f"{type(ator).__name__}","issue":"deactivated"}
             ],
             path=path
         )

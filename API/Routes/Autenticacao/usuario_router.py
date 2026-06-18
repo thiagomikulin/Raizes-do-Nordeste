@@ -21,6 +21,8 @@ from Application.Persona.fUsuario import validar_schema_usuario_criar, validar_s
 from Infrastructure.Repositories.Persona.reUsuario import criar_usuario_bd, verificar_usuario_criacao, editar_usuario_bd, verificar_usuario_existe, verificar_usuario_atualizacao
 from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial
 
+from Infrastructure.Models.Persona.mUsuario import Usuario
+
 usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -128,8 +130,8 @@ async def login(schema: LoginSchema, sessao:Session = Depends(criar_sessao)):
     except IncorrectPWExcept:
         raise AcessoInvalido(path)
     else:
-        access_token = criar_token(usuario.id)
-        refresh_token = criar_token(usuario.id, duracao_token=timedelta(days=7))
+        access_token = criar_token(usuario.id, Usuario)
+        refresh_token = criar_token(usuario.id, Usuario, duracao_token=timedelta(days=7))
         return {
             'access-token':access_token,
             "refresh_token":refresh_token,
@@ -147,7 +149,7 @@ async def login_form(dados_formulario:OAuth2PasswordRequestForm = Depends(), ses
         raise NaoEncontrado(path, e.campos)
     #OBS: tem que ter validação de senha também!!!!!!!!!
     else:
-        access_token = criar_token(usuario.id)
+        access_token = criar_token(usuario.id, Usuario)
         return {
             "access_token":access_token,
             "token_type":"Bearer"

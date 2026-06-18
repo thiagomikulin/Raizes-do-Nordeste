@@ -19,3 +19,15 @@ class CriacaoSchema(BaseModel):
   #frete: float
   #total: float
   #pontos_fidelidade_desconto: int
+
+  class Config:
+    from_attributes=True
+
+class EdicaoSchema(BaseModel):
+  tipoPedido: str
+  cliente: Optional[int] #Opcional
+  mesa: Optional[int]
+  chamada: Optional[int]
+  endereco: Optional[str]
+  forma_pagamento: str
+

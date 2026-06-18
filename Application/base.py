@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from main import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, oauth2_schema
 
 #Exceções
-from Domain.exceptions import NaoAutenticado, AcessoNaoEncontrado
+from Domain.exceptions import NaoAutenticado, AcessoNaoEncontrado, NaoAtivo
 
 #Bases
 from Infrastructure.Repositories.base import Session, criar_sessao
@@ -24,11 +24,12 @@ from Infrastructure.Repositories.Persona.reCliente import Cliente
 #Application - exceptions
 from Domain.exceptions import PermissionExcept
 
-def criar_token(id, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
+def criar_token(id, tipo, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
     data_expiracao = datetime.now(timezone.utc)+duracao_token
     dict_info = {
         "sub":str(id),
-        "exp":data_expiracao
+        "exp":data_expiracao,
+        "roles":tipo.__name__
     }
     encoded_jwt =jwt.encode(dict_info, SECRET_KEY, ALGORITHM)
     #JWT
@@ -38,21 +39,24 @@ def criar_token(id, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:Session=Depends(criar_sessao), model=Usuario):
+def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:Session=Depends(criar_sessao)):
     try:
         dict_info = jwt.decode(token, SECRET_KEY, ALGORITHM)
         id_user = int(dict_info.get('sub'))
+        tipo = dict_info.get('roles')
     except JWTError as error:
         print(error)
         raise NaoAutenticado(request.url.path)
     except:
         raise NaoAutenticado(request.url.path)
-    ator = sessao.query(model).filter(model.id==id_user).first()
+    if tipo == "Usuario":
+        ator = sessao.query(Usuario).filter(Usuario.id==id_user).first()
+    elif tipo == "Cliente":
+        ator = sessao.query(Cliente).filter(Cliente.id==id_user).first()
     if not ator:
         raise AcessoNaoEncontrado(request.url.path)
     elif ator.ativo == False:
-        raise 
-
+        raise NaoAtivo
     return ator
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

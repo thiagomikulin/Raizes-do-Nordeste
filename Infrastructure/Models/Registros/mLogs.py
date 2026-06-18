@@ -52,4 +52,4 @@ class Log(Base):
         self.valor_novo = valor_novo
         self.tipo_pessoa = tipo_pessoa
         self.id_pessoa = id_pessoa
-        self.datahora = datetime.datetime
+        self.datahora = datetime.datetime.now()

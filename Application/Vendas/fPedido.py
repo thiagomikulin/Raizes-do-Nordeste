@@ -1,9 +1,19 @@
-from API.Schemas.Pedido.sPedido import CriacaoSchema
+from Infrastructure.Repositories.base import Session
 
-from Domain.exceptions import SchemaExcept, MandatoryForFillingExcept
+from API.Schemas.Pedido.sPedido import CriacaoSchema, EdicaoSchema
+
+from Infrastructure.Models.Vendas.mPedido import Pedido
+
+from Infrastructure.Repositories.Vendas.rePedido import status_pedido_db
+
+from Domain.exceptions import SchemaExcept, MandatoryForFillingExcept, PermissionExcept
 
 def verificar_pedido_schema_criar(schema: CriacaoSchema):
     if not schema.filial or not schema.tipoPedido or not schema.canalPedido or not schema.forma_pagamento:
+        raise SchemaExcept
+    
+def verificar_pedido_schema_editar(schema: EdicaoSchema):
+    if not schema.tipoPedido or not schema.cliente or not schema.forma_pagamento:
         raise SchemaExcept
 
 def verificar_tipo_pedido(schema: CriacaoSchema):
@@ -17,3 +27,35 @@ def verificar_tipo_pedido(schema: CriacaoSchema):
         raise MandatoryForFillingExcept({schema.tipoPedido:['chamada','cliente']})
     else:
         return
+    
+def verificar_dono_pedido(ator, pedido:Pedido):
+    if type(ator).__name__ == 'Cliente':
+        if ator.id != pedido.cliente:
+            raise PermissionExcept
+        else:
+            if pedido.status != 'Aberto':
+                raise PermissionExcept
+            return True
+        
+    else:
+        return True
+    
+def progredir_status(pedido:Pedido, sessao: Session):
+    match pedido.status:
+        case 'Aberto':
+            if len(pedido.itens) > 1:
+                status = 'Fechado'
+            else:
+                raise PermissionExcept
+        case 'Fechado':
+            status = 'Preparação'
+        case 'Preparação':
+            status="Aguardando Coleta"
+        case "Aguardando Coleta":
+            if pedido.tipo == 'Entrega':
+                status == "Em Trânsito"
+            else:
+                status="Recebido"
+        case "Em Trânsito":
+            status="Recebido"
+    return status_pedido_db(pedido, status, sessao)
