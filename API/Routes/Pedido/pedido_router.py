@@ -11,7 +11,7 @@ from Infrastructure.Repositories.Vendas.rePedido import criar_pedido_bd, pedido_
 from Infrastructure.Repositories.Persona.reCliente import cliente_existe
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
-from Domain.exceptions import SchemaExcept, SchemaInvalido, PermissionExcept, SemPermissao, MandatoryForFillingExcept, CamposObrigatorios, NotFoundExcept, NaoEncontrado
+from Domain.exceptions import PermissionExcept, SemPermissao, MandatoryForFillingExcept, CamposObrigatorios, NotFoundExcept, NaoEncontrado, ExceptionGenerica
 
 pedido_router = APIRouter(prefix='/pedidos', tags=['pedido'])
 
@@ -32,10 +32,8 @@ async def criar_pedido(schema: CriacaoSchema, sessao: Session = Depends(criar_se
         cliente_existe(schema.cliente, sessao)
         pedido = criar_pedido_bd(schema, sessao, ator)
         salvar_log_bd('criar','pedidos','id',pedido['pedido']['id'], ator, sessao)
-    except SchemaExcept:
-        raise SchemaInvalido(schema, path)
     except PermissionExcept:
-        raise SemPermissao(path, ator)
+        raise SemPermissao(ator)
     except MandatoryForFillingExcept as e:
         raise CamposObrigatorios(e.campos, path)
     except NotFoundExcept as e:
@@ -52,8 +50,8 @@ async def editar_pedido(id:int, schema: EdicaoSchema, sessao: Session = Depends(
     try:
         verificar_pedido_schema_editar(schema)
         verificar_permissao(ator, 'pedido', 'editar')
-    except SchemaExcept:
-        raise SchemaInvalido(schema, path)
+    except Exception as e:
+        raise ExceptionGenerica(e)
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

@@ -12,7 +12,7 @@ from Application.Empresa.fFilial import verificar_schema_criacao
 #Repositories
 from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_criacao, criar_filial_bd
 
-from Domain.exceptions import SchemaExcept, SchemaInvalido, PermissionExcept, SemPermissao, ConflictExcept, Conflito
+from Domain.exceptions import SchemaInvalido, PermissionExcept, SemPermissao, ConflictExcept, Conflito
 
 filial_router = APIRouter(prefix='/filiais', tags=['filial'])
 
@@ -28,7 +28,7 @@ async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_ses
     except SchemaExcept:
         raise SchemaInvalido(schema, path)
     except PermissionExcept:
-        raise SemPermissao(path, ator)
+        raise SemPermissao(ator)
     except ConflictExcept:
         raise Conflito('Filial', 'conta', schema.conta_banc, path)
     return filial

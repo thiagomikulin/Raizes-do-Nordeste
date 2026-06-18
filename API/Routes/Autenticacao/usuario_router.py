@@ -8,7 +8,7 @@ from Infrastructure.Repositories.base import criar_sessao, Session, Depends
 from Application.base import criar_token
 
 #Exceções (para tratar)
-from Domain.exceptions import SchemaExcept, PermissionExcept, NotFoundExcept, ConflictExcept, IncorrectPWExcept, UnalteredExcept, SchemaInvalido, SemPermissao, Conflito, AcessoInvalido, ExceptionGenerica, NaoEncontrado, NaoAlterado
+from Domain.exceptions import ExceptionHTTP, PermissionExcept, NotFoundExcept, ConflictExcept, IncorrectPWExcept, UnalteredExcept, SchemaInvalido, SemPermissao, Conflito, AcessoInvalido, ExceptionGenerica, NaoEncontrado, NaoAlterado
 
 #Schema
 from API.Schemas.Autenticacao.sUsuario import * #Apenas Schemas
@@ -34,21 +34,15 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     Cria um novo usuário
     """
     # Para o uso inicial do sistema, deve ser utilizado o usuário master
-
-    path='/usuarios/criar'
     try:
         validar_schema_usuario_criar(schema) #Schema está ok?
         verificar_permissao(ator, 'usuario', 'criar', 'Não Classificado') #Ator tem permissão de criar?
         verificar_usuario_criacao(schema.email, sessao) #Usuário a ser criado já existe no sistema?
         criacao = criar_usuario_bd(schema, sessao) #Tentativa de criação
-    except SchemaExcept: 
-        raise SchemaInvalido(schema, path)
-    except PermissionExcept:
-        raise SemPermissao(path, ator)
-    except ConflictExcept:
-        raise Conflito(entidade='usuário', campo='e-mail', valor_campo=schema.email, path=path)
-    except Exception as e:
-        raise ExceptionGenerica(e, path)
+    except ExceptionHTTP:
+        raise
+    except Exception as e: 
+        raise ExceptionGenerica(e) #apenas para tratativa de possíveis erros não mapeados
     else:
         return criacao
 
@@ -68,16 +62,13 @@ async def listar_usuarios(
     ator = Depends(verificar_token)
     ):
 
-    path = '/usuarios/'
     try:
         tipo = verificar_permissao(ator, 'usuario' ,'buscar', cargo if cargo else None, id)
         lista = exec_busca(id, nome, email, cargo, ativo, filial, sessao, ator, tipo)
-    except PermissionExcept:
-        raise SemPermissao(path, ator)
-    except NotFoundExcept as e:
-        raise NaoEncontrado(path, e.campos)
+    except ExceptionHTTP:
+        raise
     except Exception as e:
-        raise ExceptionGenerica(e, path)
+        raise ExceptionGenerica(e)
     return lista
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -87,16 +78,11 @@ async def listar_usuarios(
 async def atualizar_usuario(id: int, schema: EdicaoSchema,  sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     path = f'/usuarios/{str(id)}'
     try:
-        print('teste')
         validar_schema_usuario_editar(schema) #O schema está correto?
         verificar_permissao(ator, 'usuario', 'editar', schema.cargo) #O usuário pode editar outro?
         verificar_usuario_existe(schema.email, sessao)
         verificar_usuario_atualizacao(id, schema, sessao)
         edicao = editar_usuario_bd(schema, sessao)
-    except SchemaExcept:
-        raise SchemaInvalido(schema, path)
-    except PermissionExcept:
-        raise SemPermissao(path, ator)
     except NotFoundExcept as e:
         raise NaoEncontrado(path, e.campos)
     except UnalteredExcept:
@@ -191,7 +177,7 @@ async def vincular_filial(id: int=0, filial:int=0, sessao: Session = Depends(cri
     except ConflictExcept:
         raise Conflito('Vínculo', 'Usuário/Filial', f'{id}/{filial}', path)
     except PermissionExcept:
-        raise SemPermissao(path, ator)
+        raise SemPermissao(ator)
     except Exception as e:
         raise ExceptionGenerica(e, path)
     else:

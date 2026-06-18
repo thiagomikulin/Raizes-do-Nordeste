@@ -2,7 +2,7 @@ from Application.base import *
 
 from API.Schemas.Autenticacao.sCliente import LoginSchema, CriacaoSchema
 
-from Domain.exceptions import SchemaExcept
+from Domain.exceptions import SchemaInvalido
 
 def validar_schema_cliente_criar(schema: CriacaoSchema):
     #Aqui, delimita-se os campos necessários para validação do cliente
@@ -13,8 +13,8 @@ def validar_schema_cliente_criar(schema: CriacaoSchema):
     * data_nasc
     '''
     if (not schema.nome) or (not schema.email) or (not schema.cpf) or (not schema.senha):
-        raise SchemaExcept
+        raise SchemaInvalido(schema)
 
 def validar_schema_cliente_logar(schema: LoginSchema):
     if (not schema.email or not schema.cpf) or not schema.senha:
-        raise SchemaExcept
+        raise SchemaInvalido(schema)

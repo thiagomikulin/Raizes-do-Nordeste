@@ -6,15 +6,15 @@ from Infrastructure.Models.Vendas.mPedido import Pedido
 
 from Infrastructure.Repositories.Vendas.rePedido import status_pedido_db
 
-from Domain.exceptions import SchemaExcept, MandatoryForFillingExcept, PermissionExcept
+from Domain.exceptions import SchemaInvalido, CamposObrigatorios, PermissionExcept, SemPermissao
 
 def verificar_pedido_schema_criar(schema: CriacaoSchema):
     if not schema.filial or not schema.tipoPedido or not schema.canalPedido or not schema.forma_pagamento:
-        raise SchemaExcept
+        raise SchemaInvalido
     
 def verificar_pedido_schema_editar(schema: EdicaoSchema):
     if not schema.tipoPedido or not schema.cliente or not schema.forma_pagamento:
-        raise SchemaExcept
+        raise SchemaInvalido
 
 def verificar_tipo_pedido(schema: CriacaoSchema):
     if schema.tipoPedido == 'Entrega' and (not schema.endereco and not schema.cliente):
@@ -31,10 +31,10 @@ def verificar_tipo_pedido(schema: CriacaoSchema):
 def verificar_dono_pedido(ator, pedido:Pedido):
     if type(ator).__name__ == 'Cliente':
         if ator.id != pedido.cliente:
-            raise PermissionExcept
+            raise SemPermissao(ator)
         else:
             if pedido.status != 'Aberto':
-                raise PermissionExcept
+                raise SemPermissao(ator)
             return True
         
     else:
@@ -46,7 +46,7 @@ def progredir_status(pedido:Pedido, sessao: Session):
             if len(pedido.itens) > 1:
                 status = 'Fechado'
             else:
-                raise PermissionExcept
+                raise PermissionExcept #Criar nova exception (não é possível fechar pedido sem itens)
         case 'Fechado':
             status = 'Preparação'
         case 'Preparação':

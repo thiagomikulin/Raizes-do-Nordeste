@@ -3,7 +3,7 @@ from API.Routes.base import *
 from Application.base import verificar_permissao, verificar_token
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 
-from Domain.exceptions import SchemaExcept, PermissionExcept, ConflictExcept, SchemaInvalido, Conflito, SemPermissao
+from Domain.exceptions import PermissionExcept, ConflictExcept, SchemaInvalido, Conflito, SemPermissao, ExceptionHTTP, ExceptionGenerica
 
 #Schema
 from API.Schemas.Autenticacao.sCliente import *
@@ -41,12 +41,10 @@ async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_s
         verificar_permissao(ator, 'cliente', 'criar')
         verificar_cliente_criacao(schema.cpf, sessao)
         criacao = criar_cliente_bd(schema, sessao)
-    except SchemaExcept:
-        raise SchemaInvalido(schema, path)
-    except PermissionExcept:
-        raise SemPermissao(path, ator)
-    except ConflictExcept:
-        raise Conflito(entidade='cliente', campo='cpf', valor_campo=schema.cpf, path=path)
+    except ExceptionHTTP:
+        raise 
+    except Exception as e:
+        raise ExceptionGenerica(e)
     else:
         return criacao
 

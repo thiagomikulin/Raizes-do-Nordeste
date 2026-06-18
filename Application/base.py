@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from main import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, oauth2_schema
 
 #Exceções
-from Domain.exceptions import NaoAutenticado, AcessoNaoEncontrado, NaoAtivo
+from Domain.exceptions import NaoAutenticado, AcessoNaoEncontrado, NaoAtivo, SemPermissao
 
 #Bases
 from Infrastructure.Repositories.base import Session, criar_sessao
@@ -39,22 +39,22 @@ def criar_token(id, tipo, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MI
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:Session=Depends(criar_sessao)):
+def verificar_token(token:str=Depends(oauth2_schema), sessao:Session=Depends(criar_sessao)):
     try:
         dict_info = jwt.decode(token, SECRET_KEY, ALGORITHM)
         id_user = int(dict_info.get('sub'))
         tipo = dict_info.get('roles')
     except JWTError as error:
         print(error)
-        raise NaoAutenticado(request.url.path)
+        raise NaoAutenticado()
     except:
-        raise NaoAutenticado(request.url.path)
+        raise NaoAutenticado()
     if tipo == "Usuario":
         ator = sessao.query(Usuario).filter(Usuario.id==id_user).first()
     elif tipo == "Cliente":
         ator = sessao.query(Cliente).filter(Cliente.id==id_user).first()
     if not ator:
-        raise AcessoNaoEncontrado(request.url.path)
+        raise AcessoNaoEncontrado()
     elif ator.ativo == False:
         raise NaoAtivo
     return ator
@@ -76,24 +76,24 @@ def verificar_permissao(ator, modulo:str, permissao:str, tipo: str=None, id:int=
 
     with open(f"./Domain{rota}", 'r', encoding='utf-8') as arquivo:
         dominio = json.load(arquivo)
-        if type(ator) == Usuario:
-            if ator.cargo not in dominio[permissao]:
-                raise PermissionExcept
+        if type(ator) == Usuario: #se for usuário
+            if ator.cargo not in dominio[permissao]: #se o cargo não estiver na permissão, retorna erro!
+                raise SemPermissao(ator=ator, permissao=permissao)
             else:
-                if type(dominio[permissao]) != list:
-                    if id != 0 and ator.id == id:
+                if type(dominio[permissao]) != list: #se for um formato customizado (além de listagem, com customização de tipo)
+                    if (id != 0 and id) and ator.id == id: #se tiver um id filtrado e o id do ator for igual, retorna o domínio para o cargo (filtro no bd)
                         return dominio[permissao][ator.cargo]
-                    elif id == 0:
+                    elif (id == 0 or not id): #se não filtrar por dominio, também retorna
                         return dominio[permissao][ator.cargo]
-                    elif tipo not in dominio[permissao][ator.cargo] and tipo != None and not id:
-                        raise PermissionExcept
+                    elif tipo not in dominio[permissao][ator.cargo] and tipo != None and not id: #Se o tipo de entidade a ser modificada não estiver na lista, tiver tipo e não tiver id (pra não filtrar pelo usuário próprio)
+                        raise SemPermissao(ator)
                     else:
                         return dominio[permissao][ator.cargo]
                 else:
                     return TypeError
         elif type(ator) == Cliente:
             if 'Cliente' not in dominio[permissao]:
-                raise PermissionExcept
+                raise SemPermissao(ator)
 
 
 

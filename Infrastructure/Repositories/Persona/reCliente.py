@@ -5,12 +5,12 @@ from API.Schemas.Autenticacao.sCliente import *
 from Infrastructure.Repositories.base import Session
 from Infrastructure.Models.Persona.mCliente import *
 
-from Domain.exceptions import ConflictExcept, NotFoundExcept
+from Domain.exceptions import Conflito, NotFoundExcept
 
 def verificar_cliente_criacao(cpf, sessao:Session):
     cliente = sessao.query(Cliente).filter(Cliente.cpf == cpf).first()
     if cliente:
-        raise ConflictExcept
+        raise Conflito('cliente', 'cpf', cpf)
     return cliente
 
 def cliente_existe(id, sessao: Session):

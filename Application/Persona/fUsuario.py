@@ -9,24 +9,24 @@ from API.Schemas.Autenticacao.sUsuario import *
 from Infrastructure.Repositories.Persona.reUsuario import *
 from Infrastructure.Repositories.Persona.reCliente import *
 
-from Domain.exceptions import SchemaExcept, IncorrectPWExcept
+from Domain.exceptions import SchemaInvalido, IncorrectPWExcept
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def validar_schema_usuario_criar(schema: CriacaoSchema):
     if (not schema.nome) or (not schema.email) or (not schema.senha):
-        raise SchemaExcept
+        raise SchemaInvalido(schema)
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def validar_schema_usuario_editar(schema: EdicaoSchema):
     if (not schema.nome) or (not schema.email) or (not schema.cargo):
-        raise SchemaExcept
+        raise SchemaInvalido(schema)
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def validar_schema_usuario_logar(schema: LoginSchema):
     if not schema.email or not schema.senha:
-        raise SchemaExcept
+        raise SchemaInvalido(schema)
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -52,6 +52,7 @@ def exec_busca(id, nome, email, cargo, ativo, filial, sessao: Session, usuario: 
     mesma_filial = True if filial in usuario.filiais else False
     if ator_na_lista != []:
         return ator_na_lista
-    elif cargo not in tipo or not mesma_filial:
-        raise PermissionExcept
+    elif (cargo not in tipo or not mesma_filial) and usuario.cargo not in [Cargo.CEO, Cargo.TI]:
+        print(usuario.cargo in [Cargo.CEO, Cargo.TI])
+        raise SemPermissao(usuario, 'listar')
     return lista

@@ -12,12 +12,11 @@ from main import app
 
 
 class ExceptionHTTP(Exception):
-    def __init__(self, code, error:str, message:str, detail: list, path):
+    def __init__(self, code, error:str, message:str, detail: list):
         self.code = code
         self.error = error
         self.message = message
         self.detail = detail
-        self.path = path
 
 @app.exception_handler(ExceptionHTTP)
 async def handler_de_excecao(request: Request, exc: ExceptionHTTP):
@@ -28,16 +27,13 @@ async def handler_de_excecao(request: Request, exc: ExceptionHTTP):
             "message":exc.message,
             "details":exc.detail,
             "timestamp":datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
-            "path":exc.path
+            "path":request.url.path
         }
     )
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Exceptions
-
-class SchemaExcept(Exception):
-    pass
 
 class PermissionExcept(Exception):
     pass
@@ -64,7 +60,7 @@ class MandatoryForFillingExcept(Exception):
 #Exceções HTTP
 
 class NaoAlterado(ExceptionHTTP):
-    def __init__(self, entidade, path):
+    def __init__(self, entidade):
         super().__init__(
             code=400,
             error=f"NÃO ALTERADO",
@@ -72,12 +68,11 @@ class NaoAlterado(ExceptionHTTP):
             detail=[
                 {"field":f"{entidade}","issue":"identical value"}
             ],
-            path=path
         )
 
 # 401
 class NaoAutenticado(ExceptionHTTP):
-    def __init__(self, path):
+    def __init__(self):
         super().__init__(
             code = 401,
             error="NÃO AUTENTICADO",
@@ -85,12 +80,11 @@ class NaoAutenticado(ExceptionHTTP):
             detail=[
                 {"field":"token","issue":"invalid token"}
             ],
-            path=path
         )
 
 
 class AcessoInvalido(ExceptionHTTP):
-    def __init__(self, path):
+    def __init__(self):
         super().__init__(
             code=401,
             error='ACESSO INVÁLIDO',
@@ -98,7 +92,6 @@ class AcessoInvalido(ExceptionHTTP):
             detail=[
                 {"field":"password", "issue":"incorrect"}
             ],
-            path=path
         )
     
 #-----------------------------------------------------------------------------------------
@@ -106,7 +99,7 @@ class AcessoInvalido(ExceptionHTTP):
 #404
 
 class Desativado(ExceptionHTTP):
-    def __init__(self, path):
+    def __init__(self):
         super().__init__(
             code=404,
             error='ACESSO INATIVO',
@@ -114,11 +107,10 @@ class Desativado(ExceptionHTTP):
             detail=[
                 {"field":"ativo", "issue":"deactivated"}
             ],
-            path=path
         )
 
 class AcessoNaoEncontrado(ExceptionHTTP):
-    def __init__(self, path):
+    def __init__(self):
         super().__init__(
             code=404,
             error='ACESSO NÃO ENCONTRADO',
@@ -126,57 +118,50 @@ class AcessoNaoEncontrado(ExceptionHTTP):
             detail=[
                 {"field":"email", "issue":"not found"}
             ],
-            path=path
         )
 
 class NaoEncontrado(ExceptionHTTP):
-    def __init__(self, path, campos):
-        chave= list(campos.keys())[0]
-        entidade = path.split('/')
+    def __init__(self, campos:dict):
         super().__init__(
             code=404,
             error='NÃO ENCONTRADO',
-            message=f'O {entidade[1][:-1]} com este filtro não foi localizado em nosso sistema! Entre em contato com a equipe técnica!',
-            detail=[{"field":chave, "issue":f" '{campos[chave]}' not found"}],
-            path=path
+            message=f'A busca realizada não foi localizada em nosso sistema! Entre em contato com a equipe técnica!',
+            detail=campos,
         )
 
-
+#detail=[{"field":chave, "issue":f" '{campos[chave]}' not found" for chave, valor in campos} ],
 
 class SchemaInvalido(ExceptionHTTP):
-    def __init__(self, schema, path):
+    def __init__(self, schema):
         super().__init__(
             code = 400,
             error='CAMPOS PREENCHIDOS INCORRETAMENTE',
             message="Os campos não foram preenchidos corretamente! Verifique e tente novamente",
             detail=[{"field":attr, "issue":"required"} for attr, val in schema.__dict__.items() if not val and schema.model_fields[attr].is_required()], #Retorna o atributo na lista de atributos e valores se o valor não existir
-            path=path
         )
 
 class CamposObrigatorios(ExceptionHTTP):
-    def __init__(self, campos, path):
+    def __init__(self, campos):
         super().__init__(
             code = 400,
             error='CAMPOS PREENCHIDOS INCORRETAMENTE',
             message="Alguns campos obrigatórios requisitados não foram preenchidos! Tente novamente",
             detail=[{"field":attr, "issue":f"{val} required"} for attr, val in campos.items()],
-            path=path
         )
 
 class SemPermissao(ExceptionHTTP):
-    def __init__(self, path, ator):
+    def __init__(self, ator, permissao:str):
         super().__init__(
             code=403,
             error='NÃO AUTORIZADO',
-            message=f'Seu acesso não tem permissão para {'gerar' if 'criar' in path else 'verificar'} este conteúdo! Entre em contato com a equipe técnica!',
+            message=f'Seu acesso não tem permissão para {permissao} este conteúdo! Entre em contato com a equipe técnica!',
             detail=[
                 {'field':'cargo' if type(ator)==Usuario else 'cliente', 'issue': 'not authorized'}
             ],
-            path=path
         )
 
 class Conflito(ExceptionHTTP):
-    def __init__(self, entidade, campo, valor_campo, path):
+    def __init__(self, entidade, campo, valor_campo):
         super().__init__(
             code=409,
             error=f"CONFLITO DE CRIAÇÃO DE {entidade.upper()}",
@@ -184,11 +169,10 @@ class Conflito(ExceptionHTTP):
             detail=[
                 {"field":"email","issue":"duplicated value"}
             ],
-            path=path
         )
 
 class NaoAtivo(ExceptionHTTP):
-    def __init__(self, ator, path):
+    def __init__(self, ator):
         super().__init__(
             code=500,
             error="ACESSO DESATIVADO",
@@ -196,11 +180,10 @@ class NaoAtivo(ExceptionHTTP):
             detail=[
                 {"field":f"{type(ator).__name__}","issue":"deactivated"}
             ],
-            path=path
         )
 
 class ExceptionGenerica(ExceptionHTTP):
-    def __init__(self, exception: Exception, path):
+    def __init__(self, exception: Exception):
         super().__init__(
             code=500,
             error="ERRO INTERNO",
@@ -208,5 +191,4 @@ class ExceptionGenerica(ExceptionHTTP):
             detail=[
                 {"field":"exception","issue":str(exception)}
             ],
-            path=path
         )

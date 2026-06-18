@@ -5,15 +5,15 @@ from API.Schemas.Autenticacao.sUsuario import *
 from Infrastructure.Repositories.base import Session
 from Infrastructure.Models.Persona.mUsuario import *
 
-from Domain.exceptions import ConflictExcept, NotFoundExcept, UnalteredExcept
+from Domain.exceptions import Conflito, NaoEncontrado, UnalteredExcept
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def verificar_usuario_criacao(email, sessao:Session):
     usuario = sessao.query(Usuario).filter(Usuario.email == email).first()
     if usuario:
-        raise ConflictExcept
-    return usuario
+        raise Conflito('usuário', 'email', email)
+    return
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -25,7 +25,7 @@ def verificar_usuario_existe(sessao: Session, email=None, id=None):
     else:
         raise 
     if not usuario:
-        raise NotFoundExcept
+        raise NaoEncontrado()
     return usuario
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -61,29 +61,36 @@ def criar_usuario_bd(schema: CriacaoSchema, sessao: Session):
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 def buscar_usuarios(id, nome, email, cargo, ativo, sessao: Session, ator:Usuario=None, tipo=None):
 
-    lista = sessao.query(Usuario).all()
-    if id:
-        lista = [item for item in lista if item.id == id]
-        if lista == []:
-            raise NotFoundExcept(id=id)
+    busca = sessao.query(Usuario)
+
+    if id and id != 0:
+        busca = busca.filter(Usuario.id == id)
+
     if nome:
-        lista = [item for item in lista if nome in item.nome]
-        if lista == []:
-            raise NotFoundExcept(nome=nome)
+        print(nome)
+        busca = busca.filter(Usuario.nome.contains(nome))
+
     if email:
-        lista = [item for item in lista if email in item.email]
-        if lista == []:
-            raise NotFoundExcept(email=email)
+        busca = busca.filter(Usuario.email.contains(email))
+        
     if cargo:
-        lista = [item for item in lista if item.cargo in cargo]
-        if lista == []:
-            raise NotFoundExcept(cargo=cargo)
-    elif not cargo:
-        lista = [item for item in lista if (ator.cargo in item.cargo) or (ator.id == item.id)]
-    if ativo:
-        lista = [item for item in lista if item.ativo == ativo]
-        if lista == []:
-            raise NotFoundExcept(ativo=ativo)
+        busca = busca.filter(Usuario.cargo == cargo)
+        
+    if ativo is not None:
+        busca = busca.filter(Usuario.ativo == ativo)
+
+    lista = busca.all()
+
+    if not lista:
+        raise NaoEncontrado(
+            {
+                "id":id,
+                "nome":nome,
+                "email":email,
+                "cargo":cargo,
+                "ativo":ativo
+            }
+        )
     return [
         {
             "id":item.id,
