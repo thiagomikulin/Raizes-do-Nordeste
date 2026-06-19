@@ -8,3 +8,6 @@ class CriacaoSchema(BaseModel):
     # itens: Relationship
     validade: date
     chave_nota: str
+
+class EdicaoSchema(BaseModel):
+    pass

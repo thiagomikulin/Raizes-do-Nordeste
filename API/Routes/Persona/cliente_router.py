@@ -21,7 +21,7 @@ cliente_router = APIRouter(prefix='/clientes', tags=['cliente'])
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-@cliente_router.post('/criar')
+@cliente_router.post('/criar', include_in_schema=False)
 async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     '''
     Esta rota realiza a criação de um cliente no sistema

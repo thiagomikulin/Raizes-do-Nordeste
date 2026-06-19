@@ -8,7 +8,7 @@ from API.Schemas.Itens.sProdutos import CriacaoSchema
 from Application.Item.fProduto import verificar_schema_criacao_produto
 
 
-produto_router = APIRouter(prefix='/produto', tags=['produto'])
+produto_router = APIRouter(prefix='/produto', tags=['itens'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

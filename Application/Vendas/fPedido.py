@@ -10,7 +10,7 @@ from Domain.exceptions import SchemaInvalido, CamposObrigatorios, PermissionExce
 
 def verificar_pedido_schema_criar(schema: CriacaoSchema):
     if not schema.filial or not schema.tipoPedido or not schema.canalPedido or not schema.forma_pagamento:
-        raise SchemaInvalido
+        raise SchemaInvalido(schema)
     
 def verificar_pedido_schema_editar(schema: EdicaoSchema):
     if not schema.tipoPedido or not schema.cliente or not schema.forma_pagamento:

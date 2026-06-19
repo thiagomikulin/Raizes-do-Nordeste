@@ -8,3 +8,6 @@ class CriacaoSchema(BaseModel):
     # estoque: int (Criado automaticamente)
     conta_banc: str
     # campanha_promo: Relationship
+
+class EdicaoSchema(BaseModel):
+    pass

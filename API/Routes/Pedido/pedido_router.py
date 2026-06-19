@@ -11,7 +11,7 @@ from Infrastructure.Repositories.Vendas.rePedido import criar_pedido_bd, pedido_
 from Infrastructure.Repositories.Persona.reCliente import cliente_existe
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
-from Domain.exceptions import PermissionExcept, SemPermissao, MandatoryForFillingExcept, CamposObrigatorios, NotFoundExcept, NaoEncontrado, ExceptionGenerica
+from Domain.exceptions import ExceptionGenerica
 
 pedido_router = APIRouter(prefix='/pedidos', tags=['pedido'])
 
@@ -75,6 +75,35 @@ async def atualizar_status_pedido(id: int, sessao: Session = Depends(criar_sessa
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Consultar
+@pedido_router.get('/')
+async def consultar_pedido(
+    id: int | None=None,
+    filial: int | None=None,
+    status:str | None=None,
+    tipo:str | None=None,
+    canal:str | None=None,
+    tipo_criador:str | None=None,
+    id_criador:int | None=None,
+    cliente:int | None=None,
+    tipo_modificador:str | None=None,
+    id_modificador:int | None=None,
+    soma_itens:float | None=None,
+    frete:float | None=None,
+    total:float | None=None,
+    forma_pagamento:str | None=None,
+    desconto_fidelidade:int | None=None,
+    sessao: Session = Depends(criar_sessao), 
+    ator=Depends(verificar_token)
+):
+    try:
+        verificar_permissao(ator, 'pedido', 'consultar')
+        lista = exec_busca(id, filial, status, tipo, canal, tipo_criador, id_criador, cliente, tipo_modificador, id_modificador, soma_itens, frete, total, forma_pagamento, desconto_fidelidade, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return lista
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

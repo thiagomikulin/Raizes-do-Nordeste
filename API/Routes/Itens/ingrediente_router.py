@@ -10,7 +10,7 @@ from API.Schemas.Itens.sIngredientes import CriacaoSchema
 from Application.Item.fIngrediente import verificar_schema_criacao_ingrediente
 from Infrastructure.Repositories.Item.reIngrediente import verificar_ingrediente_existe, criar_ingrediente_db
 
-ingrediente_router = APIRouter(prefix='/ingredientes', tags=['ingrediente'])
+ingrediente_router = APIRouter(prefix='/ingredientes', tags=['itens'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

@@ -1,27 +1,26 @@
 
+#Requisito único
 from fastapi.security import OAuth2PasswordRequestForm
 
 # Bases
-from API.Routes.base import * #Exceptions HTTP apenas
+from API.Routes.base import *
 from Application.base import verificar_permissao, verificar_token, timedelta, AcessoNaoEncontrado, NaoAutenticado
 from Infrastructure.Repositories.base import criar_sessao, Session, Depends
 from Application.base import criar_token
-
 #Exceções (para tratar)
-from Domain.exceptions import ExceptionHTTP, PermissionExcept, NotFoundExcept, ConflictExcept, IncorrectPWExcept, UnalteredExcept, SchemaInvalido, SemPermissao, Conflito, AcessoInvalido, ExceptionGenerica, NaoEncontrado, NaoAlterado
+from Domain.exceptions import ExceptionHTTP, ExceptionGenerica
+#Logs
+from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
-#Schema
+#Requisitos
 from API.Schemas.Autenticacao.sUsuario import CriacaoSchema, LoginSchema, EdicaoSchema #Apenas Schemas
-
-#Application
 from Application.Persona.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_editar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
-# from Application.Conectores.fUsuarioFilial import 
-
-#Repositories - banco de dados
 from Infrastructure.Repositories.Persona.reUsuario import criar_usuario_bd, verificar_usuario_criacao, editar_usuario_bd, verificar_usuario_existe, verificar_usuario_atualizacao
-from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial
-
 from Infrastructure.Models.Persona.mUsuario import Usuario
+
+#Complementares
+from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial
+# from Application.Conectores.fUsuarioFilial import 
 
 usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 
@@ -38,7 +37,8 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
         validar_schema_usuario_criar(schema) #Schema está ok?
         verificar_permissao(ator, 'usuario', 'criar', 'Não Classificado') #Ator tem permissão de criar?
         verificar_usuario_criacao(schema.email, sessao) #Usuário a ser criado já existe no sistema?
-        criacao = criar_usuario_bd(schema, sessao) #Tentativa de criação
+        usuario = criar_usuario_bd(schema, sessao) #Tentativa de criação
+        salvar_log_bd('criar','usuário','id',usuario['usuário']['id'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e: 

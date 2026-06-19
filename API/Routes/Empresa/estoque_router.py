@@ -9,8 +9,17 @@ from Domain.exceptions import ExceptionGenerica, ExceptionHTTP
 #Logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
+#Requisitos
+from API.Schemas.Empresa.sEstoque import ItemCriacaoSchema, ItemEdicaoSchema
+from Application.Empresa.fEstoqueItens import validar_schema_estoqueitem_criar, exec_busca
+from Infrastructure.Repositories.Empresa.reEstoque import verificar_estoque_existe
+from Infrastructure.Repositories.Empresa.reEstoqueItens import criar_estoque_itens_bd, verificar_item_existe, editar_estoque_itens_bd
 
-estoque_router = APIRouter(prefix='/estoque', tags=['estoque']) 
+#Complementares
+from Infrastructure.Repositories.Item.reIngrediente import verificar_ingrediente_existe
+
+
+estoque_router = APIRouter(prefix='/estoque', tags=['empresa']) 
 
 # OBS: CRIAÇÃO AUTOMÁTICA NA CRIAÇÃO DA FILIAL
 
@@ -26,7 +35,6 @@ async def listar_estoque(
     try:
         verificar_permissao(ator, 'estoque', 'listar')
         lista = exec_busca(id, filial, ativo, sessao, ator)
-        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -45,7 +53,7 @@ async def criar_estoque_itens(id: int, schema: ItemCriacaoSchema, sessao:Session
         estoque = verificar_estoque_existe(id, sessao)
         ingrediente = verificar_ingrediente_existe(schema.ingrediente, sessao)
         item = criar_estoque_itens_bd(id, schema, sessao)
-        salvar_log_bd('criar','EstoqueItem','id',variacao['id'], ator, sessao)
+        salvar_log_bd('criar','EstoqueItem','id',item['id'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -63,7 +71,7 @@ async def editar_estoque_itens(id: int, schema:ItemEdicaoSchema, sessao:Session 
         estoque = verificar_estoque_existe(id, sessao)
         item = verificar_item_existe(schema, sessao)
         item_editado = editar_estoque_itens_bd(id, schema, sessao)
-        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+        salvar_log_bd('editar','EstoqueItem','id',item_editado['id'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:

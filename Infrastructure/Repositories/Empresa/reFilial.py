@@ -14,6 +14,9 @@ def verificar_filial_criacao(conta_banc: str, sessao: Session):
     if filial_check:
         return
     
+def verificar_filial_existe():
+    pass
+    
 def criar_filial_bd(schema: CriacaoSchema, sessao: Session):
     conta_banc_cripto = bcrypt_context.hash(schema.conta_banc)
     nova_filial = Filial(schema.cidade, schema.endereco, conta_banc_cripto)
@@ -33,3 +36,12 @@ def criar_filial_bd(schema: CriacaoSchema, sessao: Session):
             "estoque":nova_filial.estoque,
         }
     }
+
+def desativar_filial_bd():
+    pass
+
+def ativar_filial_bd():
+    pass
+
+def atualizar_filial_db():
+    pass

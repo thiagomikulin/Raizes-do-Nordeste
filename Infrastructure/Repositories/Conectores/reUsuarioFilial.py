@@ -4,6 +4,12 @@ from Infrastructure.Models.Conectores.mUsuarioFilial import *
 
 from Domain.exceptions import ConflictExcept
 
+def vincular_filial_bd():
+    pass
+    
+def desvincular_filial_bd():
+    pass
+
 def verificar_vinculo_filial(id_usuario, id_filial, sessao: Session):
     vinculo = sessao.query(UsuarioFilial).filter(UsuarioFilial.usuario == id_usuario and UsuarioFilial.filial == id_filial).first()
     if vinculo:
