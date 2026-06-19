@@ -11,3 +11,6 @@ class CriacaoSchema(BaseModel):
 
 class EdicaoSchema(BaseModel):
     pass
+
+class ItemCriacaoSchema(BaseModel):
+    pass

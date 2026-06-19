@@ -1,18 +1,20 @@
 #Bases
 from API.Routes.base import *
-from Application.base import verificar_permissao, verificar_token
+from Application.base import criar_token, verificar_permissao, verificar_token, timedelta
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
-
+#Exceptions
 from Domain.exceptions import PermissionExcept, ConflictExcept, SchemaInvalido, Conflito, SemPermissao, ExceptionHTTP, ExceptionGenerica
+#Logs
+from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
-#Schema
+#Requisitos
 from API.Schemas.Autenticacao.sCliente import *
+from Application.Persona.fCliente import validar_schema_cliente_criar, validar_schema_cliente_logar, autenticar_cliente, atualizar_fidelidade_valida
+from Infrastructure.Repositories.Persona.reCliente import criar_cliente_bd, verificar_cliente_criacao, verificar_cliente_existe, desativar_cliente_bd, ativar_cliente_bd
+from Infrastructure.Models.Persona.mCliente import Cliente
 
-#Application
-from Application.Persona.fCliente import validar_schema_cliente_criar
-
-#Repositories
-from Infrastructure.Repositories.Persona.reCliente import criar_cliente_bd, verificar_cliente_criacao
+#Complementares
+from Infrastructure.Integracoes.email import solicitar_reset_senha
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -20,8 +22,8 @@ cliente_router = APIRouter(prefix='/clientes', tags=['cliente'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-
-@cliente_router.post('/criar', include_in_schema=False)
+#Clientes - Criar (RF-C01)
+@cliente_router.post('/criar')
 async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     '''
     Esta rota realiza a criação de um cliente no sistema
@@ -31,16 +33,17 @@ async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     - (obrigatório) CPF: associação de cliente único por CPF
     - Data de nascimento: Para filtros específicos de preferência de produto, com base na idade
     - Escaneamento facial: para facilitar o login no sistema
-    - Encereço: para permitir entregas a domicílio de pedidos
+    - Endereço: para permitir entregas a domicílio de pedidos
+    
     Se você quer que os dados opcionais sejam utilizados para lhe gerar uma experiência mais dinâmica do app, preencha-os.
     A criação de seu usuário demonstra consentimento sobre o uso dos dados inseridos em seu cadastro
     '''
-    path = '/clientes/criar'
     try:
         validar_schema_cliente_criar(schema)
         verificar_permissao(ator, 'cliente', 'criar')
         verificar_cliente_criacao(schema.cpf, sessao)
         criacao = criar_cliente_bd(schema, sessao)
+        salvar_log_bd('criar','clientes','id',criacao['cliente']['id'], ator, sessao)
     except ExceptionHTTP:
         raise 
     except Exception as e:
@@ -50,63 +53,115 @@ async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_s
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#Clientes - Visualizar (RF-C02)
 @cliente_router.get('/')
-async def listar_clientes():
+async def listar_clientes(sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     pass
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#Clientes - Editar (RF-C03)
 @cliente_router.put('/{id}')
 async def atualizar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     path = f'/clientes/{str(id)}'
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#Ativar
+#Clientes - Ativar (RF-C04)
 @cliente_router.put('/{id}/ativar')
-async def ativar_cliente(id: int):
-    pass
+async def ativar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        cliente = verificar_cliente_existe(sessao, id=id)
+        verificar_permissao(ator, 'cliente', 'desativar')
+        cliente_desativo = ativar_cliente_bd(cliente, sessao)
+        salvar_log_bd('desativar','clientes','ativo',cliente_desativo['cliente']['ativo'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return cliente_desativo
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#Desativar
+#Clientes - Desativar (RF-C04)
 @cliente_router.put('/{id}/desativar')
-async def desativar_cliente(id: int):
-    pass
+async def desativar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        cliente = verificar_cliente_existe(sessao, id=id)
+        verificar_permissao(ator, 'cliente', 'desativar')
+        cliente_desativo = desativar_cliente_bd(cliente, sessao)
+        salvar_log_bd('desativar','clientes','ativo',cliente_desativo['cliente']['ativo'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return cliente_desativo
 
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#Atualizar fidelidade
+#Clientes - Atualizar fidelidade (RF-C05)
 @cliente_router.put('/{id}/fidelidade')
-async def atualizar_fidelidade(id: int):
-    pass
+async def atualizar_fidelidade(id: int, fidelidade: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        verificar_cliente_existe()
+        verificar_permissao(ator, 'cliente', 'atualizar fidelidade')
+        fidelidade_atu = atualizar_fidelidade_valida(id, fidelidade, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#Solicitar Reset Senha
-@cliente_router.post('/{id}/reset')
-async def resetar_senha(id: int):
-    pass
+#Clientes - Solicitar Reset Senha (RF-C06)
+@cliente_router.post('/reset_senha')
+async def reset_senha(email: str, sessao: Session = Depends(criar_sessao)):
+    try:
+        verificar_cliente_existe(email=email, sessao=sessao)
+        reset = solicitar_reset_senha(email)
+        #Recebe o usuário autenticado e envia um request de troca de senha para o email
+        #Se não tiver email cadastrado, retorna erro e indica para contatar equipe técnica
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return reset
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#Autenticar
+#Clientes - Autenticar (RF-C07)
 @cliente_router.post('/login')
-async def login(schema, sessao):
-    pass
+async def login(schema: LoginSchema, sessao: Session=Depends(criar_sessao)):
+    try:
+        validar_schema_cliente_logar(schema)
+        cliente = autenticar_cliente(schema, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        access_token = criar_token(cliente.id, Cliente)
+        refresh_token = criar_token(cliente.id, Cliente, duracao_token=timedelta(days=7))
+        return {
+            "access_token": access_token,
+            "refresh_token":refresh_token,
+            "token_type":"Bearer"
+        }
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#Desautenticar
-@cliente_router.post('/logout')
-async def logout():
-    pass
-
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-#Atualizar Token
+#Cliente - Atualizar Token (RF-C08)
 @cliente_router.post('/refresh')
-async def refresh_token():
-    pass
+async def refresh_token(ator=Depends(verificar_token)):
+    ac = criar_token(ator.id)
+    return {
+        "access_token":ac,
+        "token_type":"Bearer"
+    }
     #Pega o refresh_token e entrega um token normal

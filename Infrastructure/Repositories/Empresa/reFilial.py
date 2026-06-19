@@ -22,7 +22,7 @@ def criar_filial_bd(schema: CriacaoSchema, sessao: Session):
     nova_filial = Filial(schema.cidade, schema.endereco, conta_banc_cripto)
     sessao.add(nova_filial)
     sessao.commit()
-    estoque = Estoque(nova_filial.id)
+    estoque = Estoque(nova_filial.id) #Cria automaticamente um estoque junto à filial
     sessao.add(estoque)
     sessao.commit()
     return {

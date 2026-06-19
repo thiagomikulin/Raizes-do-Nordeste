@@ -15,12 +15,13 @@ from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 #Requisitos
 from API.Schemas.Autenticacao.sUsuario import CriacaoSchema, LoginSchema, EdicaoSchema #Apenas Schemas
 from Application.Persona.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_editar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
-from Infrastructure.Repositories.Persona.reUsuario import criar_usuario_bd, verificar_usuario_criacao, editar_usuario_bd, verificar_usuario_existe, verificar_usuario_atualizacao
+from Infrastructure.Repositories.Persona.reUsuario import criar_usuario_bd, verificar_usuario_criacao, editar_usuario_bd, verificar_usuario_existe, verificar_usuario_atualizacao, ativar_usuario_bd, desativar_usuario_bd
 from Infrastructure.Models.Persona.mUsuario import Usuario
 
 #Complementares
-from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial
-# from Application.Conectores.fUsuarioFilial import 
+from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial, vincular_filial_bd, desvincular_filial_bd
+from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_existe
+from Infrastructure.Integracoes.email import solicitar_reset_senha
 
 usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 
@@ -31,6 +32,7 @@ usuario_router = APIRouter(prefix='/usuarios', tags=['usuário'])
 async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     """
     Cria um novo usuário
+    Todos os usuários criados serão inicializados com cargo "Não Classificado"
     """
     # Para o uso inicial do sistema, deve ser utilizado o usuário master
     try:
@@ -38,13 +40,13 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
         verificar_permissao(ator, 'usuario', 'criar', 'Não Classificado') #Ator tem permissão de criar?
         verificar_usuario_criacao(schema.email, sessao) #Usuário a ser criado já existe no sistema?
         usuario = criar_usuario_bd(schema, sessao) #Tentativa de criação
-        salvar_log_bd('criar','usuário','id',usuario['usuário']['id'], ator, sessao)
+        salvar_log_bd('criar','usuarios','id',usuario['usuario']['id'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e: 
         raise ExceptionGenerica(e) #apenas para tratativa de possíveis erros não mapeados
     else:
-        return criacao
+        return usuario
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -61,6 +63,10 @@ async def listar_usuarios(
     Depends(criar_sessao), 
     ator = Depends(verificar_token)
     ):
+    """
+    Listar usuários de acordo com o filtro
+    OBS: a visualização dos dados se limita à filial na qual trabalham, e possui restrições por cargo (exceto para Gerente e TI)
+    """
 
     try:
         tipo = verificar_permissao(ator, 'usuario' ,'buscar', cargo if cargo else None, id)
@@ -76,63 +82,90 @@ async def listar_usuarios(
 #Usuário - Atualizar (RF-U03)
 @usuario_router.put('/{id}')
 async def atualizar_usuario(id: int, schema: EdicaoSchema,  sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    path = f'/usuarios/{str(id)}'
+    """
+    Atualizar dados de usuários (a partir do schema para edição)
+    OBS: Gerentes poderão atualizar usuários de todos os cargos, menos outros gerentes
+    """
     try:
         validar_schema_usuario_editar(schema) #O schema está correto?
         verificar_permissao(ator, 'usuario', 'editar', schema.cargo) #O usuário pode editar outro?
-        verificar_usuario_existe(schema.email, sessao)
-        verificar_usuario_atualizacao(id, schema, sessao)
-        edicao = editar_usuario_bd(schema, sessao)
-    except NotFoundExcept as e:
-        raise NaoEncontrado(path, e.campos)
-    except UnalteredExcept:
-        raise NaoAlterado
+        usuario = verificar_usuario_existe(schema.email, sessao)
+        campos = verificar_usuario_atualizacao(id, schema, sessao)
+        edicao = editar_usuario_bd(schema, usuario, campos, sessao)
+        salvar_log_bd('editar','usuarios',campos,usuario['usuario'], ator, sessao)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
     else:
         return edicao
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@usuario_router.put('/{id}/ativar')
-async def ativar_usuario():
-    pass
+#Usuário - Ativar (RF-U04)
+@usuario_router.patch('/{id}/ativar')
+async def ativar_usuario(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        usuario = verificar_usuario_existe(sessao, id=id)
+        verificar_permissao(ator, 'usuario', 'ativar', usuario.cargo)
+        usuario_ativo = ativar_usuario_bd(usuario, sessao)
+        salvar_log_bd('ativar','usuarios','ativo',usuario['usuario']['ativo'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return usuario_ativo
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@usuario_router.put('/{id}/desativar')
-async def desativar_usuario():
-    pass
+#Usuário - Desativar (RF-U04)
+@usuario_router.patch('/{id}/desativar')
+async def desativar_usuario(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        usuario = verificar_usuario_existe(sessao, id=id)
+        verificar_permissao(ator, 'usuario', 'desativar', usuario.cargo)
+        usuario_desativo = desativar_usuario_bd(usuario, sessao)
+        salvar_log_bd('desativar','usuarios','ativo',usuario['usuario']['ativo'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return usuario_desativo
+
 
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#Usuário - Autenticar(RF-U05)
 @usuario_router.post('/login')
 async def login(schema: LoginSchema, sessao:Session = Depends(criar_sessao)):
-    path='/usuarios/login'
     try:
         validar_schema_usuario_logar(schema)
         usuario = autenticar_usuario(schema.email, schema.senha, sessao)
-    except NotFoundExcept:
-        raise AcessoNaoEncontrado(path)
-    except IncorrectPWExcept:
-        raise AcessoInvalido(path)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
     else:
         access_token = criar_token(usuario.id, Usuario)
         refresh_token = criar_token(usuario.id, Usuario, duracao_token=timedelta(days=7))
         return {
-            'access-token':access_token,
+            'access_token':access_token,
             "refresh_token":refresh_token,
             "token_type":"Bearer"
         }
 
 #--------------------------
 
-@usuario_router.post('/login-form')
+#Usuário - Autenticar(RF-U05)
+@usuario_router.post('/login-form', include_in_schema=False)
 async def login_form(dados_formulario:OAuth2PasswordRequestForm = Depends(), sessao:Session=Depends(criar_sessao)):
-    path = '/usuarios/login-form'
     try:
         usuario = autenticar_usuario(email=dados_formulario.username, senha=dados_formulario.password, sessao=sessao)
     except Exception as e:
-        raise NaoEncontrado(path, e.campos)
+        raise ExceptionGenerica(e)
     #OBS: tem que ter validação de senha também!!!!!!!!!
     else:
         access_token = criar_token(usuario.id, Usuario)
@@ -143,51 +176,71 @@ async def login_form(dados_formulario:OAuth2PasswordRequestForm = Depends(), ses
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#Desautenticar
-@usuario_router.post('/logout')
-async def logout():
-    pass
-    #Pega o token e muda o limite para o horário atual
-
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
+#Usuário - Atualizar token (RF-U06)
 @usuario_router.post('/refresh')
-async def refresh_token():
-    pass
+async def refresh_token(ator=Depends(verificar_token)):
+    ac = criar_token(ator.id, Usuario)
+    return {
+        "access_token":ac,
+        "token_type":"Bearer"
+    }
     #Pega o refresh_token e entrega um token normal
     
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#Usuário - Solicitar Reset Senha (RF-U07)
 @usuario_router.post('/reset_senha')
-async def reset_senha():
-    pass
-    #Recebe o usuário autenticado e envia um request de troca de senha para o email
-    #Se não tiver email cadastrado, retorna erro e indica para contatar equipe técnica
+async def reset_senha(email: str, sessao: Session = Depends(criar_sessao)):
+    try:
+        verificar_usuario_existe(email=email, sessao=sessao)
+        reset = solicitar_reset_senha(email)
+        #OBS: O ENVIO DE SOLICITAÇÃO NÃO SERÁ REGISTRADO EM LOG, MAS A ALTERAÇÃO EFETIVA, QUANDO IMPLEMENTADA, REGISTRARÁ
+        #Recebe o usuário autenticado e envia um request de troca de senha para o email
+        #Se não tiver email cadastrado, retorna erro e indica para contatar equipe técnica
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return reset
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@usuario_router.post('/{id}/filiais/{filial}/vincular')
+#Usuário - Associar a filial (RF-U08)
+@usuario_router.post('/{id}/filiais/vincular/{filial}')
 async def vincular_filial(id: int=0, filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    path = '/usuarios/login-form'
     try:
         usuario = verificar_usuario_existe(id=id, sessao=sessao)
-        verificar_vinculo_filial(id_usuario = id, id_filial = filial, sessao=sessao)
         verificar_permissao(ator, 'usuario', 'associar', usuario.cargo)
-        vinculo = criar_vinculo_usufil_bd(usuario.id, filial)
-    except ConflictExcept:
-        raise Conflito('Vínculo', 'Usuário/Filial', f'{id}/{filial}', path)
-    except PermissionExcept:
-        raise SemPermissao(ator)
+        filial = verificar_filial_existe(filial, sessao)
+        usufil = verificar_vinculo_filial(id_usuario = id, id_filial = filial, sessao=sessao)
+        vinculo = vincular_filial_bd(usuario.id, filial)
+        salvar_log_bd('criar','usuariosFiliais','id_usuario',vinculo['vinculo']['id_usuario'], ator, sessao)
+    except ExceptionHTTP:
+        raise
     except Exception as e:
-        raise ExceptionGenerica(e, path)
+        raise ExceptionGenerica(e)
     else:
-        return 
+        return vinculo
         
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@usuario_router.post('/{id}/filiais/desvincular')
-async def desvincular_filial():
-    pass
+#Usuário - Desassociar a filial (RF-U09)
+@usuario_router.delete('/{id}/filiais/desvincular/{filial}')
+async def desvincular_filial(id: int=0, filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        usuario = verificar_usuario_existe(id=id, sessao=sessao)
+        verificar_permissao(ator, 'usuario', 'associar', usuario.cargo)
+        filial = verificar_filial_existe(filial, sessao)
+        usufil = verificar_vinculo_filial(id_usuario = id, id_filial = filial, sessao=sessao)
+        desvinculo = desvincular_filial_bd(usuario.id, filial, usufil, sessao)
+        salvar_log_bd('excluir','usuariosFiliais','id_usuario',desvinculo['vinculo']['id_usuario'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return desvinculo
 
         

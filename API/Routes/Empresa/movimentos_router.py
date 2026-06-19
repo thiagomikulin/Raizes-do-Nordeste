@@ -8,7 +8,7 @@ from Domain.exceptions import ExceptionHTTP, ExceptionGenerica
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 #Requisitos
-from API.Schemas.Empresa.sMovimentos import CriacaoSchema, EdicaoSchema
+from API.Schemas.Empresa.sMovimentos import CriacaoSchema, EdicaoSchema, ItemCriacaoSchema
 from Application.Registros.fMovimentos import validar_schema_movimento_criacao, validar_schema_movimento_edicao, exec_busca
 from Infrastructure.Repositories.Registros.reMovimentos import verificar_movimento_criacao, criar_movimento_bd
 
@@ -77,12 +77,12 @@ async def editar_movimento(id: int, schema: EdicaoSchema, sessao: Session = Depe
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-# Confirmar movimento
+# Avançar movimento
 @movimentos_router.patch('/{id}/status')
 async def avancar_movimento(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
+        verificar_permissao(ator, 'movimento', 'avançar')
         movimento = verificar_movimento_existe(id, sessao)
-        verificar_permissao(ator, 'movimento', 'avançar', movimento.tipoMov)
         mov_atualizado = avancar_movimento_bd(movimento, sessao)
         salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
     except ExceptionHTTP:
@@ -96,24 +96,28 @@ async def avancar_movimento(id: int, sessao:Session = Depends(criar_sessao), ato
 
 # Itens - Consultar
 @movimentos_router.get('/{id}/itens')
-async def listar_movimento_itens(sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+async def listar_movimento_itens(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         verificar_permissao(ator, 'movimentos', 'itens - consultar')
+        itens = exec_busca()
         salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
         raise ExceptionGenerica(e)
     else:
-        return 
+        return itens
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Itens - Adicionar
 @movimentos_router.post('/{id}/itens/adicionar')
-async def adicionar_movimento_item(sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+async def adicionar_movimento_item(schema: ItemCriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
+        validar_schema_movimento_item_criacao(schema)
         verificar_permissao(ator, 'movimentos', 'itens - adicionar')
+        verificar_movimento_item_add(schema.id, sessao)
+        novo_item = adicionar_movimento_item_bd(schema, sessao)
         salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
     except ExceptionHTTP:
         raise

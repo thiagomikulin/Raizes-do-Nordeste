@@ -5,7 +5,7 @@ from API.Schemas.Autenticacao.sUsuario import *
 from Infrastructure.Repositories.base import Session
 from Infrastructure.Models.Persona.mUsuario import *
 
-from Domain.exceptions import Conflito, NaoEncontrado, UnalteredExcept
+from Domain.exceptions import Conflito, NaoEncontrado, NaoAlterado
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -25,7 +25,7 @@ def verificar_usuario_existe(sessao: Session, email=None, id=None):
     else:
         raise 
     if not usuario:
-        raise NaoEncontrado()
+        raise NaoEncontrado(campos={'email':email, 'id':id})
     return usuario
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -37,7 +37,16 @@ def verificar_usuario_atualizacao(id, schema, sessao):
     '''
     usuario_bd = sessao.query(Usuario).filter(Usuario.id == id).first()
     if usuario_bd.nome == schema.nome and usuario_bd.email == schema.email and usuario_bd.cargo == schema.cargo:
-        raise UnalteredExcept
+        raise NaoAlterado(usuario_bd)
+    else:
+        campos = []
+        if usuario_bd.nome != schema.nome:
+            campos.append('nome')
+        if usuario_bd.email != schema.email:
+            campos.append('email')
+        if usuario_bd.cargo != schema.cargo:
+            campos.append('cargo')
+        return campos
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -101,5 +110,36 @@ def buscar_usuarios(id, nome, email, cargo, ativo, sessao: Session, ator:Usuario
         } for item in lista
     ]
 
-def editar_usuario_bd(schema: EdicaoSchema, sessao: Session):
-    return 'teste'
+def editar_usuario_bd(schema: EdicaoSchema, usuario: Usuario, campos: list, sessao: Session):
+    for campo in campos:
+        schema.__dict__()[campo]
+
+def ativar_usuario_bd(usuario: Usuario, sessao: Session):
+    if usuario.ativo == True:
+        raise NaoAlterado(usuario)
+    else:
+        usuario.ativo = True
+        sessao.commit()
+        return {
+            "message": "usuário ativado com sucesso!",
+            "usuário":{
+                "id": usuario.id,
+                "nome": usuario.nome,
+                "ativo": usuario.ativo
+            }
+        }
+    
+def desativar_usuario_bd(usuario: Usuario, sessao: Session):
+    if usuario.ativo == False:
+        raise NaoAlterado(usuario)
+    else:
+        usuario.ativo = False
+        sessao.commit()
+        return {
+            "message": "usuário desativado com sucesso!",
+            "usuário":{
+                "id": usuario.id,
+                "nome": usuario.nome,
+                "ativo": usuario.ativo
+            }
+        }

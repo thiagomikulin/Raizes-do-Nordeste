@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 import os
+import uvicorn
 
 from time import sleep
 
@@ -13,6 +14,7 @@ from Infrastructure.Models.Persona.mUsuario import Usuario
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY_REFRESH = os.getenv("SECRET_KEY_REFRESH")
 ALGORITHM = os.getenv("ALGORITHM")
 
 DB_USER = os.getenv("DB_USER")
@@ -20,12 +22,15 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_DATABASE = os.getenv("DB_DATABASE")
 DB_HOST = os.getenv("DB_HOST")
 
+
+
 ACCESS_TOKEN_EXPIRE_MINUTES=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 from Infrastructure.Models.__init__ import *
 
 
 app = FastAPI()
+
 
 #Criação do BD
 db = create_engine(f'mysql+mysqldb://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:3306/{DB_DATABASE}')

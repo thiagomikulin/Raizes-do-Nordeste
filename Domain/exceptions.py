@@ -64,9 +64,9 @@ class NaoAlterado(ExceptionHTTP):
         super().__init__(
             code=400,
             error=f"NÃO ALTERADO",
-            message=f"O {entidade} enviado é idêntico ao salvo, portanto a requisição não será realizada!",
+            message=f"O {type(entidade).__name__} enviado é idêntico ao salvo, portanto a requisição não será realizada!",
             detail=[
-                {"field":f"{entidade}","issue":"identical value"}
+                {"field":f"{entidade.id}","issue":"identical value"}
             ],
         )
 

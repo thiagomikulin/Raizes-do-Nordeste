@@ -9,7 +9,7 @@ from API.Schemas.Autenticacao.sUsuario import *
 from Infrastructure.Repositories.Persona.reUsuario import *
 from Infrastructure.Repositories.Persona.reCliente import *
 
-from Domain.exceptions import SchemaInvalido, IncorrectPWExcept
+from Domain.exceptions import SchemaInvalido, AcessoInvalido
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -31,16 +31,10 @@ def validar_schema_usuario_logar(schema: LoginSchema):
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def autenticar_usuario(email: str, senha: str, sessao: Session):
-    try:
-        usuario = verificar_usuario_existe(sessao, email)
-        if not bcrypt_context.verify(senha, usuario.senha):
-            raise IncorrectPWExcept
-    except NotFoundExcept:
-        raise NotFoundExcept
-    except IncorrectPWExcept:
-        raise IncorrectPWExcept
-    else:
-        return usuario
+    usuario = verificar_usuario_existe(sessao, email)
+    if not bcrypt_context.verify(senha, usuario.senha):
+        raise AcessoInvalido()
+    return usuario
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -50,7 +44,7 @@ def exec_busca(id, nome, email, cargo, ativo, filial, sessao: Session, usuario: 
     ator_na_lista = [item for item in lista if item['id'] == usuario.id]
     #Validação se o usuário é da mesma filial da qual a consulta realizada está sendo feita
     mesma_filial = True if filial in usuario.filiais else False
-    if ator_na_lista != []:
+    if ator_na_lista != [] and usuario.cargo not in ['CEO', 'TI']:
         return ator_na_lista
     elif (cargo not in tipo or not mesma_filial) and usuario.cargo not in [Cargo.CEO, Cargo.TI]:
         raise SemPermissao(usuario, 'listar')

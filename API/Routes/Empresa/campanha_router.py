@@ -24,7 +24,7 @@ campanha_router = APIRouter(prefix='/campanhas', tags=['empresa']) #organizar po
 
 
 # Criar
-@campanha_router.post('/criar',include_in_schema=False)
+@campanha_router.post('/criar')
 async def criar_campanha(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         verificar_schema_criacao_campanha(schema)

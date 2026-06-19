@@ -29,8 +29,12 @@ Para rodar o projeto, é necessário importar todo o código para dentro de sua 
    3. DB_DATABASE = raizes_do_nordeste
    4. DB_PORT=3307 (se não tiver outro sql rodando, pode alterar para a 3306)
    5. SECRET_KEY=sua_chave
-   6. ALGORITHM=HS256
-   7. ACCESS_TOKEN_EXPIRE_MINUTES=30
+   6. SECRET_KEY_REFRESH=chave_refresh
+   7. ALGORITHM=HS256
+   8. EMAIL_HOST=seu_email (para envio de email de reset de senha)
+   9. EMAIL_PW=senhaemail (para envio de email de reset de senha)
+      1. Esta senha pode ser gerada pela conta do google também (seguindo este tutorial: https://support.google.com/wallet/answer/2461835?hl=pt-BR)
+   10. ACCESS_TOKEN_EXPIRE_MINUTES=30
       1. OBS: não será necessário copiar os arquivos manualmente para o env. A execução das próximas etapas fará esse processo automaticamente.
 5. Altere a permissão de execução do arquivo "run_server.sh" para permitir execução
 6. Clique no run_server.sh (obs: selecione a opção de executar pelo terminal)

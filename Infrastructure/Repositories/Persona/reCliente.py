@@ -5,7 +5,7 @@ from API.Schemas.Autenticacao.sCliente import *
 from Infrastructure.Repositories.base import Session
 from Infrastructure.Models.Persona.mCliente import *
 
-from Domain.exceptions import Conflito, NotFoundExcept
+from Domain.exceptions import Conflito, NaoEncontrado, NaoAlterado
 
 def verificar_cliente_criacao(cpf, sessao:Session):
     cliente = sessao.query(Cliente).filter(Cliente.cpf == cpf).first()
@@ -39,7 +39,7 @@ def criar_cliente_bd(schema: CriacaoSchema, sessao: Session):
     sessao.commit()
     return {
         'message': 'Usuário criado com sucesso!',
-        "usuario":{
+        "cliente":{
             "id": novo_cliente.id,
             "nome":novo_cliente.nome,
             "email":novo_cliente.email,
@@ -48,5 +48,46 @@ def criar_cliente_bd(schema: CriacaoSchema, sessao: Session):
             "fidelidade":novo_cliente.fidelidade,
             "nascimento":novo_cliente.data_nasc,
             "ativo": novo_cliente.ativo
+        }
+    }
+
+def verificar_cliente_existe(sessao: Session, email=None, id=None, cpf=None):
+    if email:
+        cliente = sessao.query(Cliente).filter(Cliente.email == email).first()
+    elif id:
+        cliente = sessao.query(Cliente).filter(Cliente.id == id).first()
+    elif cpf:
+        cliente = sessao.query(Cliente).filter(Cliente.cpf == cpf).first()
+    else:
+        raise
+    if not cliente:
+        raise NaoEncontrado(campos={'email':email, "id":id, "cpf":cpf})
+    return cliente
+
+def desativar_cliente_bd(cliente: Cliente, sessao: Session):
+    if cliente.ativo == False:
+        raise NaoAlterado(cliente)
+    cliente.ativo = False
+    sessao.commit()
+    return {
+        "message": "Cliente desativado com sucesso!",
+        "cliente":{
+            "id":cliente.id,
+            "nome":cliente.nome,
+            "ativo": cliente.ativo
+        }
+    }
+
+def ativar_cliente_bd(cliente: Cliente, sessao:Session):
+    if cliente.ativo == True:
+        raise NaoAlterado(cliente)
+    cliente.ativo = True
+    sessao.commit()
+    return {
+        "message": "Cliente ativado com sucesso!",
+        "cliente":{
+            "id":cliente.id,
+            "nome":cliente.nome,
+            "ativo": cliente.ativo
         }
     }

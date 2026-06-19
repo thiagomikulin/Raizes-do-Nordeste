@@ -5,7 +5,7 @@ from jose import jwt, JWTError  # type: ignore
 from datetime import datetime, timedelta, timezone
 
 #Secrets
-from main import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, oauth2_schema
+from main import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, SECRET_KEY_REFRESH, ALGORITHM, oauth2_schema
 
 #Exceções
 from Domain.exceptions import NaoAutenticado, AcessoNaoEncontrado, NaoAtivo, SemPermissao
@@ -26,12 +26,21 @@ from Domain.exceptions import PermissionExcept
 
 def criar_token(id, tipo, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
     data_expiracao = datetime.now(timezone.utc)+duracao_token
-    dict_info = {
-        "sub":str(id),
-        "exp":data_expiracao,
-        "roles":tipo.__name__
-    }
-    encoded_jwt =jwt.encode(dict_info, SECRET_KEY, ALGORITHM)
+    #Validação se é refresh_token
+    if duracao_token == timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES): #Access
+        dict_info = {
+            "sub":str(id),
+            "exp":data_expiracao,
+            "roles":tipo.__name__
+        }
+        encoded_jwt =jwt.encode(dict_info, SECRET_KEY, ALGORITHM)
+    else: #Refresh
+        dict_info = {
+            "sub":str(id),
+            "exp":data_expiracao,
+            "roles":tipo.__name__
+        }
+        encoded_jwt =jwt.encode(dict_info, SECRET_KEY_REFRESH, ALGORITHM)
     #JWT
     #ID
     #data_expiracao #passou desse período, tem que gerar um novo
@@ -39,9 +48,12 @@ def criar_token(id, tipo, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MI
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_token(token:str=Depends(oauth2_schema), sessao:Session=Depends(criar_sessao)):
+def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:Session=Depends(criar_sessao)):
     try:
-        dict_info = jwt.decode(token, SECRET_KEY, ALGORITHM)
+        if request.url.path == '/usuarios/refresh' or request.url.path == '/clientes/refresh':
+            dict_info = jwt.decode(token, SECRET_KEY_REFRESH, ALGORITHM)
+        else:
+            dict_info = jwt.decode(token, SECRET_KEY, ALGORITHM)
         id_user = int(dict_info.get('sub'))
         tipo = dict_info.get('roles')
     except JWTError as error:
