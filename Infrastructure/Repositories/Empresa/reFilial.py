@@ -1,6 +1,7 @@
 from main import bcrypt_context
-
 from Infrastructure.Repositories.base import Session
+#Exceptions
+from Domain.exceptions import NaoEncontrado
 
 from Infrastructure.Models.Empresa.mFilial import *
 
@@ -9,13 +10,18 @@ from API.Schemas.Empresa.sFilial import *
 #Estoque para criação
 from Infrastructure.Models.Empresa.mEstoque import Estoque
 
+
+
 def verificar_filial_criacao(conta_banc: str, sessao: Session):
     filial_check = sessao.query(Filial).filter(Filial.conta_banc == conta_banc).first()
     if filial_check:
         return
     
-def verificar_filial_existe():
-    pass
+def verificar_filial_existe(id: int, sessao: Session):
+    filial = sessao.query(Filial).filter(Filial.id == id).first()
+    if not filial:
+        raise NaoEncontrado({'id':id})
+    return filial
     
 def criar_filial_bd(schema: CriacaoSchema, sessao: Session):
     conta_banc_cripto = bcrypt_context.hash(schema.conta_banc)
@@ -43,5 +49,5 @@ def desativar_filial_bd():
 def ativar_filial_bd():
     pass
 
-def atualizar_filial_db():
+def atualizar_filial_db(schema: EdicaoSchema, sessao: Session):
     pass

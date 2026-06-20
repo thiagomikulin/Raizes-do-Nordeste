@@ -19,7 +19,7 @@ from Infrastructure.Repositories.Persona.reUsuario import criar_usuario_bd, veri
 from Infrastructure.Models.Persona.mUsuario import Usuario
 
 #Complementares
-from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial, vincular_filial_bd, desvincular_filial_bd
+from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial, vincular_filial_bd, desvincular_filial_bd, verificar_vinculo_filial_desv
 from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_existe
 from Infrastructure.Integracoes.email import solicitar_reset_senha
 
@@ -88,12 +88,13 @@ async def atualizar_usuario(id: int, schema: EdicaoSchema,  sessao: Session = De
     """
     try:
         validar_schema_usuario_editar(schema) #O schema está correto?
+        print('teste')
         verificar_permissao(ator, 'usuario', 'editar', schema.cargo) #O usuário pode editar outro?
-        usuario = verificar_usuario_existe(schema.email, sessao)
-        campos = verificar_usuario_atualizacao(id, schema, sessao)
-        edicao = editar_usuario_bd(schema, usuario, campos, sessao)
-        salvar_log_bd('editar','usuarios',campos,usuario['usuario'], ator, sessao)
-    except HTTPException:
+        usuario = verificar_usuario_existe(id=id, sessao=sessao)
+        campos = verificar_usuario_atualizacao(schema, usuario)
+        edicao = editar_usuario_bd(schema=schema, usuario=usuario, campos=campos, sessao=sessao)
+        salvar_log_bd('editar','usuarios',campos,edicao['usuário'], ator, sessao)
+    except ExceptionHTTP:
         raise
     except Exception as e:
         raise ExceptionGenerica(e)
@@ -207,15 +208,15 @@ async def reset_senha(email: str, sessao: Session = Depends(criar_sessao)):
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Usuário - Associar a filial (RF-U08)
-@usuario_router.post('/{id}/filiais/vincular/{filial}')
-async def vincular_filial(id: int=0, filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+@usuario_router.post('/{id}/filiais/{id_filial}/vincular')
+async def vincular_filial(id: int=0, id_filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         usuario = verificar_usuario_existe(id=id, sessao=sessao)
         verificar_permissao(ator, 'usuario', 'associar', usuario.cargo)
-        filial = verificar_filial_existe(filial, sessao)
-        usufil = verificar_vinculo_filial(id_usuario = id, id_filial = filial, sessao=sessao)
-        vinculo = vincular_filial_bd(usuario.id, filial)
-        salvar_log_bd('criar','usuariosFiliais','id_usuario',vinculo['vinculo']['id_usuario'], ator, sessao)
+        filial = verificar_filial_existe(id_filial, sessao)
+        verificar_vinculo_filial(id_usuario = id, id_filial = id_filial, sessao=sessao)
+        vinculo = vincular_filial_bd(usuario.id, filial.id, sessao)
+        salvar_log_bd('criar','usuariosFiliais','id_usuario',vinculo['vínculo']['id_usuario'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -227,15 +228,15 @@ async def vincular_filial(id: int=0, filial:int=0, sessao: Session = Depends(cri
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Usuário - Desassociar a filial (RF-U09)
-@usuario_router.delete('/{id}/filiais/desvincular/{filial}')
-async def desvincular_filial(id: int=0, filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+@usuario_router.delete('/{id}/filiais/{id_filial}/desvincular')
+async def desvincular_filial(id: int=0, id_filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         usuario = verificar_usuario_existe(id=id, sessao=sessao)
         verificar_permissao(ator, 'usuario', 'associar', usuario.cargo)
-        filial = verificar_filial_existe(filial, sessao)
-        usufil = verificar_vinculo_filial(id_usuario = id, id_filial = filial, sessao=sessao)
-        desvinculo = desvincular_filial_bd(usuario.id, filial, usufil, sessao)
-        salvar_log_bd('excluir','usuariosFiliais','id_usuario',desvinculo['vinculo']['id_usuario'], ator, sessao)
+        filial = verificar_filial_existe(id_filial, sessao)
+        usufil = verificar_vinculo_filial_desv(id_usuario = id, id_filial = id_filial, sessao=sessao)
+        desvinculo = desvincular_filial_bd(usufil, sessao)
+        salvar_log_bd('excluir','usuariosFiliais','id_usuario',desvinculo['vínculo']['id_usuario'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:

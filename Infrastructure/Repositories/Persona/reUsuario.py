@@ -30,23 +30,23 @@ def verificar_usuario_existe(sessao: Session, email=None, id=None):
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_usuario_atualizacao(id, schema, sessao):
+def verificar_usuario_atualizacao(schema, usuario_bd):
     '''
     Verifica se há alguma diferença entre o usuário salvo e o schema enviado
     Se não houver diferença, a requisição retorna um erro 400, informando que a requisição é a mesma salva, portanto não será realizada
     '''
-    usuario_bd = sessao.query(Usuario).filter(Usuario.id == id).first()
-    if usuario_bd.nome == schema.nome and usuario_bd.email == schema.email and usuario_bd.cargo == schema.cargo:
+    campos = []
+    if usuario_bd.nome != schema.nome:
+        campos.append('nome')
+    if usuario_bd.email != schema.email:
+        campos.append('email')
+    if usuario_bd.cargo != schema.cargo:
+        campos.append('cargo')
+    if len(campos) == 0:
         raise NaoAlterado(usuario_bd)
-    else:
-        campos = []
-        if usuario_bd.nome != schema.nome:
-            campos.append('nome')
-        if usuario_bd.email != schema.email:
-            campos.append('email')
-        if usuario_bd.cargo != schema.cargo:
-            campos.append('cargo')
-        return campos
+    
+    return campos
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -111,8 +111,21 @@ def buscar_usuarios(id, nome, email, cargo, ativo, sessao: Session, ator:Usuario
     ]
 
 def editar_usuario_bd(schema: EdicaoSchema, usuario: Usuario, campos: list, sessao: Session):
-    for campo in campos:
-        schema.__dict__()[campo]
+    if 'nome' in campos:
+        usuario.nome = schema.nome
+    if 'email' in campos:
+        usuario.email = schema.email
+    if 'cargo' in campos:
+        usuario.cargo = schema.cargo
+    sessao.commit()
+    return {
+        "message":"Edição realizada com sucesso!",
+        "usuário":{
+            campo:valor
+            for campo, valor in schema.__dict__.items()
+            if campo in campos
+        }
+    }
 
 def ativar_usuario_bd(usuario: Usuario, sessao: Session):
     if usuario.ativo == True:

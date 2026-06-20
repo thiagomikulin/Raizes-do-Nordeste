@@ -19,14 +19,16 @@ from API.Routes.Pedido.pedido_router import consultar_pedido
 
 filial_router = APIRouter(prefix='/filiais', tags=['empresa'])
 
-#Criar
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+#Filial - Criar (RF-F01)
 @filial_router.post('/criar')
 async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         verificar_schema_criacao(schema)
         verificar_permissao(ator, 'filial', 'criar')
         verificar_filial_criacao(schema.conta_banc, sessao)
-        filial = criar_filial_bd(schema, sessao)
+        filial = criar_filial_bd(schema, sessao) #inclui criação de Estoque
         salvar_log_bd('criar','filial','id',filial['filial']['id'], ator, sessao)
     except ExceptionHTTP:
         raise
@@ -42,8 +44,8 @@ async def atualizar_filial(id: int, schema: EdicaoSchema, sessao:Session = Depen
     try:
         verificar_schema_edicao(schema)
         verificar_permissao(ator, 'filial', 'editar')
-        filial = verificar_filial_existe(schema.id, sessao)
-        verificar_alteracao(filial, schema)
+        filial = verificar_filial_existe(id, sessao)
+        campos = verificar_alteracao(filial, schema)
         filial_alterada = atualizar_filial_db(schema, sessao)
         salvar_log_bd('criar','filial','id',filial_alterada['filial']['id'], ator, sessao)
     except ExceptionHTTP:

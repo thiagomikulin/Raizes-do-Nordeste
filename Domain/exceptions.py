@@ -192,3 +192,14 @@ class ExceptionGenerica(ExceptionHTTP):
                 {"field":"exception","issue":str(exception)}
             ],
         )
+
+class ExceptionRequest(ExceptionHTTP):
+    def __init__(self, retorno):
+        super().__init__(
+            code=retorno.status,
+            error=retorno.error,
+            message="Ops! Parece que algo deu errado",
+            detail=[
+                {"field":"exception","issue":str(exception)}
+            ],
+        )
