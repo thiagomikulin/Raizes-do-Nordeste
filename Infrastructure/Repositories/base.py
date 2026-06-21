@@ -50,6 +50,7 @@ def criar_entidade_bd(entidade, schema, sessao):
 def exec_busca(entidade, dict_campos: dict, sessao):
     busca = sessao.query(entidade)
 
+    #Filtro
     for chave, valor in dict_campos.items():
         if valor is None:
             continue
@@ -58,9 +59,22 @@ def exec_busca(entidade, dict_campos: dict, sessao):
             busca = busca.filter(coluna.contains(valor))
         elif isinstance(valor, bool) or isinstance(valor, EnumPy) or isinstance(valor, int):
             busca = busca.filter(coluna == valor)
-                
 
-    lista = busca.all()
+
+    #Retorno de tudo
+    retorno = busca.all()
+
+    #Filtro de exibição de campos não permitidos (dá pra otimizar, mas leva dessa forma por ora mesmo pelo prazo)
+    lista = []
+    for itens in retorno:
+        item = {}
+        for chave, valor in itens.__dict__.items():
+            if chave in ['senha', 'cpf', 'scanFace', 'conta_banc']: #Dados sensíveis
+                continue
+            else:
+                item[chave] = valor
+        lista.append(item)
+    
 
     if not lista:
         raise NaoEncontrado(dict_campos)

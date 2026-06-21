@@ -3,7 +3,7 @@ from API.Routes.base import *
 from Application.base import criar_token, verificar_permissao, verificar_token, timedelta
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 
-from Application.chamada_rota import criar_entidade
+from Application.chamada_rota import criar_entidade, visualizar_entidade
 
 #Exceptions
 from Domain.__exceptions__ import PermissionExcept, ConflictExcept, SchemaInvalido, Conflito, SemPermissao, ExceptionHTTP, ExceptionGenerica
@@ -62,8 +62,33 @@ async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_s
 
 #Clientes - Visualizar (RF-C02)
 @cliente_router.get('/')
-async def listar_clientes(sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    pass
+async def listar_clientes(
+    id: int | None = None,
+    nome: str | None=  None,
+    email: str | None = None,
+    cpf: str | None = None,
+    fidelidade: int | None = None,
+    data_nasc: date | None = None,
+    ativo: bool | None=True,
+    sessao: Session = Depends(criar_sessao), 
+    ator=Depends(verificar_token)
+    ):
+    dict_campos = {
+        "id":id,
+        'nome':nome,
+        'email':email,
+        'cpf':cpf,
+        'fidelidade':fidelidade,
+        'data_nasc':data_nasc,
+        'ativo':ativo
+    }
+    try:
+        lista = visualizar_entidade(Cliente, ator, sessao, dict_campos)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    return lista
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

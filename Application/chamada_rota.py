@@ -22,11 +22,10 @@ def criar_entidade(entidade, schema, ator, sessao: Session, campo_verificacao=No
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 def visualizar_entidade(entidade, ator, sessao:Session, lista_campos: dict = None, lista_regras_validacao: list = None, lista_regras_pos:list=None):
-    print('teste')
     verificar_permissao(ator, 'buscar', entidade, tipo=lista_campos['cargo'] if 'cargo' in lista_campos else None)
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
-            regra()
+            regra(entidade, ator, lista_campos)
     lista = exec_busca(entidade, lista_campos, sessao)
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:

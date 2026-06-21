@@ -3,12 +3,15 @@ from API.Routes.base import *
 from Application.base import *
 from Infrastructure.Repositories.base import criar_sessao, Session, Depends
 
-from Application.chamada_rota import criar_entidade
+from Application.chamada_rota import criar_entidade, visualizar_entidade
 
 #Exceptions
 from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 #Logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
+
+#Complementares
+from Infrastructure.Models.Vendas.mPedido import Pedido, StatusCode, TiposPed, CanalPedido, TipoLogin, FormaPagamento
 
 #Requisitos
 from API.Schemas.Empresa.sFilial import CriacaoSchema, EdicaoSchema
@@ -73,9 +76,17 @@ async def listar_filial(
     sessao:Session = Depends(criar_sessao), 
     ator=Depends(verificar_token)
 ):
+    dict_campos = {
+        'id':id,
+        'cidade':cidade,
+        'estrutura':estrutura,
+        'endereco':endereco,
+        'ativo':ativo
+    }
     try:
-        verificar_permissao(ator, 'filial', 'listar')
-        lista = exec_busca(id, cidade, estrutura, endereco, ativo, sessao, ator)
+        lista = visualizar_entidade(Filial, ator, sessao, dict_campos)
+        # verificar_permissao(ator, 'filial', 'listar')
+        # lista = exec_busca(id, cidade, estrutura, endereco, ativo, sessao, ator)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -123,13 +134,31 @@ async def desativar_filial(id: int, sessao:Session = Depends(criar_sessao), ator
 
 # Consultar Vendas
 @filial_router.get('/{id}/vendas')
-async def consultar_vendas_filial(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+async def consultar_vendas_filial(
+    id: int | None = None, 
+    status: StatusCode | None=None,
+    tipo: TiposPed | None = None,
+    canal: CanalPedido | None=None,
+    tipo_criador: TipoLogin | None=None,
+    id_criador: int | None=None,
+    cliente: int | None=None,
+    sessao:Session = Depends(criar_sessao), 
+    ator=Depends(verificar_token)
+    ):
+    dict_campos = {
+        'filial':id,
+        'status': status,
+        'tipo':tipo,
+        'canal':canal,
+        'tipo_criador':tipo_criador
 
+    }
     #OBS: usa método de busca padrão (mesma permissão de busca)
     try:
-        verificar_permissao(ator, 'filial', 'listar vendas')
-        verificar_filial_existe(id, sessao)
-        lista = consultar_pedido(filial=id, sessao=sessao, ator=ator)
+        lista = visualizar_entidade(Pedido, ator, sessao, dict_campos)
+        # verificar_permissao(ator, 'filial', 'listar vendas')
+        # verificar_filial_existe(id, sessao)
+        # lista = consultar_pedido(filial=id, sessao=sessao, ator=ator)
     except ExceptionHTTP:
         raise
     except Exception as e:

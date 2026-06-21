@@ -50,7 +50,7 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
 #Usuário - Listar (RF-U02)
 @usuario_router.get('/')
 async def listar_usuarios(
-    id: int | None = 0,
+    id: int | None = None,
     nome: str | None = None,
     email: str | None = None,
     cargo:str | None = None, 
@@ -74,8 +74,6 @@ async def listar_usuarios(
     }
     try:
         lista = visualizar_entidade(Usuario, ator, sessao, dict_campos)
-        # tipo = verificar_permissao(ator, 'usuario' ,'buscar', cargo if cargo else None, id)
-        # lista = exec_busca(id, nome, email, cargo, ativo, filial, sessao, ator, tipo)
     except ExceptionHTTP:
         raise
     except Exception as e:

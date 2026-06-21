@@ -53,7 +53,6 @@ def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:S
         id_user = int(dict_info.get('sub'))
         tipo = dict_info.get('roles')
     except JWTError as error:
-        print(error)
         raise NaoAutenticado()
     except:
         raise NaoAutenticado()
@@ -95,9 +94,10 @@ def verificar_permissao(ator, permissao: str, modulo:str, tipo: str=None):
     if permissao not in permissoes:
         raise SemPermissao(ator=ator, permissao=permissao)
     
+    
     #Suplementa o tipo se tiver (EX: Usuario - Atendente)
     if tipo is not None:
-        modulo.__name__ += f" - {tipo}"
+        modulo.__name__ += f" - {tipo}" if '-' not in modulo.__name__ else '' #Suplemento para evitar acúmulo de tipo
 
-    return permissoes[permissao].index(modulo.__name__) #erro aqui
+    return permissoes[permissao].index(modulo.__name__)
 
