@@ -51,8 +51,8 @@ def editar_entidade(id, entidade, schema, ator, sessao: Session, lista_regras_va
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def ativar_entidade():
-    pass
+def ativar_entidade(entidade, ator, id: int, sessao: Session, lista_regras_validacao: list=None, lista_regras_pos: list=None):
+    verificar_entidade_existe(id, sessao)
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
