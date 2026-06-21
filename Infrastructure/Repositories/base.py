@@ -19,11 +19,14 @@ async def criar_sessao():
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_entidade_criacao(entidade, campo, schema, nome_entidade, sessao: Session):
-    if campo is None:
+def verificar_entidade_criacao(entidade, schema, nome_entidade, campos: list, sessao: Session):
+    if campos is None:
         return
-    coluna = getattr(entidade, campo)
-    entidade = sessao.query(entidade).filter(coluna == getattr(schema, campo)).first()
+    else:
+        for campo in campos:
+            coluna = getattr(entidade, campo)
+            entidade = sessao.query(entidade).filter(coluna == getattr(schema, campo)).first()
+    
     if entidade:
         raise Conflito(nome_entidade, campo, getattr(schema, campo))
 
