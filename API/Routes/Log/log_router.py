@@ -1,6 +1,6 @@
 from API.Routes.base import *
 from Application.base import verificar_permissao
-from Domain.exceptions import ExceptionHTTP, ExceptionGenerica
+from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 
 log_router = APIRouter(prefix='/logs', tags=['log'])
 

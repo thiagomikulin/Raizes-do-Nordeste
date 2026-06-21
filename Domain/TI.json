@@ -1,0 +1,130 @@
+{
+    "criar":[
+        "Usuario - Não Classificado",
+        "Cliente",
+
+        "Filial",
+        "EstoqueItens",
+        "CampanhaPromo",
+
+        "Pedido",
+        "ItensPed",
+
+        "Produto",
+        "Variacao",
+        "Ingrediente",
+
+        "ItemReceita",
+        "UsuarioFilial - Não Classificado",
+        "UsuarioFilial - Cozinheiro",
+        "UsuarioFilial - Atendente",
+        "UsuarioFilial - Gerente",
+        "UsuarioFilial - TI",
+        "PromoFilial",
+
+        "Movimento",
+        "ItensMovimento"
+
+    ],
+    "buscar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente",
+        "Usuario - Gerente",
+        "Cliente",
+
+        "Filial",
+        "Estoque",
+        "EstoqueItens",
+        "CampanhaPromo",
+
+        "Pedido",
+        "ItensPed",
+
+        "Produto",
+        "Variacao",
+        "Ingrediente",
+
+        "ItemReceita",
+
+        "Logs",
+        "Movimento",
+        "ItensMovimento"
+    ],
+    "editar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente",
+        "Usuario - Gerente",
+        "Cliente",
+
+        "Filial",
+        "EstoqueItens",
+
+        "Pedido",
+        "ItensPed",
+
+        "Produto",
+        "Variacao",
+        "Ingrediente",
+
+        "ItemReceita",
+
+        "Movimento",
+        "ItensMovimento"
+    ],
+    "excluir":[
+        "ItensPed",
+        "ItensMovimento",
+
+        "ItemReceita",
+        "VariacaoFilial",
+        "UsuarioFilial - Não Classificado",
+        "UsuarioFilial - Cozinheiro",
+        "UsuarioFilial - Atendente",
+        "UsuarioFilial - Gerente",
+        "UsuarioFilial - TI"
+    ],
+    "ativar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente",
+        "Usuario - Gerente",
+        "Cliente",
+
+        "Filial",
+        "CampanhaPromo",
+
+        "Produto",
+        "Variacao",
+
+        "PromoFilial"
+    ],
+    "desativar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente",
+        "Usuario - Gerente",
+        "Cliente",
+
+        "Filial",
+        "CampanhaPromo",
+
+        "Produto",
+        "Variacao",
+
+        "PromoFilial"
+    ],
+    "cancelar":[
+
+    ],
+    "atualizar campo":[
+        "Pedido",
+
+        "Ingrediente",
+
+        "Movimento"
+    ],
+    "autenticar":true,
+    "atualizar_token":true
+}

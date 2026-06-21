@@ -3,16 +3,21 @@ from API.Routes.base import *
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Application.base import verificar_permissao, verificar_token
 
+from Application.chamada_rota import criar_entidade
+
 #Exceptions
-from Domain.exceptions import ExceptionGenerica, ExceptionHTTP
+from Domain.__exceptions__ import ExceptionGenerica, ExceptionHTTP
 
 #Logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
+
+
 
 #Requisitos 
 from API.Schemas.Empresa.sCampanhaPromo import CriacaoSchema, EdicaoSchema
 from Application.Empresa.fCampanhaPromo import verificar_schema_criacao_campanha, verificar_schema_edicao_campanha, verificar_alteracao_campanha, exec_busca
 from Infrastructure.Repositories.Empresa.reCampanhaPromo import verificar_campanha_existe, criar_campanha_bd, editar_campanha_bd, ativar_campanhapromo_bd, desativar_campanhapromo_bd
+from Infrastructure.Models.Empresa.mCampanhaPromo import CampanhaPromo
 
 #Conectores
 from Infrastructure.Repositories.Conectores.reUsuarioFilial import vincular_filial_bd, desvincular_filial_bd, verificar_vinculo_filial
@@ -27,15 +32,11 @@ campanha_router = APIRouter(prefix='/campanhas', tags=['empresa']) #organizar po
 @campanha_router.post('/criar')
 async def criar_campanha(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        verificar_schema_criacao_campanha(schema)
-        verificar_permissao(ator, 'campanha', 'criar')
-        verificar_campanha_existe(schema.nome, sessao)
-        campanha = criar_campanha_bd(schema, sessao)
-        salvar_log_bd('criar','campanha','id',campanha['campanha']['id'], ator, sessao)
+        campanha = criar_entidade(CampanhaPromo, schema, ator, sessao, 'nome')
     except ExceptionHTTP:
         raise
     except Exception as e:
-        raise ExceptionGenerica
+        raise ExceptionGenerica(e)
     else:
         return campanha
 

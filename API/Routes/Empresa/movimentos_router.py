@@ -2,8 +2,11 @@
 from API.Routes.base import *
 from Application.base import verificar_permissao, verificar_token
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
+
+from Application.chamada_rota import criar_entidade
+
 #Exceptions
-from Domain.exceptions import ExceptionHTTP, ExceptionGenerica
+from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 #Logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
@@ -11,6 +14,7 @@ from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 from API.Schemas.Empresa.sMovimentos import CriacaoSchema, EdicaoSchema, ItemCriacaoSchema
 from Application.Registros.fMovimentos import validar_schema_movimento_criacao, validar_schema_movimento_edicao, exec_busca
 from Infrastructure.Repositories.Registros.reMovimentos import verificar_movimento_criacao, criar_movimento_bd
+from Infrastructure.Models.Registros.mMovimentos import Movimento
 
 movimentos_router = APIRouter(prefix='/movimentos', tags=['empresa'])
 
@@ -18,11 +22,12 @@ movimentos_router = APIRouter(prefix='/movimentos', tags=['empresa'])
 @movimentos_router.post('/criar')
 async def criar_movimento(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        validar_schema_movimento_criacao(schema)
-        verificar_permissao(ator, 'movimento', 'criar', schema.tipo_mov)
-        verificar_movimento_criacao(schema.chave_nota, sessao)
-        movimento = criar_movimento_bd(schema, sessao)
-        salvar_log_bd('criar','movimento','id',movimento['movimento']['id'], ator, sessao)
+        movimento = criar_entidade(Movimento, schema, ator, sessao, "chave_nota")
+        # validar_schema_movimento_criacao(schema)
+        # verificar_permissao(ator, 'movimento', 'criar', schema.tipo_mov)
+        # verificar_movimento_criacao(schema.chave_nota, sessao)
+        # movimento = criar_movimento_bd(schema, sessao)
+        # salvar_log_bd('criar','movimento','id',movimento['movimento']['id'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:

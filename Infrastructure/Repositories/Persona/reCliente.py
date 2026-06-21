@@ -1,11 +1,11 @@
 from main import bcrypt_context
 
-from API.Schemas.Autenticacao.sCliente import *
+from API.Schemas.Persona.sCliente import *
 
 from Infrastructure.Repositories.base import Session
 from Infrastructure.Models.Persona.mCliente import *
 
-from Domain.exceptions import Conflito, NaoEncontrado, NaoAlterado
+from Domain.__exceptions__ import Conflito, NaoEncontrado, NaoAlterado
 
 def verificar_cliente_criacao(cpf, sessao:Session):
     cliente = sessao.query(Cliente).filter(Cliente.cpf == cpf).first()

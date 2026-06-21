@@ -5,7 +5,7 @@ from Infrastructure.Models.Vendas.mPedido import Pedido
 
 from API.Schemas.Pedido.sPedido import CriacaoSchema
 
-from Domain.exceptions import NotFoundExcept
+from Domain.__exceptions__ import NotFoundExcept
 
 def pedido_existe(id, sessao: Session):
     pedido = sessao.query(Pedido).filter(Pedido.id==id).first()

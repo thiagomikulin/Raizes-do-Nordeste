@@ -1,8 +1,8 @@
 from Application.base import *
 
-from Domain.exceptions import SchemaInvalido, AcessoInvalido
+from Domain.__exceptions__ import SchemaInvalido, AcessoInvalido
 
-from API.Schemas.Autenticacao.sCliente import LoginSchema, CriacaoSchema
+from API.Schemas.Persona.sCliente import LoginSchema, CriacaoSchema
 from Infrastructure.Repositories.Persona.reCliente import verificar_cliente_existe, bcrypt_context
 
 def validar_schema_cliente_criar(schema: CriacaoSchema):

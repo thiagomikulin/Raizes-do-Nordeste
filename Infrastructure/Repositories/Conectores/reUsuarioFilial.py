@@ -2,7 +2,7 @@ from Infrastructure.Repositories.base import Session
 
 from Infrastructure.Models.Conectores.mUsuarioFilial import UsuarioFilial
 
-from Domain.exceptions import Conflito
+from Domain.__exceptions__ import Conflito
 
 def vincular_filial_bd(id_usuario, id_filial, sessao: Session):
     print('teste')

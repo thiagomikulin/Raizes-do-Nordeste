@@ -1,7 +1,7 @@
 from API.Schemas.Empresa.sFilial import *
 from Infrastructure.Models.Empresa.mFilial import Filial
 
-from Domain.exceptions import SchemaInvalido, NaoAlterado
+from Domain.__exceptions__ import SchemaInvalido, NaoAlterado
 
 def verificar_schema_criacao(schema: CriacaoSchema):
     if not schema.cidade or not schema.estrutura or not schema.endereco or not schema.ativo or not schema.conta_banc:

@@ -1,9 +1,0 @@
-{
-    "criar":["TI", "CEO"],
-    "editar":["TI", "CEO"],
-    "visualizar":["Gerente","TI", "CEO"],
-    "ativar":["TI", "CEO"],
-    "desativar":["TI", "CEO"],
-    "consultarVendas":["Gerente","TI", "CEO"],
-    "ativarCampanhaPromo":["Gerente","TI", "CEO"]
-}

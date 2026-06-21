@@ -1,0 +1,146 @@
+{
+    "criar":[
+        "Usuario - Não Classificado",
+        "Cliente",
+
+        "Filial",
+        "EstoqueItens",
+        "CampanhaPromo",
+
+        "Pedido",
+        "ItensPed",
+        
+        "Produto",
+        "Variacao",
+        "Ingrediente",
+
+        "ItemReceita",
+        "PromoFilial",
+        "VariacaoFilial",
+        "UsuarioFilial - Não Classificado",
+        "UsuarioFilial - Cozinheiro",
+        "UsuarioFilial - Atendente", 
+        "UsuarioFilial - Gerente",
+        "UsuarioFilial - TI",
+        "UsuarioFilial - CEO",
+
+        "Movimento",
+        "ItensMovimento"
+    ],
+    "buscar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente", 
+        "Usuario - Gerente",
+        "Usuario - TI",
+        "Usuario - CEO",
+        "Cliente",
+
+        "Filial",
+        "Estoque",
+        "EstoqueItens",
+        "CampanhaPromo",
+
+        "Pedido",
+        "ItensPed",
+        
+        "Produto",
+        "Ingrediente",
+        "Variacao",
+
+        "ItemReceita",
+        "UsuarioFilial",
+
+        "Logs",
+        "Movimento",
+        "ItensMovimento"
+
+    ],
+    "editar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente", 
+        "Usuario - Gerente",
+        "Usuario - TI",
+        "Usuario - CEO",
+        "Cliente",
+
+        "Filial",
+        "EstoqueItens",
+        "CampanhaPromo",
+
+        "Pedido",
+        "ItensPed",
+        
+        "Produto",
+        "Ingrediente",
+        "Variacao",
+
+        "ItemReceita",
+        "UsuarioFilial",
+
+        "Movimento",
+        "ItensMovimento"
+    ],
+    "excluir":[
+        "ItensPed",
+        "ItensMovimento",
+
+        "ItemReceita",
+        "VariacaoFilial",
+        "UsuarioFilial - Não Classificado",
+        "UsuarioFilial - Cozinheiro",
+        "UsuarioFilial - Atendente", 
+        "UsuarioFilial - Gerente",
+        "UsuarioFilial - TI",
+        "UsuarioFilial - CEO"
+    ],
+    "ativar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente", 
+        "Usuario - Gerente",
+        "Usuario - TI",
+        "Usuario - CEO",
+
+        "Filial",
+        "CampanhaPromo",
+
+        "Produto",
+        "Variacao",
+        "Ingrediente",
+
+        "PromoFilial"
+    ],
+    "desativar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente", 
+        "Usuario - Gerente",
+        "Usuario - TI",
+        "Usuario - CEO",
+
+        "Filial",
+        "CampanhaPromo",
+
+        "Produto",
+        "Variacao",
+        "Ingrediente",
+
+        "PromoFilial"
+    ],
+    "cancelar":[
+
+    ],
+    "atualizar campo":[
+        "Pedido",
+        
+        "Ingrediente",
+
+        "Movimento"
+    ],
+    "autenticar":true,
+    "atualizar_token":true
+
+
+}

@@ -6,7 +6,7 @@ from Infrastructure.Models.Vendas.mPedido import Pedido
 
 from Infrastructure.Repositories.Vendas.rePedido import status_pedido_db
 
-from Domain.exceptions import SchemaInvalido, CamposObrigatorios, PermissionExcept, SemPermissao
+from Domain.__exceptions__ import SchemaInvalido, CamposObrigatorios, PermissionExcept, SemPermissao
 
 #Complementares
 from Infrastructure.Models.Empresa.mFilial import Filial

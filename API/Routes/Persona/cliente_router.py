@@ -2,13 +2,16 @@
 from API.Routes.base import *
 from Application.base import criar_token, verificar_permissao, verificar_token, timedelta
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
+
+from Application.chamada_rota import criar_entidade
+
 #Exceptions
-from Domain.exceptions import PermissionExcept, ConflictExcept, SchemaInvalido, Conflito, SemPermissao, ExceptionHTTP, ExceptionGenerica
+from Domain.__exceptions__ import PermissionExcept, ConflictExcept, SchemaInvalido, Conflito, SemPermissao, ExceptionHTTP, ExceptionGenerica
 #Logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 #Requisitos
-from API.Schemas.Autenticacao.sCliente import *
+from API.Schemas.Persona.sCliente import *
 from Application.Persona.fCliente import validar_schema_cliente_criar, validar_schema_cliente_logar, autenticar_cliente, atualizar_fidelidade_valida
 from Infrastructure.Repositories.Persona.reCliente import criar_cliente_bd, verificar_cliente_criacao, verificar_cliente_existe, desativar_cliente_bd, ativar_cliente_bd
 from Infrastructure.Models.Persona.mCliente import Cliente
@@ -39,17 +42,21 @@ async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     A criação de seu usuário demonstra consentimento sobre o uso dos dados inseridos em seu cadastro
     '''
     try:
-        validar_schema_cliente_criar(schema)
-        verificar_permissao(ator, 'cliente', 'criar')
-        verificar_cliente_criacao(schema.cpf, sessao)
-        criacao = criar_cliente_bd(schema, sessao)
-        salvar_log_bd('criar','clientes','id',criacao['cliente']['id'], ator, sessao)
+        cliente = criar_entidade(
+            Cliente, 
+            schema, 
+            ator, 
+            sessao, 
+            'cpf', 
+            lista_regras_validacao=[], 
+            lista_regras_pos = []
+        )
     except ExceptionHTTP:
         raise 
     except Exception as e:
         raise ExceptionGenerica(e)
     else:
-        return criacao
+        return cliente
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

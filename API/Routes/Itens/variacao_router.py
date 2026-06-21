@@ -2,16 +2,18 @@ from API.Routes.base import *
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Application.base import verificar_token, verificar_permissao
 
+from Application.chamada_rota import criar_entidade
+
 #Recursos Variação
 from API.Schemas.Itens.sVariacoes import CriacaoSchema
 from Application.Item.fVariacao import verificar_schema_criacao_variacao
-
+from Infrastructure.Models.Item.mVariacao import Variacao
 
 #Logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 #exceptions
-from Domain.exceptions import ExceptionHTTP, ExceptionGenerica
+from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 
 variacao_router = APIRouter(prefix='/variacoes', tags=['itens'])
 
@@ -21,11 +23,7 @@ variacao_router = APIRouter(prefix='/variacoes', tags=['itens'])
 @variacao_router.post('/criar')
 async def criar_variacao(schema: CriacaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
-        verificar_schema_criacao_variacao(schema)
-        verificar_permissao(ator, 'variação', 'criar')
-        verificar_variacao_existe(schema.nome, sessao)
-        variacao = criar_variacao_bd(schema, sessao)
-        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+        criar_entidade(Variacao, schema, ator, sessao, 'nome')
     except ExceptionHTTP:
         raise
     except Exception as e:

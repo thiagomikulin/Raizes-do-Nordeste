@@ -3,15 +3,19 @@ from Application.base import verificar_token, verificar_permissao
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 
 
+from Application.chamada_rota import criar_entidade
+
 from API.Schemas.Pedido.sPedido import *
 
 from Application.Vendas.fPedido import verificar_pedido_schema_criar,verificar_pedido_schema_editar , verificar_tipo_pedido, verificar_dono_pedido, progredir_status
+from Infrastructure.Models.Vendas.mPedido import Pedido
+
 
 from Infrastructure.Repositories.Vendas.rePedido import criar_pedido_bd, pedido_existe
 from Infrastructure.Repositories.Persona.reCliente import cliente_existe
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
-from Domain.exceptions import ExceptionGenerica
+from Domain.__exceptions__ import ExceptionGenerica
 
 pedido_router = APIRouter(prefix='/pedidos', tags=['pedido'])
 
@@ -25,6 +29,7 @@ async def criar_pedido(schema: CriacaoSchema, sessao: Session = Depends(criar_se
     """
     path='/pedidos/criar'
     try:
+        pedido = criar_entidade(Pedido, schema, ator, sessao, lista_regras_validacao=None)
         verificar_pedido_schema_criar(schema)
         verificar_permissao(ator, 'pedido', 'criar')
         #Pode verificar também se o usuário (se for usuário) é um trabalhador da mesma filial que o pedido. Se não for, deve impedir a criação (implementação futura)
@@ -47,6 +52,8 @@ async def criar_pedido(schema: CriacaoSchema, sessao: Session = Depends(criar_se
 @pedido_router.put('/{id}/editar')
 async def editar_pedido(id:int, schema: EdicaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     path = f'/pedidos/{id}/editar'
+
+    #OBS: colocar validação extra para clientes (só atualizam pedidos com status=aberto)
     try:
         verificar_pedido_schema_editar(schema)
         verificar_permissao(ator, 'pedido', 'editar')
@@ -59,6 +66,8 @@ async def editar_pedido(id:int, schema: EdicaoSchema, sessao: Session = Depends(
 @pedido_router.patch('/status/{id}')
 async def atualizar_status_pedido(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     path = f'/pedidos/status/{id}'
+
+    #OBS: colocar validação extra para clientes (só atualizam status de pedido para Recebido - confirma recebimento)
     try:
         pedido = pedido_existe(id, sessao) #verifica se o pedido existe
         verificar_permissao(ator, 'pedido', 'atualizar_status') #verifica se o ator pode criar

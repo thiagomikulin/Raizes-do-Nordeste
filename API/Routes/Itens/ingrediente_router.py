@@ -1,7 +1,10 @@
 from API.Routes.base import *
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Application.base import verificar_token, verificar_permissao
-from Domain.exceptions import ExceptionHTTP, ExceptionGenerica
+from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
+
+from Application.chamada_rota import criar_entidade
+
 #logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
@@ -9,6 +12,7 @@ from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 from API.Schemas.Itens.sIngredientes import CriacaoSchema
 from Application.Item.fIngrediente import verificar_schema_criacao_ingrediente
 from Infrastructure.Repositories.Item.reIngrediente import verificar_ingrediente_existe, criar_ingrediente_db
+from Infrastructure.Models.Item.mIngrediente import Ingrediente
 
 ingrediente_router = APIRouter(prefix='/ingredientes', tags=['itens'])
 
@@ -18,11 +22,7 @@ ingrediente_router = APIRouter(prefix='/ingredientes', tags=['itens'])
 @ingrediente_router.post('/criar')
 async def criar_ingrediente(schema: CriacaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
-        verificar_schema_criacao_ingrediente(schema)
-        verificar_permissao(ator, 'ingrediente', 'criar')
-        verificar_ingrediente_existe(schema.nome, sessao)
-        ingrediente = criar_ingrediente_db(schema, sessao)
-        salvar_log_bd('criar','ingredientes','id',ingrediente['ingrediente']['id'], ator, sessao)
+        ingrediente = criar_entidade(Ingrediente, schema, ator, sessao, 'nome')
     except ExceptionHTTP:
         raise
     except Exception as e:

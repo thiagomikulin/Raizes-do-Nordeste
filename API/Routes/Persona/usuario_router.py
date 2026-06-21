@@ -8,12 +8,13 @@ from Application.base import verificar_permissao, verificar_token, timedelta, Ac
 from Infrastructure.Repositories.base import criar_sessao, Session, Depends
 from Application.base import criar_token
 #Exceções (para tratar)
-from Domain.exceptions import ExceptionHTTP, ExceptionGenerica
-#Logs
-from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
+from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
+
+from Application.chamada_rota import criar_entidade, visualizar_entidade
+
 
 #Requisitos
-from API.Schemas.Autenticacao.sUsuario import CriacaoSchema, LoginSchema, EdicaoSchema #Apenas Schemas
+from API.Schemas.Persona.sUsuario import CriacaoSchema, LoginSchema, EdicaoSchema #Apenas Schemas
 from Application.Persona.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_editar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
 from Infrastructure.Repositories.Persona.reUsuario import criar_usuario_bd, verificar_usuario_criacao, editar_usuario_bd, verificar_usuario_existe, verificar_usuario_atualizacao, ativar_usuario_bd, desativar_usuario_bd
 from Infrastructure.Models.Persona.mUsuario import Usuario
@@ -36,11 +37,7 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     """
     # Para o uso inicial do sistema, deve ser utilizado o usuário master
     try:
-        validar_schema_usuario_criar(schema) #Schema está ok?
-        verificar_permissao(ator, 'usuario', 'criar', 'Não Classificado') #Ator tem permissão de criar?
-        verificar_usuario_criacao(schema.email, sessao) #Usuário a ser criado já existe no sistema?
-        usuario = criar_usuario_bd(schema, sessao) #Tentativa de criação
-        salvar_log_bd('criar','usuarios','id',usuario['usuario']['id'], ator, sessao)
+        usuario = criar_entidade(Usuario, schema, ator, sessao, 'email')
     except ExceptionHTTP:
         raise
     except Exception as e: 
@@ -67,10 +64,18 @@ async def listar_usuarios(
     Listar usuários de acordo com o filtro
     OBS: a visualização dos dados se limita à filial na qual trabalham, e possui restrições por cargo (exceto para Gerente e TI)
     """
-
+    dict_campos = {
+        'id':id,
+        'nome':nome,
+        'email':email,
+        'cargo':cargo,
+        'ativo':ativo,
+        'filial':filial
+    }
     try:
-        tipo = verificar_permissao(ator, 'usuario' ,'buscar', cargo if cargo else None, id)
-        lista = exec_busca(id, nome, email, cargo, ativo, filial, sessao, ator, tipo)
+        lista = visualizar_entidade(Usuario, ator, sessao, dict_campos)
+        # tipo = verificar_permissao(ator, 'usuario' ,'buscar', cargo if cargo else None, id)
+        # lista = exec_busca(id, nome, email, cargo, ativo, filial, sessao, ator, tipo)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -88,7 +93,6 @@ async def atualizar_usuario(id: int, schema: EdicaoSchema,  sessao: Session = De
     """
     try:
         validar_schema_usuario_editar(schema) #O schema está correto?
-        print('teste')
         verificar_permissao(ator, 'usuario', 'editar', schema.cargo) #O usuário pode editar outro?
         usuario = verificar_usuario_existe(id=id, sessao=sessao)
         campos = verificar_usuario_atualizacao(schema, usuario)

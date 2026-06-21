@@ -3,13 +3,13 @@
 from Application.base import *
 
 #API - Schemas
-from API.Schemas.Autenticacao.sUsuario import *
+from API.Schemas.Persona.sUsuario import *
 
 #Infrastructure
 from Infrastructure.Repositories.Persona.reUsuario import *
 from Infrastructure.Repositories.Persona.reCliente import *
 
-from Domain.exceptions import SchemaInvalido, AcessoInvalido
+from Domain.__exceptions__ import SchemaInvalido, AcessoInvalido
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

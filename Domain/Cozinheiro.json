@@ -1,0 +1,42 @@
+{
+    "criar":[
+
+    ],
+    "buscar":[
+        "Estoque",
+        "EstoqueItens",
+
+        "Pedido",
+        "ItensPed",
+
+        "Produto",
+        "Variacao",
+        "Ingrediente"
+    ],
+    "editar":[
+
+    ],
+    "excluir":[
+
+    ],
+    "ativar":[
+
+    ],
+    "desativar":[
+
+    ],
+    "associar":[
+
+    ],
+    "desassociar":[
+
+    ],
+    "cancelar":[
+
+    ],
+    "atualizar campo":[
+        "Pedido"
+    ],
+    "autenticar":true,
+    "atualizar_token":true
+}

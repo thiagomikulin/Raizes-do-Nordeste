@@ -1,5 +1,0 @@
-{
-    "criar":["Gerente", "Atendente", "TI", "CEO", "Cliente"],
-    "editar":["Gerente", "Atendente", "TI", "CEO", "Cliente"],
-    "atualizar_status":["Gerente", "Atendente", "cozinheiro","TI", "CEO", "Cliente"]
-}

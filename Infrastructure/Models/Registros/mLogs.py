@@ -13,11 +13,11 @@ class Tabelas(str, EnumPy):
     FILIAL = 'filiais'
     ESTOQUEITEM = 'estoqueItens'
     ESTOQUE = 'estoques'
-    CAMPANHAPROMO = 'campanhasPromos'
+    CAMPANHAPROMO = 'campanhaPromos'
     VARIACAOFILIAL = 'variacoesFiliais'
     USUARIOFILIAL = 'usuariosFiliais'
-    PROMOFILIAL = 'promosFiliais'
-    ITEMRECEITA = 'itensReceitas'
+    PROMOFILIAL = 'filiaisPromos'
+    ITEMRECEITA = 'receitasItens'
 
 class Log(Base):
     __tablename__ = 'logs'

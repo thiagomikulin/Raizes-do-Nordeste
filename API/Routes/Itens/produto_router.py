@@ -1,11 +1,14 @@
 from API.Routes.base import APIRouter
 from Application.base import verificar_permissao, verificar_token
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
-from Domain.exceptions import ExceptionHTTP, ExceptionGenerica
+from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
+
+from Application.chamada_rota import criar_entidade
 
 from API.Schemas.Itens.sProdutos import CriacaoSchema
 from Application.Item.fProduto import verificar_schema_criacao_produto
+from Infrastructure.Models.Item.mProduto import Produto
 
 
 produto_router = APIRouter(prefix='/produto', tags=['itens'])
@@ -16,11 +19,7 @@ produto_router = APIRouter(prefix='/produto', tags=['itens'])
 @produto_router.post('/criar')
 async def criar_produto(schema: CriacaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
-        verificar_schema_criacao_produto(schema)
-        verificar_permissao(ator, 'produto', 'criar')
-        verificar_produto_existe(schema.nome, sessao)
-        produto = criar_produto_db(schema, sessao)
-        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+        produto = criar_entidade(Produto, schema, ator, sessao, 'nome')
     except ExceptionHTTP:
         raise
     except Exception as e:

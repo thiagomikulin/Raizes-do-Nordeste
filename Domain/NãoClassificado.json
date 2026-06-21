@@ -1,0 +1,8 @@
+{
+    "buscar":[
+        "Produto",
+        "EstoqueItens"
+    ],
+    "autenticar":true,
+    "atualizar_token":true
+}

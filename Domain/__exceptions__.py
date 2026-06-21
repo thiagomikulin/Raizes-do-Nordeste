@@ -203,3 +203,26 @@ class ExceptionRequest(ExceptionHTTP):
                 {"field":"exception","issue":str(exception)}
             ],
         )
+
+
+class SenhaCurta(ExceptionHTTP):
+    def __init__(self):
+        super().__init__(
+            code=404,
+            error='SENHA DESPADRONIZADA',
+            message='A senha precisa ter pelo menos 8 caracteres',
+            detail=[
+                {"field":"senha", "issue":"invalid format"}
+            ],
+        )
+
+class FormatoInvalido(ExceptionHTTP):
+    def __init__(self, campo):
+        super().__init__(
+            code=404,
+            error=f'{campo} Inválido',
+            message=f'Este {campo} não usa o formato padrão! Tente novamente!',
+            detail=[
+                {"field":campo.lower(), "issue":"invalid format"}
+            ],
+        )

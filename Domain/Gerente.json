@@ -1,0 +1,92 @@
+{
+    "criar":[
+        "Usuario - Não Classificado",
+        "Cliente",
+
+        "Pedido",
+        "ItensPed",
+
+        "Variacao",
+
+        "UsuarioFilial - Não Classificado",
+        "UsuarioFilial - Cozinheiro",
+        "UsuarioFilial - Atendente",
+
+        "Movimento",
+        "ItensMovimento"
+    ],
+    "buscar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente",
+        "Usuario - Gerente",
+        "Cliente",
+
+        "Filial",
+        "Estoque",
+        "EstoqueItens",
+        "CampanhaPromo",
+
+        "Pedido",
+        "ItensPed",
+
+        "Produto",
+        "Variacao",
+        "Ingrediente",
+
+        "Logs",
+        "Movimento",
+        "ItensMovimento"
+    ],
+    "editar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente",
+        "Cliente",
+
+        "EstoqueItens",
+
+        "Pedido",
+        "ItensPed",
+
+        "Variacao",
+
+        "Movimento",
+        "ItensMovimento"
+    ],
+    "excluir":[
+        "ItensPed",
+        "ItensMovimento",
+
+        "UsuarioFilial - Não Classificado",
+        "UsuarioFilial - Cozinheiro",
+        "UsuarioFilial - Atendente"
+    ],
+    "ativar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente",
+
+        "Produto",
+        "Variacao",
+        "Ingrediente"
+    ],
+    "desativar":[
+        "Usuario - Não Classificado",
+        "Usuario - Cozinheiro",
+        "Usuario - Atendente",
+
+        "Produto",
+        "Variacao",
+        "Ingrediente"
+    ],
+    "cancelar":[
+
+    ],
+    "atualizar campo":[
+        "Pedido",
+        "Movimento"
+    ],
+    "autenticar":true,
+    "atualizar_token":true
+}

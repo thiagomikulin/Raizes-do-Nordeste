@@ -1,8 +1,12 @@
 
 
-from main import db, sessionmaker, Session
+from main import db, sessionmaker, Session, bcrypt_context
 
 from Application.base import *
+
+from Infrastructure.Models.base import EnumPy
+
+from Domain.__exceptions__ import Conflito, NaoEncontrado
 
 async def criar_sessao():
     #verificação de existência de usuários
@@ -12,3 +16,52 @@ async def criar_sessao():
         yield sessao
     finally:
         sessao.close()
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+def verificar_entidade_criacao(entidade, campo, schema, nome_entidade, sessao: Session):
+    if campo is None:
+        return
+    coluna = getattr(entidade, campo)
+    entidade = sessao.query(entidade).filter(coluna == getattr(schema, campo)).first()
+    if entidade:
+        raise Conflito(nome_entidade, campo, getattr(schema, campo))
+
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+def criar_entidade_bd(entidade, schema, sessao):
+    schema_dump = schema.model_dump()
+    if "senha" in schema_dump:
+        schema_dump['senha'] = bcrypt_context.hash(schema_dump["senha"])
+    if "conta_banc" in schema_dump:
+        schema_dump['conta_banc'] = bcrypt_context.hash(schema_dump["conta_banc"])
+    nova_entidade = entidade(**schema_dump)
+    sessao.add(nova_entidade)
+    sessao.commit()
+    return {
+        'message':f"{entidade.__name__} {nova_entidade.id} criado com sucesso!",
+        f"{entidade.__name__}":{chave:valor for chave, valor in nova_entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']} 
+        
+    }
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+def exec_busca(entidade, dict_campos: dict, sessao):
+    busca = sessao.query(entidade)
+
+    for chave, valor in dict_campos.items():
+        if valor is None:
+            continue
+        coluna = getattr(entidade, chave)
+        if type(valor) == str:
+            busca = busca.filter(coluna.contains(valor))
+        elif isinstance(valor, bool) or isinstance(valor, EnumPy) or isinstance(valor, int):
+            busca = busca.filter(coluna == valor)
+                
+
+    lista = busca.all()
+
+    if not lista:
+        raise NaoEncontrado(dict_campos)
+    return lista

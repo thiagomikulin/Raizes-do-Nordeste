@@ -2,15 +2,19 @@
 from API.Routes.base import *
 from Application.base import *
 from Infrastructure.Repositories.base import criar_sessao, Session, Depends
+
+from Application.chamada_rota import criar_entidade
+
 #Exceptions
-from Domain.exceptions import ExceptionHTTP, ExceptionGenerica
+from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 #Logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 #Requisitos
 from API.Schemas.Empresa.sFilial import CriacaoSchema, EdicaoSchema
 from Application.Empresa.fFilial import verificar_schema_criacao, verificar_schema_edicao, exec_busca, verificar_alteracao
-from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_criacao, criar_filial_bd, verificar_filial_existe, desativar_filial_bd, ativar_filial_bd, atualizar_filial_db
+from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_criacao, criar_filial_bd, verificar_filial_existe, desativar_filial_bd, ativar_filial_bd, atualizar_filial_db, criar_estoque_vinculado
+from Infrastructure.Models.Empresa.mFilial import Filial
 
 #Complementares
 from Infrastructure.Repositories.Empresa.reCampanhaPromo import verificar_campanha_existe
@@ -25,11 +29,12 @@ filial_router = APIRouter(prefix='/filiais', tags=['empresa'])
 @filial_router.post('/criar')
 async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        verificar_schema_criacao(schema)
-        verificar_permissao(ator, 'filial', 'criar')
-        verificar_filial_criacao(schema.conta_banc, sessao)
-        filial = criar_filial_bd(schema, sessao) #inclui criação de Estoque
-        salvar_log_bd('criar','filial','id',filial['filial']['id'], ator, sessao)
+        filial = criar_entidade(Filial, schema, ator, sessao, 'conta_banc', lista_regras_pos=[criar_estoque_vinculado])
+        # verificar_schema_criacao(schema)
+        # verificar_permissao(ator, 'filial', 'criar')
+        # verificar_filial_criacao(schema.conta_banc, sessao)
+        # filial = criar_filial_bd(schema, sessao) #inclui criação de Estoque
+        # salvar_log_bd('criar','filial','id',filial['filial']['id'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -119,6 +124,8 @@ async def desativar_filial(id: int, sessao:Session = Depends(criar_sessao), ator
 # Consultar Vendas
 @filial_router.get('/{id}/vendas')
 async def consultar_vendas_filial(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+
+    #OBS: usa método de busca padrão (mesma permissão de busca)
     try:
         verificar_permissao(ator, 'filial', 'listar vendas')
         verificar_filial_existe(id, sessao)

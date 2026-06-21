@@ -4,7 +4,7 @@ from Infrastructure.Repositories.base import Session
 from Infrastructure.Models.Item.mIngrediente import Ingrediente
 from API.Schemas.Itens.sIngredientes import CriacaoSchema
 
-from Domain.exceptions import Conflito
+from Domain.__exceptions__ import Conflito
 
 def verificar_ingrediente_existe(nome, sessao: Session):
     ingrediente = sessao.query(Ingrediente).filter(Ingrediente.nome==nome).first()

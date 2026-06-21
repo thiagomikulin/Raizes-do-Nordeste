@@ -4,7 +4,7 @@ from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Application.base import verificar_permissao, verificar_token
 
 #Exceptions
-from Domain.exceptions import ExceptionGenerica, ExceptionHTTP
+from Domain.__exceptions__ import ExceptionGenerica, ExceptionHTTP
 
 #Logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd

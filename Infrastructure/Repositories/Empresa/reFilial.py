@@ -1,7 +1,7 @@
 from main import bcrypt_context
 from Infrastructure.Repositories.base import Session
 #Exceptions
-from Domain.exceptions import NaoEncontrado
+from Domain.__exceptions__ import NaoEncontrado
 
 from Infrastructure.Models.Empresa.mFilial import *
 
@@ -51,3 +51,10 @@ def ativar_filial_bd():
 
 def atualizar_filial_db(schema: EdicaoSchema, sessao: Session):
     pass
+
+def criar_estoque_vinculado(filial: dict, sessao: Session):
+    estoque = Estoque(filial['Filial']['id'])
+    sessao.add(estoque)
+    sessao.commit()
+    return
+

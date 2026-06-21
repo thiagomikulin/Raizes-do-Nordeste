@@ -10,17 +10,16 @@ class Cliente(Base):
     scanFace = Column('Escaneamento_facial', String(200))
     senha = Column('Senha', String(200), nullable=False)
     endereco = Column('Endereço', String(80), nullable=True)
-    fidelidade = Column('Fidelidade', Integer, nullable=False)
+    fidelidade = Column('Fidelidade', Integer, nullable=False, default=0)
     data_nasc = Column('Nascimento', Date, nullable=False)
     ativo = Column('Ativo', Boolean, default=True, nullable=False)
 
-    def __init__(self, nome, email, cpf, scanFace, senha, endereco, fidelidade, data_nasc, ativo=True, ):
+    def __init__(self, nome, email, cpf, scanFace, senha, endereco, data_nasc, ativo=True, ):
         self.nome = nome
         self.email = email
         self.cpf = cpf
         self.scanFace = scanFace
         self.senha = senha
         self.endereco = endereco
-        self.fidelidade = fidelidade
         self.data_nasc = data_nasc
         self.ativo = ativo

@@ -1,0 +1,49 @@
+{
+    "criar":[
+        "Cliente",
+
+        "Pedido",
+        "ItensPed"
+    ],
+    "buscar":[
+        "Cliente",
+
+        "Estoque",
+        "EstoqueItens",
+        "CampanhaPromo",
+
+        "Pedido",
+        "ItensPed",
+
+        "Produto",
+        "Variacao",
+        "Ingrediente"
+    ],
+    "editar":[
+        "Pedido",
+        "ItensPed"
+    ],
+    "excluir":[
+        "ItensPed"
+    ],
+    "ativar":[
+
+    ],
+    "desativar":[
+
+    ],
+    "associar":[
+
+    ],
+    "desassociar":[
+
+    ],
+    "cancelar":[
+
+    ],
+    "atualizar campo":[
+        "Pedido"
+    ],
+    "autenticar":true,
+    "atualizar_token":true
+}
