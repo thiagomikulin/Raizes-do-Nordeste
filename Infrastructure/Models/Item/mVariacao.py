@@ -11,6 +11,7 @@ class Variacao(Base):
     preco_unitario = Column('PrecoUnitario', Float, default=0)
     ativo = Column('Ativo', Boolean, default=True)
 
-    def __init__(self, nome, preco):
+    def __init__(self, nome, produto, preco_unitario):
         self.nome = nome
-        self.preco_unitario = preco
+        self.produto = produto
+        self.preco_unitario = preco_unitario

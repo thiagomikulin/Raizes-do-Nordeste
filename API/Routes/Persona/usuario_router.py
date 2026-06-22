@@ -10,7 +10,7 @@ from Application.base import criar_token
 #Exceções (para tratar)
 from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 
-from Application.chamada_rota import criar_entidade, visualizar_entidade
+from Application.chamada_rota import ativar_entidade, criar_entidade, desativar_entidade, editar_entidade, visualizar_entidade
 
 
 #Requisitos
@@ -18,6 +18,7 @@ from API.Schemas.Persona.sUsuario import CriacaoSchema, LoginSchema, EdicaoSchem
 from Application.Persona.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_editar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
 from Infrastructure.Repositories.Persona.reUsuario import criar_usuario_bd, verificar_usuario_criacao, editar_usuario_bd, verificar_usuario_existe, verificar_usuario_atualizacao, ativar_usuario_bd, desativar_usuario_bd
 from Infrastructure.Models.Persona.mUsuario import Usuario
+from Infrastructure.Models.Conectores.mUsuarioFilial import UsuarioFilial
 
 #Complementares
 from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial, vincular_filial_bd, desvincular_filial_bd, verificar_vinculo_filial_desv
@@ -37,7 +38,7 @@ async def criar_usuario(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     """
     # Para o uso inicial do sistema, deve ser utilizado o usuário master
     try:
-        usuario = criar_entidade(Usuario, schema, ator, sessao, 'email')
+        usuario = criar_entidade(Usuario, schema, ator, sessao, campo_verificacao=['email'])
     except ExceptionHTTP:
         raise
     except Exception as e: 
@@ -90,12 +91,7 @@ async def atualizar_usuario(id: int, schema: EdicaoSchema,  sessao: Session = De
     OBS: Gerentes poderão atualizar usuários de todos os cargos, menos outros gerentes
     """
     try:
-        validar_schema_usuario_editar(schema) #O schema está correto?
-        verificar_permissao(ator, 'usuario', 'editar', schema.cargo) #O usuário pode editar outro?
-        usuario = verificar_usuario_existe(id=id, sessao=sessao)
-        campos = verificar_usuario_atualizacao(schema, usuario)
-        edicao = editar_usuario_bd(schema=schema, usuario=usuario, campos=campos, sessao=sessao)
-        salvar_log_bd('editar','usuarios',campos,edicao['usuário'], ator, sessao)
+        edicao = editar_entidade(id, Usuario, schema, ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -109,10 +105,7 @@ async def atualizar_usuario(id: int, schema: EdicaoSchema,  sessao: Session = De
 @usuario_router.patch('/{id}/ativar')
 async def ativar_usuario(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        usuario = verificar_usuario_existe(sessao, id=id)
-        verificar_permissao(ator, 'usuario', 'ativar', usuario.cargo)
-        usuario_ativo = ativar_usuario_bd(usuario, sessao)
-        salvar_log_bd('ativar','usuarios','ativo',usuario['usuario']['ativo'], ator, sessao)
+        usuario_ativo = ativar_entidade(Usuario, ator, id, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -126,10 +119,7 @@ async def ativar_usuario(id: int, sessao: Session = Depends(criar_sessao), ator=
 @usuario_router.patch('/{id}/desativar')
 async def desativar_usuario(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        usuario = verificar_usuario_existe(sessao, id=id)
-        verificar_permissao(ator, 'usuario', 'desativar', usuario.cargo)
-        usuario_desativo = desativar_usuario_bd(usuario, sessao)
-        salvar_log_bd('desativar','usuarios','ativo',usuario['usuario']['ativo'], ator, sessao)
+        usuario_desativo = desativar_entidade(Usuario, ator, id, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:

@@ -32,12 +32,7 @@ filial_router = APIRouter(prefix='/filiais', tags=['empresa'])
 @filial_router.post('/criar')
 async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        filial = criar_entidade(Filial, schema, ator, sessao, 'conta_banc', lista_regras_pos=[criar_estoque_vinculado])
-        # verificar_schema_criacao(schema)
-        # verificar_permissao(ator, 'filial', 'criar')
-        # verificar_filial_criacao(schema.conta_banc, sessao)
-        # filial = criar_filial_bd(schema, sessao) #inclui criação de Estoque
-        # salvar_log_bd('criar','filial','id',filial['filial']['id'], ator, sessao)
+        filial = criar_entidade(Filial, schema, ator, sessao, campo_verificacao=['conta_banc'], lista_regras_pos=[criar_estoque_vinculado])
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -84,7 +79,8 @@ async def listar_filial(
         'ativo':ativo
     }
     try:
-        lista = visualizar_entidade(Filial, ator, sessao, dict_campos)
+        print(type(ator))
+        lista = visualizar_entidade(Filial, sessao, ator, dict_campos)
         # verificar_permissao(ator, 'filial', 'listar')
         # lista = exec_busca(id, cidade, estrutura, endereco, ativo, sessao, ator)
     except ExceptionHTTP:
@@ -142,20 +138,27 @@ async def consultar_vendas_filial(
     tipo_criador: TipoLogin | None=None,
     id_criador: int | None=None,
     cliente: int | None=None,
+    tipo_modificador: TipoLogin | None=None,
+    id_modificador:int | None=None,
+    forma_pagamento: FormaPagamento | None=None,
     sessao:Session = Depends(criar_sessao), 
     ator=Depends(verificar_token)
     ):
     dict_campos = {
-        'filial':id,
-        'status': status,
-        'tipo':tipo,
-        'canal':canal,
-        'tipo_criador':tipo_criador
-
+        "filial":id, 
+        "status":status, 
+        "tipo":tipo, 
+        "canal":canal, 
+        "tipo_criador":tipo_criador, 
+        "id_criador":id_criador, 
+        "cliente":cliente, 
+        "tipo_modificador":tipo_modificador, 
+        "id_modificador":id_modificador, 
+        "forma_pagamento":forma_pagamento, 
     }
     #OBS: usa método de busca padrão (mesma permissão de busca)
     try:
-        lista = visualizar_entidade(Pedido, ator, sessao, dict_campos)
+        lista = visualizar_entidade(Pedido, sessao, lista_campos=dict_campos, ator=ator)
         # verificar_permissao(ator, 'filial', 'listar vendas')
         # verificar_filial_existe(id, sessao)
         # lista = consultar_pedido(filial=id, sessao=sessao, ator=ator)

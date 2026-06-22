@@ -38,3 +38,14 @@ class LoginSchema(BaseModel):
     def verificar_campos_login(self):
         cpf = self.cpf
         email = self.email
+
+class EdicaoSchema(BaseModel):
+    nome: str = Field(default='Nome a alterar', min_length=15)
+    email: str = Field(default='seuemail@dominio.com', min_length=15)
+    cpf: str = Field(default='999.999.999-99', min_length=14)
+    endereco:str = Field(default='Rua ______, Nº __, Complemento ___')
+    fidelidade: int = Field(default=0)
+    data_nasc:date = Field(default='1900-01-01')
+    
+
+    

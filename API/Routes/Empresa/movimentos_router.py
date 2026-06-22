@@ -22,7 +22,7 @@ movimentos_router = APIRouter(prefix='/movimentos', tags=['empresa'])
 @movimentos_router.post('/criar')
 async def criar_movimento(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        movimento = criar_entidade(Movimento, schema, ator, sessao, "chave_nota")
+        movimento = criar_entidade(Movimento, schema, ator, sessao, campo_verificacao=["chave_nota"])
         # validar_schema_movimento_criacao(schema)
         # verificar_permissao(ator, 'movimento', 'criar', schema.tipo_mov)
         # verificar_movimento_criacao(schema.chave_nota, sessao)

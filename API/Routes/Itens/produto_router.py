@@ -4,7 +4,7 @@ from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
-from Application.chamada_rota import criar_entidade
+from Application.chamada_rota import criar_entidade, visualizar_entidade
 
 from API.Schemas.Itens.sProdutos import CriacaoSchema
 from Application.Item.fProduto import verificar_schema_criacao_produto
@@ -19,7 +19,7 @@ produto_router = APIRouter(prefix='/produto', tags=['itens'])
 @produto_router.post('/criar')
 async def criar_produto(schema: CriacaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
-        produto = criar_entidade(Produto, schema, ator, sessao, 'nome')
+        produto = criar_entidade(Produto, schema, ator, sessao, campo_verificacao=['nome'])
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -31,8 +31,24 @@ async def criar_produto(schema: CriacaoSchema, sessao: Session = Depends (criar_
 
 # Listar
 @produto_router.get('/produto')
-async def get_produto():
-    return {'produto':'Acarajé'}
+async def get_produto(
+    id: int | None=None,
+    nome: int | None=None,
+    ativo: int | None=None,
+    sessao: Session = Depends(criar_sessao), 
+):
+    dict_campos = {
+        'id':id,
+        'nome':nome,
+        'ativo':ativo
+    }
+    try:
+        lista = visualizar_entidade(Produto, sessao, lista_campos=dict_campos)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    return lista
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

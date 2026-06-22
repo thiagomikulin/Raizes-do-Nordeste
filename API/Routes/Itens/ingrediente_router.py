@@ -22,7 +22,7 @@ ingrediente_router = APIRouter(prefix='/ingredientes', tags=['itens'])
 @ingrediente_router.post('/criar')
 async def criar_ingrediente(schema: CriacaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
-        ingrediente = criar_entidade(Ingrediente, schema, ator, sessao, 'nome')
+        ingrediente = criar_entidade(Ingrediente, schema, ator, sessao, campo_verificacao=['nome'])
     except ExceptionHTTP:
         raise
     except Exception as e:

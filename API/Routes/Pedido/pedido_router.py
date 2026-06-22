@@ -3,7 +3,7 @@ from Application.base import verificar_token, verificar_permissao
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 
 
-from Application.chamada_rota import criar_entidade
+from Application.chamada_rota import criar_entidade, visualizar_entidade
 
 from API.Schemas.Pedido.sPedido import *
 
@@ -15,7 +15,7 @@ from Infrastructure.Repositories.Vendas.rePedido import criar_pedido_bd, pedido_
 from Infrastructure.Repositories.Persona.reCliente import cliente_existe
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
-from Domain.__exceptions__ import ExceptionGenerica
+from Domain.__exceptions__ import ExceptionGenerica, ExceptionHTTP
 
 pedido_router = APIRouter(prefix='/pedidos', tags=['pedido'])
 
@@ -29,20 +29,19 @@ async def criar_pedido(schema: CriacaoSchema, sessao: Session = Depends(criar_se
     """
     path='/pedidos/criar'
     try:
-        pedido = criar_entidade(Pedido, schema, ator, sessao, lista_regras_validacao=None)
-        verificar_pedido_schema_criar(schema)
-        verificar_permissao(ator, 'pedido', 'criar')
         #Pode verificar também se o usuário (se for usuário) é um trabalhador da mesma filial que o pedido. Se não for, deve impedir a criação (implementação futura)
-        verificar_tipo_pedido(schema) #consistência de mesas, clientes e entregas
-        cliente_existe(schema.cliente, sessao)
-        pedido = criar_pedido_bd(schema, sessao, ator)
-        salvar_log_bd('criar','pedidos','id',pedido['pedido']['id'], ator, sessao)
-    except PermissionExcept:
-        raise SemPermissao(ator)
-    except MandatoryForFillingExcept as e:
-        raise CamposObrigatorios(e.campos, path)
-    except NotFoundExcept as e:
-        raise NaoEncontrado(path, e.campos)
+        #Validação de mesa, cliente e entrega feita no schema
+        pedido = criar_entidade(Pedido, schema, ator, sessao, lista_regras_validacao=None)
+        # verificar_pedido_schema_criar(schema)
+        # verificar_permissao(ator, 'pedido', 'criar')
+        # verificar_tipo_pedido(schema) #consistência de mesas, clientes e entregas
+        # cliente_existe(schema.cliente, sessao)
+        # pedido = criar_pedido_bd(schema, sessao, ator)
+        # salvar_log_bd('criar','pedidos','id',pedido['pedido']['id'], ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
     else:
         return pedido
 
@@ -96,17 +95,27 @@ async def consultar_pedido(
     cliente:int | None=None,
     tipo_modificador:str | None=None,
     id_modificador:int | None=None,
-    soma_itens:float | None=None,
-    frete:float | None=None,
-    total:float | None=None,
     forma_pagamento:str | None=None,
-    desconto_fidelidade:int | None=None,
     sessao: Session = Depends(criar_sessao), 
     ator=Depends(verificar_token)
 ):
+    dict_campos = {
+        "id":id, 
+        "filial":filial, 
+        "status":status, 
+        "tipo":tipo, 
+        "canal":canal, 
+        "tipo_criador":tipo_criador, 
+        "id_criador":id_criador, 
+        "cliente":cliente, 
+        "tipo_modificador":tipo_modificador, 
+        "id_modificador":id_modificador, 
+        "forma_pagamento":forma_pagamento, 
+    }
     try:
-        verificar_permissao(ator, 'pedido', 'consultar')
-        lista = exec_busca(id, filial, status, tipo, canal, tipo_criador, id_criador, cliente, tipo_modificador, id_modificador, soma_itens, frete, total, forma_pagamento, desconto_fidelidade, sessao)
+        lista = visualizar_entidade(Pedido, ator, sessao, lista_campos=dict_campos)
+        # verificar_permissao(ator, 'pedido', 'consultar')
+        # lista = exec_busca(, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:

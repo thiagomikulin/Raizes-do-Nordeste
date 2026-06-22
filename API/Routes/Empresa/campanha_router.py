@@ -32,7 +32,7 @@ campanha_router = APIRouter(prefix='/campanhas', tags=['empresa']) #organizar po
 @campanha_router.post('/criar')
 async def criar_campanha(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        campanha = criar_entidade(CampanhaPromo, schema, ator, sessao, 'nome')
+        campanha = criar_entidade(CampanhaPromo, schema, sessao, campo_verificacao=['nome'], ator=ator)
     except ExceptionHTTP:
         raise
     except Exception as e:

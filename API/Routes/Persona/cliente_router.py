@@ -3,7 +3,7 @@ from API.Routes.base import *
 from Application.base import criar_token, verificar_permissao, verificar_token, timedelta
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 
-from Application.chamada_rota import criar_entidade, visualizar_entidade
+from Application.chamada_rota import criar_entidade, editar_entidade, visualizar_entidade
 
 #Exceptions
 from Domain.__exceptions__ import PermissionExcept, ConflictExcept, SchemaInvalido, Conflito, SemPermissao, ExceptionHTTP, ExceptionGenerica
@@ -47,7 +47,7 @@ async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_s
             schema, 
             ator, 
             sessao, 
-            'cpf', 
+            campo_verificacao=['cpf'],
             lista_regras_validacao=[], 
             lista_regras_pos = []
         )
@@ -94,8 +94,14 @@ async def listar_clientes(
 
 #Clientes - Editar (RF-C03)
 @cliente_router.put('/{id}')
-async def atualizar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    path = f'/clientes/{str(id)}'
+async def atualizar_cliente(id: int, schema: EdicaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        edicao = editar_entidade(id, Cliente,schema, ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    return edicao
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

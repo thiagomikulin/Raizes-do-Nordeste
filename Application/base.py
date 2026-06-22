@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from main import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, SECRET_KEY_REFRESH, ALGORITHM, oauth2_schema
 
 #Exceções
-from Domain.__exceptions__ import NaoAutenticado, AcessoNaoEncontrado, NaoAtivo, SemPermissao
+from Domain.__exceptions__ import NaoAlterado, NaoAutenticado, AcessoNaoEncontrado, NaoAtivo, SemPermissao
 
 #Bases
 from Infrastructure.Repositories.base import Session, criar_sessao
@@ -97,7 +97,18 @@ def verificar_permissao(ator, permissao: str, modulo:str, tipo: str=None):
     
     #Suplementa o tipo se tiver (EX: Usuario - Atendente)
     if tipo is not None:
-        modulo.__name__ += f" - {tipo}" if '-' not in modulo.__name__ else '' #Suplemento para evitar acúmulo de tipo
+        modulo += f" - {tipo}" if '-' not in modulo else '' #Suplemento para evitar acúmulo de tipo
+    
+    return permissoes[permissao].index(modulo)
 
-    return permissoes[permissao].index(modulo.__name__)
-
+def verificar_entidade_atualizacao(schema, entidade):
+    campos = []
+    dict_ent = entidade.__dict__
+    for chave, valor in schema.__dict__.items():
+        coluna = dict_ent[chave]
+        if coluna != valor:
+            campos.append(chave)
+    if len(campos) == 0:
+        raise NaoAlterado(entidade)
+        #coluna = getattr(entidade, item)
+    return campos

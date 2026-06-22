@@ -30,6 +30,10 @@ def verificar_entidade_criacao(entidade, schema, nome_entidade, campos: list, se
     if entidade:
         raise Conflito(nome_entidade, campo, getattr(schema, campo))
 
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+def verificar_subentidade_criacao(entidade, id_esq, id_dir, sessao:Session):
+    existe = sessao.query(entidade).filter()
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -82,3 +86,48 @@ def exec_busca(entidade, dict_campos: dict, sessao):
     if not lista:
         raise NaoEncontrado(dict_campos)
     return lista
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+def verificar_entidade_existe(entidade, id, sessao:Session):
+    check = sessao.query(entidade).filter(entidade.id == id).first()
+    if not check:
+        raise NaoEncontrado({"id":id})
+    return check
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+def editar_entidade_bd(schema, nome_entidade, entidade, campos, sessao:Session):
+    schema_dump = schema.model_dump()
+    for campo in campos:
+        setattr(entidade, campo, schema_dump[campo])
+    sessao.commit()
+    return {
+        "message":f"{nome_entidade} {entidade.id} atualizado com sucesso!",
+        f"{nome_entidade}":{chave:valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
+    }
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+def ativar_entidade_bd(entidade, nome_entidade, sessao):
+    if entidade.ativo == True:
+        raise NaoAlterado(entidade)
+    entidade.ativo = True
+    sessao.commit()
+    return {
+        "message":f'{nome_entidade} {entidade.id} ativado com sucesso!',
+        f'{nome_entidade}':{chave:valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
+    }
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+def desativar_entidade_bd(entidade, nome_entidade, sessao):
+    if entidade.ativo == False:
+        raise NaoAlterado(entidade)
+    entidade.ativo = False
+    sessao.commit()
+    return {
+        "message":f'{nome_entidade} {entidade.id} desativado com sucesso!',
+        f'{nome_entidade}':{chave:valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
+    }
+

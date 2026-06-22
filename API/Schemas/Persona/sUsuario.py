@@ -19,5 +19,5 @@ class CriacaoSchema(BaseModel):
 
 class EdicaoSchema(BaseModel):
     nome: str = Field(default='Nome a alterar', min_length=15)
-    email: str = Field(default='seuemail@dominio.com', min_length=15)
+    email: str = Field(default='seuemail@dominio.com', min_length=14)
     cargo: Cargo

@@ -2,7 +2,7 @@ from API.Routes.base import *
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Application.base import verificar_token, verificar_permissao
 
-from Application.chamada_rota import criar_entidade
+from Application.chamada_rota import criar_entidade, visualizar_entidade
 
 #Recursos Variação
 from API.Schemas.Itens.sVariacoes import CriacaoSchema
@@ -23,17 +23,41 @@ variacao_router = APIRouter(prefix='/variacoes', tags=['itens'])
 @variacao_router.post('/criar')
 async def criar_variacao(schema: CriacaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
-        criar_entidade(Variacao, schema, ator, sessao, 'nome')
+        variacao = criar_entidade(Variacao, schema, ator, sessao, campo_verificacao=['nome'])
     except ExceptionHTTP:
         raise
     except Exception as e:
-        raise ExceptionGenerica
+        raise ExceptionGenerica(e)
     else:
-        return 
+        return variacao
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Visualizar
+@variacao_router.get('/')
+async def buscar_variacao(
+    id: int | None=None,
+    nome:str | None=None,
+    produto: int | None=None,
+    preco_unitario: float | None=None,
+    ativo:bool | None=None,
+    sessao:Session = Depends(criar_sessao), 
+    ator=Depends(verificar_token)
+):
+    dict_campos = {
+        "id":id,
+        "nome":nome,
+        "produto":produto,
+        "preco_unitario":preco_unitario,
+        "ativo":ativo
+    }
+    try:
+        lista = visualizar_entidade(Variacao, sessao, ator, dict_campos)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    return lista
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
