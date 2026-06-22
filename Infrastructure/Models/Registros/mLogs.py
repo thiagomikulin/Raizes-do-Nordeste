@@ -31,6 +31,7 @@ class Log(Base):
             values_callable=lambda enum: [e.value for e in enum]
         )    
     )
+    id_modificado = Column('IdModificado', Integer, nullable=False)
     campo = Column('Campo', String(30), nullable=False)
     valor_ant = Column('ValorAnterior', String(80), nullable=False)
     valor_novo = Column('ValorNovo', String(80), nullable=False)
@@ -44,9 +45,10 @@ class Log(Base):
     id_pessoa = Column('IdPessoa', Integer, nullable=False)
     datahora = Column('DataHora', DateTime, nullable=False)
 
-    def __init__(self, acao, tabela, campo, valor_ant, valor_novo, tipo_pessoa, id_pessoa):
+    def __init__(self, acao, tabela, id_modificado, campo, valor_ant, valor_novo, tipo_pessoa, id_pessoa):
         self.acao = acao
         self.tabela = tabela
+        self.id_modificado = id_modificado
         self.campo = campo
         self.valor_ant = valor_ant
         self.valor_novo = valor_novo

@@ -1,5 +1,6 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
+import MySQLdb
 
 from datetime import datetime
 from typing import Optional
@@ -30,6 +31,20 @@ async def handler_de_excecao(request: Request, exc: ExceptionHTTP):
             "path":request.url.path
         }
     )
+
+#Opcional, já retorna no ExceptionGenerica
+# @app.exception_handler(MySQLdb.IntegrityError)
+# async def handler_excecao_db(request: Request, exc: MySQLdb.Error):
+#     return JSONResponse(
+#         status_code=exc.code,
+#         content={
+#             "error":exc.error,
+#             "message":exc.message,
+#             "details":exc.detail,
+#             "timestamp":datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+#             "path":request.url.path
+#         }
+#     )
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

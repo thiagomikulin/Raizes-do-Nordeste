@@ -41,13 +41,14 @@ async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     Se você quer que os dados opcionais sejam utilizados para lhe gerar uma experiência mais dinâmica do app, preencha-os.
     A criação de seu usuário demonstra consentimento sobre o uso dos dados inseridos em seu cadastro
     '''
+    print(f'Email: {schema.email}')
     try:
         cliente = criar_entidade(
             Cliente, 
             schema, 
             ator, 
             sessao, 
-            campo_verificacao=['cpf'],
+            campo_verificacao=['cpf', 'email'],
             lista_regras_validacao=[], 
             lista_regras_pos = []
         )
@@ -83,7 +84,7 @@ async def listar_clientes(
         'ativo':ativo
     }
     try:
-        lista = visualizar_entidade(Cliente, ator, sessao, dict_campos)
+        lista = visualizar_entidade(Cliente, sessao, ator, dict_campos)
     except ExceptionHTTP:
         raise
     except Exception as e:

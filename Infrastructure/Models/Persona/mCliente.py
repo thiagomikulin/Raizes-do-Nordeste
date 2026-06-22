@@ -11,7 +11,7 @@ class Cliente(Base):
     senha = Column('Senha', String(200), nullable=False)
     endereco = Column('Endereço', String(80), nullable=True)
     fidelidade = Column('Fidelidade', Integer, nullable=False, default=0)
-    data_nasc = Column('Nascimento', Date, nullable=False)
+    data_nasc = Column('Nascimento', Date, nullable=True)
     ativo = Column('Ativo', Boolean, default=True, nullable=False)
 
     def __init__(self, nome, email, cpf, scanFace, senha, endereco, data_nasc, ativo=True, ):

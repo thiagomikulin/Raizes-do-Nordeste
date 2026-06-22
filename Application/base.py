@@ -98,11 +98,14 @@ def verificar_permissao(ator, permissao: str, modulo:str, tipo: str=None):
     #Suplementa o tipo se tiver (EX: Usuario - Atendente)
     if tipo is not None:
         modulo += f" - {tipo}" if '-' not in modulo else '' #Suplemento para evitar acúmulo de tipo
-    
-    return permissoes[permissao].index(modulo)
+        return [permissoes[permissao].index(modulo)]
+    elif tipo is None and modulo == 'Usuario':
+        indice_dominio = permissoes[permissao].index(f'{modulo} - {dominio}')
+        return permissoes[permissao][0:indice_dominio]
 
 def verificar_entidade_atualizacao(schema, entidade):
     campos = []
+    print(entidade)
     dict_ent = entidade.__dict__
     for chave, valor in schema.__dict__.items():
         coluna = dict_ent[chave]

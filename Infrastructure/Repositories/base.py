@@ -1,5 +1,7 @@
 
 
+from enum import Enum
+
 from main import db, sessionmaker, Session, bcrypt_context
 
 from Application.base import *
@@ -19,7 +21,7 @@ async def criar_sessao():
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_entidade_criacao(entidade, schema, nome_entidade, campos: list, sessao: Session):
+def verificar_entidade(entidade, schema, nome_entidade, campos: list, sessao: Session, acao):
     if campos is None:
         return
     else:
@@ -30,26 +32,27 @@ def verificar_entidade_criacao(entidade, schema, nome_entidade, campos: list, se
             if busca:
                 contador += 1
             print(contador)
-        
-        if contador == len(campos):
-            encontrados = {f'{campo}':f'{getattr(schema, campo)}' for campo in campos}
-            raise Conflito(nome_entidade, encontrados)
+        print(acao)
+        if acao == 'criar':
+            if contador == len(campos):
+                encontrados = {f'{campo}':f'{getattr(schema, campo)}' for campo in campos}
+                raise Conflito(nome_entidade, encontrados)
+        elif acao == 'excluir':
+            if contador < len(campos):
+                raise NaoEncontrado(campos)
             
-
-#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-def verificar_subentidade_criacao(entidade, id_esq, id_dir, sessao:Session):
-    existe = sessao.query(entidade).filter()
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def criar_entidade_bd(entidade, schema, sessao):
     schema_dump = schema.model_dump()
+    print(schema_dump)
     if "senha" in schema_dump:
         schema_dump['senha'] = bcrypt_context.hash(schema_dump["senha"])
     if "conta_banc" in schema_dump:
         schema_dump['conta_banc'] = bcrypt_context.hash(schema_dump["conta_banc"])
     nova_entidade = entidade(**schema_dump)
+    print(nova_entidade.__dict__.items())
     sessao.add(nova_entidade)
     sessao.commit()
     sessao.refresh(nova_entidade)
@@ -68,7 +71,41 @@ def criar_entidade_bd(entidade, schema, sessao):
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def exec_busca(entidade, dict_campos: dict, sessao):
+def excluir_entidade_bd(entidade, schema, sessao:Session):
+    schema_dump = schema.model_dump()
+    busca = sessao.query(entidade)
+        #Filtro
+    print('teste')
+    for chave, valor in schema_dump.items():
+        print('teste')
+        if valor is None:
+            continue
+        coluna = getattr(entidade, chave)
+        if type(valor) == str:
+            busca = busca.filter(coluna.contains(valor))
+        elif isinstance(valor, (bool, EnumPy,  int)):
+            busca = busca.filter(coluna == valor)
+
+    #Retorno de tudo
+    retorno = busca.first()
+    dados_excluido = {chave:valor for chave, valor in retorno.__dict__.items()}
+    campos = [f'{chave} = {valor}' for chave, valor in schema_dump.items()]
+    if len(campos) > 1:
+        mensagem = ' e '.join(campos)
+    else:
+        mensagem = campos[0]
+    sessao.delete(retorno)
+    sessao.commit()
+    return {
+        "message":f"O {entidade.__name__} com {mensagem} foi excluído com sucesso!",
+        f"{entidade.__name__}":dados_excluido
+    }
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+def exec_busca(entidade, dict_campos: dict, sessao, permissoes):
+    print(type(entidade))
+    print(permissoes)
     busca = sessao.query(entidade)
 
     #Filtro
@@ -78,12 +115,16 @@ def exec_busca(entidade, dict_campos: dict, sessao):
         coluna = getattr(entidade, chave)
         if type(valor) == str:
             busca = busca.filter(coluna.contains(valor))
-        elif isinstance(valor, bool) or isinstance(valor, EnumPy) or isinstance(valor, int):
+        elif isinstance(valor, (bool, EnumPy,  int)):
             busca = busca.filter(coluna == valor)
-
 
     #Retorno de tudo
     retorno = busca.all()
+
+    if entidade.__name__ == 'Usuario':
+        tipo = 'Usuario'
+    else:
+        tipo = ''
 
     #Filtro de exibição de campos não permitidos (dá pra otimizar, mas leva dessa forma por ora mesmo pelo prazo)
     lista = []
@@ -94,7 +135,12 @@ def exec_busca(entidade, dict_campos: dict, sessao):
                 continue
             else:
                 item[chave] = valor
-        lista.append(item)
+        if tipo == 'Usuario':
+            cargo = f'{tipo} - {item['cargo'].value}'
+            if cargo in permissoes:
+                lista.append(item)
+        else:
+            lista.append(item)
     
 
     if not lista:
@@ -116,9 +162,10 @@ def editar_entidade_bd(schema, nome_entidade, entidade, campos, sessao:Session):
     for campo in campos:
         setattr(entidade, campo, schema_dump[campo])
     sessao.commit()
+    sessao.refresh(entidade)
     return {
         "message":f"{nome_entidade} {entidade.id} atualizado com sucesso!",
-        f"{nome_entidade}":{chave:valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
+        f"{nome_entidade}":{chave:valor.value if isinstance(valor, Enum) else valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
     }
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
