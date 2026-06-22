@@ -23,12 +23,18 @@ def verificar_entidade_criacao(entidade, schema, nome_entidade, campos: list, se
     if campos is None:
         return
     else:
+        contador = 0
         for campo in campos:
             coluna = getattr(entidade, campo)
-            entidade = sessao.query(entidade).filter(coluna == getattr(schema, campo)).first()
-    
-    if entidade:
-        raise Conflito(nome_entidade, campo, getattr(schema, campo))
+            busca = sessao.query(entidade).filter(coluna == getattr(schema, campo)).first()
+            if busca:
+                contador += 1
+            print(contador)
+        
+        if contador == len(campos):
+            encontrados = {f'{campo}':f'{getattr(schema, campo)}' for campo in campos}
+            raise Conflito(nome_entidade, encontrados)
+            
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -46,9 +52,17 @@ def criar_entidade_bd(entidade, schema, sessao):
     nova_entidade = entidade(**schema_dump)
     sessao.add(nova_entidade)
     sessao.commit()
+    sessao.refresh(nova_entidade)
+    dados_entidade = {chave:valor for chave, valor in nova_entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']} 
+    campos = [f'{chave} = {valor}' for chave, valor in schema_dump.items()]
+    if len(campos) > 1:
+        retorno = ' e '.join(campos)
+    else:
+        retorno = campos[0]
+    print(campos)
     return {
-        'message':f"{entidade.__name__} {nova_entidade.id} criado com sucesso!",
-        f"{entidade.__name__}":{chave:valor for chave, valor in nova_entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']} 
+        'message':f"{entidade.__name__} {retorno} criado com sucesso!",
+        f"{entidade.__name__}":dados_entidade 
         
     }
 

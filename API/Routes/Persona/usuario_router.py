@@ -1,5 +1,6 @@
 
 #Requisito único
+
 from fastapi.security import OAuth2PasswordRequestForm
 
 # Bases
@@ -13,6 +14,7 @@ from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 from Application.chamada_rota import ativar_entidade, criar_entidade, desativar_entidade, editar_entidade, visualizar_entidade
 
 
+
 #Requisitos
 from API.Schemas.Persona.sUsuario import CriacaoSchema, LoginSchema, EdicaoSchema #Apenas Schemas
 from Application.Persona.fUsuario import validar_schema_usuario_criar, validar_schema_usuario_editar, validar_schema_usuario_logar, autenticar_usuario, exec_busca
@@ -20,8 +22,12 @@ from Infrastructure.Repositories.Persona.reUsuario import criar_usuario_bd, veri
 from Infrastructure.Models.Persona.mUsuario import Usuario
 from Infrastructure.Models.Conectores.mUsuarioFilial import UsuarioFilial
 
+
 #Complementares
 from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial, vincular_filial_bd, desvincular_filial_bd, verificar_vinculo_filial_desv
+
+from API.Schemas.Conectores.sUsuarioFilial import sUsuarioFilialCriacao
+
 from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_existe
 from Infrastructure.Integracoes.email import solicitar_reset_senha
 
@@ -200,15 +206,17 @@ async def reset_senha(email: str, sessao: Session = Depends(criar_sessao)):
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Usuário - Associar a filial (RF-U08)
-@usuario_router.post('/{id}/filiais/{id_filial}/vincular')
+@usuario_router.post('/{usuario}/filiais/{filial}/vincular')
 async def vincular_filial(id: int=0, id_filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    schema = sUsuarioFilialCriacao(**{'usuario':id, 'filial':id_filial})
     try:
-        usuario = verificar_usuario_existe(id=id, sessao=sessao)
-        verificar_permissao(ator, 'usuario', 'associar', usuario.cargo)
-        filial = verificar_filial_existe(id_filial, sessao)
-        verificar_vinculo_filial(id_usuario = id, id_filial = id_filial, sessao=sessao)
-        vinculo = vincular_filial_bd(usuario.id, filial.id, sessao)
-        salvar_log_bd('criar','usuariosFiliais','id_usuario',vinculo['vínculo']['id_usuario'], ator, sessao)
+        vinculo = criar_entidade(UsuarioFilial, schema, ator, sessao, ['usuario', 'filial'])
+        # usuario = verificar_usuario_existe(id=id, sessao=sessao)
+        # verificar_permissao(ator, 'usuario', 'associar', usuario.cargo)
+        # filial = verificar_filial_existe(id_filial, sessao)
+        # verificar_vinculo_filial(id_usuario = id, id_filial = id_filial, sessao=sessao)
+        # vinculo = vincular_filial_bd(usuario.id, filial.id, sessao)
+        # salvar_log_bd('criar','usuariosFiliais','id_usuario',vinculo['vínculo']['id_usuario'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:

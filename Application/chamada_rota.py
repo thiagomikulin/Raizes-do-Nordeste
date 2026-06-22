@@ -12,16 +12,22 @@ from Infrastructure.Models.base import TipoLogin
 #Função de criar entidade (para quaisquer criações, exige permissão, a ser controlada pelo JSON)
 def criar_entidade(entidade, schema, ator, sessao: Session, campo_verificacao: list=None, lista_regras_validacao: list = None, lista_regras_pos:list=None):
     nome_entidade = entidade.__name__
-    verificar_permissao(ator, 'criar',nome_entidade, tipo='Não Classificado' if nome_entidade == 'Usuario' else None) #colocar validação para cargo internamente
+    verificar_permissao(ator, 'criar',nome_entidade, tipo='Não Classificado' if nome_entidade in ['Usuario', 'UsuarioFilial'] else None) #colocar validação para cargo internamente
     verificar_entidade_criacao(entidade, schema, nome_entidade, campo_verificacao, sessao)
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
             regra()            
     entidade_nova = criar_entidade_bd(entidade, schema, sessao)
+    print(f'entidade:{entidade_nova}')
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:
             regra(entidade_nova, sessao)
-    salvar_log_bd('criar', entidade.__tablename__, 'id', entidade_nova[nome_entidade]['id'], ator, sessao)
+    if nome_entidade in ['UsuarioFilial']:
+        id = campo_verificacao
+    else:
+        id = ['id']
+    print(f'campo: {campo_verificacao}')
+    salvar_log_bd('criar', entidade.__tablename__, entidade_nova[nome_entidade], ator, sessao, id)
     return entidade_nova
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -161,13 +161,20 @@ class SemPermissao(ExceptionHTTP):
         )
 
 class Conflito(ExceptionHTTP):
-    def __init__(self, entidade, campo, valor_campo):
+    def __init__(self, entidade, encontrados: dict):
+        lista = [f'{chave} = {valor}' for chave, valor in encontrados.items()]
+        if len(lista) > 1:
+            descricao = " e ".join(lista)
+        else:
+            descricao = lista[0]
+        print('teste')
+        mensagem = f'Já existe um {entidade} com {descricao} cadastrado no sistema'
         super().__init__(
             code=409,
             error=f"CONFLITO DE CRIAÇÃO DE {entidade.upper()}",
-            message=f"Já existe um {entidade} com {campo} {valor_campo} cadastrado no sistema",
+            message=mensagem,
             detail=[
-                {"field":campo,"issue":"duplicated value"}
+                {"field":campo,"issue":"duplicated value"} for campo, valor in encontrados.items()
             ],
         )
 

@@ -6,6 +6,6 @@ class UsuarioFilial(Base):
     usuario = Column('IdUsuario', ForeignKey('usuarios.ID'), primary_key=True)
     filial = Column('IdFilial', ForeignKey('filiais.ID'), primary_key=True)
 
-    def __init__(self, usuario_id, filial_id):
-        self.usuario = usuario_id
-        self.filial = filial_id
+    def __init__(self, usuario, filial):
+        self.usuario = usuario #id
+        self.filial = filial #id
