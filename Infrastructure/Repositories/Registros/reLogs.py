@@ -17,7 +17,6 @@ def salvar_log_bd(acao, tabela, valor_novo, ator, sessao: Session,campos:list=No
         print(campos[item])
         #Identificação dos novos itens
         lista_novos = [valor_novo[campo] for campo in campos]
-        print('TTTTteste')
         print(lista_novos)
 
         #Identificação de valores antigos (se houver)
@@ -27,13 +26,13 @@ def salvar_log_bd(acao, tabela, valor_novo, ator, sessao: Session,campos:list=No
             lista_antigos = ''
 
         print(lista_novos)
-        print('aaaaaaaaaaaaa')
+        print('aqui')
         lista_novos = [str(item) for item in lista_novos]
+        print(lista_novos)
         if len(lista_novos) > 1:
             novos = ' , '.join(lista_novos)
-            print('aqui caraio')
-            print(novos)
             if valor_ant is not None:
+                lista_antigos = [str(item) for item in lista_antigos]
                 antigos = ' , '.join(lista_antigos)
             else:
                 antigos = ''
@@ -44,7 +43,6 @@ def salvar_log_bd(acao, tabela, valor_novo, ator, sessao: Session,campos:list=No
             else:
                 antigos = ''
 
-        print('aaaaaaaaaaaaa')
         novo_log = Log(
             acao, 
             tabela, 
@@ -54,7 +52,7 @@ def salvar_log_bd(acao, tabela, valor_novo, ator, sessao: Session,campos:list=No
             f'{novos}', 
             type(ator).__name__, 
             str(ator.id))
+        print('aqui')
         sessao.add(novo_log)
-        print('tttttttt')
     sessao.commit()
     return True

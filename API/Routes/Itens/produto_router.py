@@ -11,7 +11,7 @@ from Application.Item.fProduto import verificar_schema_criacao_produto
 from Infrastructure.Models.Item.mProduto import Produto
 
 
-produto_router = APIRouter(prefix='/produto', tags=['itens'])
+produto_router = APIRouter(prefix='/produto', tags=['Itens - Produtos'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

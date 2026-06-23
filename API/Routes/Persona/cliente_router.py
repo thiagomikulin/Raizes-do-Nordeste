@@ -3,7 +3,7 @@ from API.Routes.base import *
 from Application.base import criar_token, verificar_permissao, verificar_token, timedelta
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 
-from Application.chamada_rota import criar_entidade, editar_entidade, visualizar_entidade
+from Application.chamada_rota import ativar_entidade, criar_entidade, desativar_entidade, editar_entidade, visualizar_entidade
 
 #Exceptions
 from Domain.__exceptions__ import PermissionExcept, ConflictExcept, SchemaInvalido, Conflito, SemPermissao, ExceptionHTTP, ExceptionGenerica
@@ -21,7 +21,7 @@ from Infrastructure.Integracoes.email import solicitar_reset_senha
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-cliente_router = APIRouter(prefix='/clientes', tags=['cliente'])
+cliente_router = APIRouter(prefix='/clientes', tags=['Persona - Cliente'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -41,7 +41,6 @@ async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     Se você quer que os dados opcionais sejam utilizados para lhe gerar uma experiência mais dinâmica do app, preencha-os.
     A criação de seu usuário demonstra consentimento sobre o uso dos dados inseridos em seu cadastro
     '''
-    print(f'Email: {schema.email}')
     try:
         cliente = criar_entidade(
             Cliente, 
@@ -110,16 +109,13 @@ async def atualizar_cliente(id: int, schema: EdicaoSchema, sessao: Session = Dep
 @cliente_router.put('/{id}/ativar')
 async def ativar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        cliente = verificar_cliente_existe(sessao, id=id)
-        verificar_permissao(ator, 'cliente', 'desativar')
-        cliente_desativo = ativar_cliente_bd(cliente, sessao)
-        salvar_log_bd('desativar','clientes','ativo',cliente_desativo['cliente']['ativo'], ator, sessao)
+        ativado = ativar_entidade(Cliente, ator, id, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
         raise ExceptionGenerica(e)
     else:
-        return cliente_desativo
+        return ativado
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -127,16 +123,13 @@ async def ativar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=
 @cliente_router.put('/{id}/desativar')
 async def desativar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        cliente = verificar_cliente_existe(sessao, id=id)
-        verificar_permissao(ator, 'cliente', 'desativar')
-        cliente_desativo = desativar_cliente_bd(cliente, sessao)
-        salvar_log_bd('desativar','clientes','ativo',cliente_desativo['cliente']['ativo'], ator, sessao)
+        desativado = desativar_entidade(Cliente, ator, id, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
         raise ExceptionGenerica(e)
     else:
-        return cliente_desativo
+        return desativado
 
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

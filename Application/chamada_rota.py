@@ -14,25 +14,22 @@ from Infrastructure.Models.base import TipoLogin
 #Função de criar entidade (para quaisquer criações, exige permissão, a ser controlada pelo JSON)
 def criar_entidade(entidade, schema, ator, sessao: Session, campo_verificacao: list=None, lista_regras_validacao: list = None, lista_regras_pos:list=None):
     nome_entidade = entidade.__name__
-    print(schema.email)
     verificar_permissao(ator, 'criar',nome_entidade, tipo='Não Classificado' if nome_entidade in ['Usuario', 'UsuarioFilial'] else None) #colocar validação para cargo internamente
     verificar_entidade(entidade, schema, nome_entidade, campo_verificacao, sessao, 'criar')
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
             regra()            
-    entidade_nova = criar_entidade_bd(entidade, schema, sessao)
-    print(f'entidade:{entidade_nova}')
+    entidade_nova = criar_entidade_bd(entidade, schema, sessao, ator)
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:
             regra(entidade_nova, sessao)
-    print(nome_entidade in ['UsuarioFilial'])
-    if nome_entidade in ['UsuarioFilial']:
+    if nome_entidade in ['UsuarioFilial', 'PromoFilial', 'ItemReceita', 'VariacaoFilial']:
         id = campo_verificacao
         campo_id = campo_verificacao[0]
+        print(campo_id)
     else:
         id = ['id']
         campo_id = 'id'
-    print(f'campo: {campo_verificacao}')
     salvar_log_bd('criar', entidade.__tablename__, entidade_nova[nome_entidade], ator, sessao, id, campo_id=campo_id)
     return entidade_nova
 
@@ -54,15 +51,12 @@ def excluir_entidade(entidade, schema, ator, sessao: Session, campo_verificacao:
     #     id = campo_verificacao
     # else:
     #     id = ['id']
-    # print(f'campo: {campo_verificacao}')
     # salvar_log_bd('criar', entidade.__tablename__, entidade_excluida[nome_entidade], ator, sessao, id)
     return entidade_excluida
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def visualizar_entidade(entidade, sessao:Session, ator:TipoLogin=None, lista_campos: dict = None, lista_regras_validacao: list = None, lista_regras_pos:list=None):
-    print('cargo' in lista_campos)
-    print(lista_campos)
     permissoes = verificar_permissao(ator, 'buscar', entidade.__name__, tipo=lista_campos['cargo'] if 'cargo' in lista_campos else None)
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
@@ -83,17 +77,18 @@ def editar_entidade(id, entidade, schema, ator, sessao: Session, lista_regras_va
     entidade_consultada = verificar_entidade_existe(entidade, id=id, sessao=sessao)
     campos_antigos = {chave:valor.value if isinstance(valor, Enum) else valor
                         for chave, valor in entidade_consultada.__dict__.items() 
-                        if not chave.startswith('_')}
-    print(campos_antigos)
+                        if chave not in ['senha', 'cpf', 'conta_banc']}
     campos = verificar_entidade_atualizacao(schema, entidade_consultada)
+    print('teste')
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
             regra()      
     
-    edicao = editar_entidade_bd(schema, nome_entidade, entidade_consultada, campos, sessao)
+    edicao = editar_entidade_bd(schema, nome_entidade, entidade_consultada, campos, sessao, ator)
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:
             regra(edicao, sessao)
+    print('teste')
     salvar_log_bd('editar', entidade.__tablename__, edicao[nome_entidade], ator, sessao, campos, campos_antigos)
     return edicao
 

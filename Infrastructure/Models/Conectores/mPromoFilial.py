@@ -7,6 +7,6 @@ class PromoFilial(Base):
     filial = Column('Filial', ForeignKey('filiais.ID'), primary_key=True)
     ativo = Column('Ativo', Boolean, default=True)
 
-    def __init__(self, promo, filial):
-        self.promocao = promo
+    def __init__(self, promocao, filial):
+        self.promocao = promocao
         self.filial = filial

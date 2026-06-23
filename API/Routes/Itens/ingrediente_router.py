@@ -14,7 +14,7 @@ from Application.Item.fIngrediente import verificar_schema_criacao_ingrediente
 from Infrastructure.Repositories.Item.reIngrediente import verificar_ingrediente_existe, criar_ingrediente_db
 from Infrastructure.Models.Item.mIngrediente import Ingrediente
 
-ingrediente_router = APIRouter(prefix='/ingredientes', tags=['itens'])
+ingrediente_router = APIRouter(prefix='/ingredientes', tags=['Itens - Ingredientes'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

@@ -16,7 +16,7 @@ from Application.Registros.fMovimentos import validar_schema_movimento_criacao, 
 from Infrastructure.Repositories.Registros.reMovimentos import verificar_movimento_criacao, criar_movimento_bd
 from Infrastructure.Models.Registros.mMovimentos import Movimento
 
-movimentos_router = APIRouter(prefix='/movimentos', tags=['empresa'])
+movimentos_router = APIRouter(prefix='/movimentos', tags=['Empresa - Movimentos'])
 
 # Criar entrada
 @movimentos_router.post('/criar')

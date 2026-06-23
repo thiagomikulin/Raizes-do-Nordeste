@@ -1,4 +1,5 @@
 from API.Schemas.base import *
+from Infrastructure.Models.Empresa.mFilial import Estrutura
 
 class CriacaoSchema(BaseModel):
     cidade: str
@@ -8,4 +9,5 @@ class CriacaoSchema(BaseModel):
     # campanha_promo: Relationship
 
 class EdicaoSchema(BaseModel):
-    pass
+    estrutura: Estrutura
+    endereco: str

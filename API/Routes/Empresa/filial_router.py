@@ -1,9 +1,12 @@
 #Bases
 from API.Routes.base import *
 from Application.base import *
+from API.Schemas.Conectores.sPromoFilial import sPromoFilialCriacao, sPromoFilialExclusao
+from Infrastructure.Models.Empresa.mFilial import Filial
+from Infrastructure.Models.Conectores.mPromoFilial import PromoFilial
 from Infrastructure.Repositories.base import criar_sessao, Session, Depends
 
-from Application.chamada_rota import criar_entidade, visualizar_entidade
+from Application.chamada_rota import ativar_entidade, criar_entidade, desativar_entidade, editar_entidade, excluir_entidade, visualizar_entidade
 
 #Exceptions
 from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
@@ -17,14 +20,9 @@ from Infrastructure.Models.Vendas.mPedido import Pedido, StatusCode, TiposPed, C
 from API.Schemas.Empresa.sFilial import CriacaoSchema, EdicaoSchema
 from Application.Empresa.fFilial import verificar_schema_criacao, verificar_schema_edicao, exec_busca, verificar_alteracao
 from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_criacao, criar_filial_bd, verificar_filial_existe, desativar_filial_bd, ativar_filial_bd, atualizar_filial_db, criar_estoque_vinculado
-from Infrastructure.Models.Empresa.mFilial import Filial
 
-#Complementares
-from Infrastructure.Repositories.Empresa.reCampanhaPromo import verificar_campanha_existe
-from Infrastructure.Repositories.Conectores.reFiliaisPromo import verificar_vinculo_filial, associar_filial_campanha_db, desassociar_filial_campanha_db
-from API.Routes.Pedido.pedido_router import consultar_pedido
 
-filial_router = APIRouter(prefix='/filiais', tags=['empresa'])
+filial_router = APIRouter(prefix='/filiais', tags=['Empresa - Filial'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -45,12 +43,7 @@ async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_ses
 @filial_router.put('/{id}')
 async def atualizar_filial(id: int, schema: EdicaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        verificar_schema_edicao(schema)
-        verificar_permissao(ator, 'filial', 'editar')
-        filial = verificar_filial_existe(id, sessao)
-        campos = verificar_alteracao(filial, schema)
-        filial_alterada = atualizar_filial_db(schema, sessao)
-        salvar_log_bd('criar','filial','id',filial_alterada['filial']['id'], ator, sessao)
+        filial_alterada = editar_entidade(id, Filial, schema, ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -79,7 +72,6 @@ async def listar_filial(
         'ativo':ativo
     }
     try:
-        print(type(ator))
         lista = visualizar_entidade(Filial, sessao, ator, dict_campos)
         # verificar_permissao(ator, 'filial', 'listar')
         # lista = exec_busca(id, cidade, estrutura, endereco, ativo, sessao, ator)
@@ -96,10 +88,8 @@ async def listar_filial(
 @filial_router.patch('/{id}/ativar')
 async def ativar_filial(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        verificar_permissao(ator, 'filial', 'ativar')
-        verificar_filial_existe(id, sessao)
-        filial_ativa = ativar_filial_bd(id, sessao)
-        salvar_log_bd('ativar','filial','id',filial_ativa['id'], ator, sessao)
+        #Adicionar regra complementar de ativar estoque junto
+        filial_ativa = ativar_entidade(Filial, ator, id, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -114,10 +104,8 @@ async def ativar_filial(id: int, sessao:Session = Depends(criar_sessao), ator=De
 @filial_router.patch('/{id}/desativar')
 async def desativar_filial(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        verificar_permissao(ator, 'filial', 'ativar')
-        verificar_filial_existe(id, sessao)
-        filial_desativa = desativar_filial_bd(id, sessao)
-        salvar_log_bd('desativar','filial','id',filial_desativa['id'], ator, sessao)
+        #Adicionar regra complementar de desativar estoque junto
+        filial_desativa = desativar_entidade(Filial, ator, id, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -175,13 +163,9 @@ async def consultar_vendas_filial(
 # Associar Campanhas
 @filial_router.post('/{id}/campanha/{id_campanha}/associar')
 async def associar_filial_campanha(id: int, id_campanha: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    schema = sPromoFilialCriacao(**{'promocao':id_campanha, 'filial':id})
     try:
-        verificar_permissao(ator, 'filial', 'associar') #O usuário tem permissão de associar campanha com filial?
-        filial = verificar_filial_existe(id, sessao) #A filial passada pelo id é válida?
-        campanha = verificar_campanha_existe(id_campanha, sessao) #A campanha passada pelo id é válida?
-        relacao = verificar_vinculo_filial(filial.id, campanha.id, sessao) #O vínculo entre campanha e filial já existe?
-        relacao_criada = associar_filial_campanha_db(filial.id, campanha.id, relacao, sessao) #Se o vínculo NÃO existir, retorna erro
-        salvar_log_bd('criar','FilialPromo','id',relacao_criada['id'], ator, sessao)
+        relacao_criada = criar_entidade(PromoFilial, schema, ator, sessao, ['promocao', 'filial'])
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -193,15 +177,11 @@ async def associar_filial_campanha(id: int, id_campanha: int, sessao:Session = D
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Desassociar campanhas
-@filial_router.post('/{id}/campanha/desassociar/{id_campanha}')
+@filial_router.delete('/{id}/campanha/{id_campanha}/desassociar')
 async def desassociar_filial_campanha(id: int, id_campanha: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    schema = sPromoFilialExclusao(**{'filial':id, 'promocao':id_campanha})
     try:
-        verificar_permissao(ator, 'filial', 'associar') #O usuário tem permissão de associar campanha com filial?
-        filial = verificar_filial_existe(id, sessao) #A filial passada pelo id é válida?
-        campanha = verificar_campanha_existe(id_campanha, sessao) #A campanha passada pelo id é válida?
-        relacao = verificar_vinculo_filial(filial.id, campanha.id, sessao) #O vínculo entre campanha e filial já existe?
-        relacao_desfeita = desassociar_filial_campanha_db(filial.id, campanha.id, relacao, sessao) #Se o vínculo não existir, retorna erro
-        salvar_log_bd('criar','FilialPromo','id',relacao_desfeita['id'], ator, sessao)
+        relacao_desfeita = excluir_entidade(PromoFilial, schema, ator, sessao, ['filial','promocao'])
     except ExceptionHTTP:
         raise
     except Exception as e:

@@ -1,8 +1,9 @@
 from API.Schemas.base import *
-from Infrastructure.Models.Vendas.mPedido import TiposPed, CanalPedido, FormaPagamento
+from Domain.__exceptions__ import CamposObrigatorios
+from Infrastructure.Models.Vendas.mPedido import StatusPagamento, TiposPed, CanalPedido, FormaPagamento
 
 class CriacaoSchema(BaseModel):
-  filial: int = Field(ge=1, frozen=True)
+  filial: int = Field(ge=1)
   #status: str
   tipoPedido: TiposPed
   canalPedido: CanalPedido
@@ -33,21 +34,24 @@ class CriacaoSchema(BaseModel):
     tipoPedido = self.tipoPedido
 
     if mesa == "" and tipoPedido == TiposPed.MESA:
-      raise
+      raise CamposObrigatorios({'mesa':mesa, 'tipo_pedido':tipoPedido.value})
     elif chamada == "" and tipoPedido == TiposPed.BALCAO:
-      raise
+      raise CamposObrigatorios({'chamada':chamada, 'tipo_pedido':tipoPedido.value})
     elif endereco == "" and tipoPedido == TiposPed.ENTREGA:
-      raise
+      raise CamposObrigatorios({'endereco':endereco, 'tipo_pedido':tipoPedido.value})
     elif cliente == "" and (mesa == '' and chamada == ''):
-      raise
+      raise CamposObrigatorios({'cliente':cliente, 'mesa':mesa, 'chamada':chamada})
+    return self
 
 
 
 class EdicaoSchema(BaseModel):
-  tipoPedido: str
+  tipo: str
   cliente: Optional[int] #Opcional
   mesa: Optional[int]
   chamada: Optional[int]
   endereco: Optional[str]
-  forma_pagamento: str
+  forma_pagamento: FormaPagamento
+  desconto_fidelidade: int
+  status_pagamento: StatusPagamento
 

@@ -15,7 +15,7 @@ from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 #exceptions
 from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 
-variacao_router = APIRouter(prefix='/variacoes', tags=['itens'])
+variacao_router = APIRouter(prefix='/variacoes', tags=['Itens - Variações'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

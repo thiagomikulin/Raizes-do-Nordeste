@@ -28,6 +28,14 @@ class FormaPagamento(str, EnumPy):
     CREDITO = "Crédito"
     DEBITO = "Débito"
 
+class StatusPagamento(str, EnumPy):
+    AGUARDANDO = "Aguardando Fechamento"
+    PENDENTE = "Pendente",
+    CANCELADO = "Cancelado"
+    ESTORNADO = "Estornado"
+    APROVADO = "Aprovado"
+
+
 class Pedido(Base):
     __tablename__ = 'pedidos'
 
@@ -97,14 +105,20 @@ class Pedido(Base):
         nullable=False
         )
     id_pagamento = Column("IdPagamento", Integer)
-    status_pagamento = Column("StatusPagamento", String(80))
+    status_pagamento = Column(
+        "StatusPagamento", 
+        AlEnum(
+            StatusPagamento, 
+            values_callable=lambda enum: [e.value for e in enum]
+        ),
+        default=StatusPagamento.AGUARDANDO)
     desconto_fidelidade = Column("PontosFidelidade", Integer, default=0, nullable=False)
 
-    def __init__(self, filial, tipo_ped, canal, tipo_criador, id_criador, cliente=None, mesa=None, chamada=None, endereco = None, forma_pagamento=None):
+    def __init__(self, filial, tipoPedido, canalPedido, tipo_criador, id_criador, cliente=None, mesa=None, chamada=None, endereco = None, forma_pagamento=None):
         self.filial = filial
         self.status = StatusCode.ABERTO
-        self.tipo = tipo_ped
-        self.canal = canal
+        self.tipo = tipoPedido
+        self.canal = canalPedido
         self.tipo_criador = tipo_criador
         self.id_criador = id_criador
         self.cliente = cliente

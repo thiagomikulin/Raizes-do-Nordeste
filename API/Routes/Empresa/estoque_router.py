@@ -19,7 +19,7 @@ from Infrastructure.Repositories.Empresa.reEstoqueItens import criar_estoque_ite
 from Infrastructure.Repositories.Item.reIngrediente import verificar_ingrediente_existe
 
 
-estoque_router = APIRouter(prefix='/estoque', tags=['empresa']) 
+estoque_router = APIRouter(prefix='/estoque', tags=['Empresa - Estoque']) 
 
 # OBS: CRIAÇÃO AUTOMÁTICA NA CRIAÇÃO DA FILIAL
 

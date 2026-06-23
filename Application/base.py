@@ -105,7 +105,6 @@ def verificar_permissao(ator, permissao: str, modulo:str, tipo: str=None):
 
 def verificar_entidade_atualizacao(schema, entidade):
     campos = []
-    print(entidade)
     dict_ent = entidade.__dict__
     for chave, valor in schema.__dict__.items():
         coluna = dict_ent[chave]

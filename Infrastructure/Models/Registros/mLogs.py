@@ -32,9 +32,9 @@ class Log(Base):
         )    
     )
     id_modificado = Column('IdModificado', Integer, nullable=False)
-    campo = Column('Campo', String(30), nullable=False)
-    valor_ant = Column('ValorAnterior', String(80), nullable=False)
-    valor_novo = Column('ValorNovo', String(80), nullable=False)
+    campo = Column('Campo', String(100), nullable=False)
+    valor_ant = Column('ValorAnterior', String(200), nullable=False)
+    valor_novo = Column('ValorNovo', String(200), nullable=False)
     tipo_pessoa = Column(
         'TipoPessoa',
         AlEnum(

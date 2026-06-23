@@ -28,6 +28,8 @@ def verificar_entidade(entidade, schema, nome_entidade, campos: list, sessao: Se
         contador = 0
         for campo in campos:
             coluna = getattr(entidade, campo)
+            print(coluna)
+            print(getattr(schema, campo))
             busca = sessao.query(entidade).filter(coluna == getattr(schema, campo)).first()
             if busca:
                 contador += 1
@@ -44,8 +46,11 @@ def verificar_entidade(entidade, schema, nome_entidade, campos: list, sessao: Se
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def criar_entidade_bd(entidade, schema, sessao):
+def criar_entidade_bd(entidade, schema, sessao, ator):
     schema_dump = schema.model_dump()
+    if entidade.__name__ == 'Pedido':
+        schema_dump['tipo_criador'] = f'{ator.__class__.__name__}'
+        schema_dump['id_criador'] = ator.id
     print(schema_dump)
     if "senha" in schema_dump:
         schema_dump['senha'] = bcrypt_context.hash(schema_dump["senha"])
@@ -57,7 +62,7 @@ def criar_entidade_bd(entidade, schema, sessao):
     sessao.commit()
     sessao.refresh(nova_entidade)
     dados_entidade = {chave:valor for chave, valor in nova_entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']} 
-    campos = [f'{chave} = {valor}' for chave, valor in schema_dump.items()]
+    campos = [f'{chave} = {valor}' for chave, valor in schema_dump.items() if chave not in ['senha', 'cpf', 'conta_banc']]
     if len(campos) > 1:
         retorno = ' e '.join(campos)
     else:
@@ -157,8 +162,15 @@ def verificar_entidade_existe(entidade, id, sessao:Session):
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def editar_entidade_bd(schema, nome_entidade, entidade, campos, sessao:Session):
+def editar_entidade_bd(schema, nome_entidade, entidade, campos, sessao:Session, ator):
     schema_dump = schema.model_dump()
+    if nome_entidade == 'Pedido':
+        campos.append('tipo_modificador')
+        schema_dump['tipo_modificador'] = f'{ator.__class__.__name__}'
+        print(schema_dump)
+        campos.append('id_modificador')
+        schema_dump['id_modificador'] = str(ator.id)
+
     for campo in campos:
         setattr(entidade, campo, schema_dump[campo])
     sessao.commit()

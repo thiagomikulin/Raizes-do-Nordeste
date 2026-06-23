@@ -25,7 +25,7 @@ from Infrastructure.Repositories.Conectores.reUsuarioFilial import vincular_fili
 #Complementares
 from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_existe
 
-campanha_router = APIRouter(prefix='/campanhas', tags=['empresa']) #organizar por pasta pai pode ser interessante
+campanha_router = APIRouter(prefix='/campanhas', tags=['Empresa - Campanha']) #organizar por pasta pai pode ser interessante
 
 
 # Criar

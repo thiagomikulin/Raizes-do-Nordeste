@@ -1,6 +1,5 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
-import MySQLdb
 
 from datetime import datetime
 from typing import Optional

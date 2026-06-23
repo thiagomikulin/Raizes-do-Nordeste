@@ -3,7 +3,7 @@ from Application.base import verificar_token, verificar_permissao
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 
 
-from Application.chamada_rota import criar_entidade, visualizar_entidade
+from Application.chamada_rota import criar_entidade, editar_entidade, visualizar_entidade
 
 from API.Schemas.Pedido.sPedido import *
 
@@ -17,7 +17,7 @@ from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 from Domain.__exceptions__ import ExceptionGenerica, ExceptionHTTP
 
-pedido_router = APIRouter(prefix='/pedidos', tags=['pedido'])
+pedido_router = APIRouter(prefix='/pedidos', tags=['Pedido'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -31,7 +31,7 @@ async def criar_pedido(schema: CriacaoSchema, sessao: Session = Depends(criar_se
     try:
         #Pode verificar também se o usuário (se for usuário) é um trabalhador da mesma filial que o pedido. Se não for, deve impedir a criação (implementação futura)
         #Validação de mesa, cliente e entrega feita no schema
-        pedido = criar_entidade(Pedido, schema, ator, sessao, lista_regras_validacao=None)
+        pedido = criar_entidade(Pedido, schema, ator, sessao, campo_verificacao=None, lista_regras_validacao=None)
         # verificar_pedido_schema_criar(schema)
         # verificar_permissao(ator, 'pedido', 'criar')
         # verificar_tipo_pedido(schema) #consistência de mesas, clientes e entregas
@@ -50,14 +50,15 @@ async def criar_pedido(schema: CriacaoSchema, sessao: Session = Depends(criar_se
 # Editar
 @pedido_router.put('/{id}/editar')
 async def editar_pedido(id:int, schema: EdicaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    path = f'/pedidos/{id}/editar'
 
     #OBS: colocar validação extra para clientes (só atualizam pedidos com status=aberto)
     try:
-        verificar_pedido_schema_editar(schema)
-        verificar_permissao(ator, 'pedido', 'editar')
+        pedido_editado = editar_entidade(id, Pedido, schema, ator, sessao)
+    except ExceptionHTTP:
+        raise
     except Exception as e:
         raise ExceptionGenerica(e)
+    return pedido_editado
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -113,7 +114,7 @@ async def consultar_pedido(
         "forma_pagamento":forma_pagamento, 
     }
     try:
-        lista = visualizar_entidade(Pedido, ator, sessao, lista_campos=dict_campos)
+        lista = visualizar_entidade(Pedido, sessao, ator, lista_campos=dict_campos)
         # verificar_permissao(ator, 'pedido', 'consultar')
         # lista = exec_busca(, sessao)
     except ExceptionHTTP:
