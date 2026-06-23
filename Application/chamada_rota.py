@@ -79,7 +79,6 @@ def editar_entidade(id, entidade, schema, ator, sessao: Session, lista_regras_va
                         for chave, valor in entidade_consultada.__dict__.items() 
                         if chave not in ['senha', 'cpf', 'conta_banc']}
     campos = verificar_entidade_atualizacao(schema, entidade_consultada)
-    print('teste')
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
             regra()      
@@ -88,8 +87,8 @@ def editar_entidade(id, entidade, schema, ator, sessao: Session, lista_regras_va
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:
             regra(edicao, sessao)
-    print('teste')
-    salvar_log_bd('editar', entidade.__tablename__, edicao[nome_entidade], ator, sessao, campos, campos_antigos)
+    print('teste2323232')
+    salvar_log_bd('editar', entidade.__tablename__, edicao[nome_entidade], ator, sessao, campos, campos_antigos, id)
     return edicao
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

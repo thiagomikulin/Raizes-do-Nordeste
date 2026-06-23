@@ -31,7 +31,7 @@ class Log(Base):
             values_callable=lambda enum: [e.value for e in enum]
         )    
     )
-    id_modificado = Column('IdModificado', Integer, nullable=False)
+    id_modificado = Column('IdModificado', String(12), nullable=False)
     campo = Column('Campo', String(100), nullable=False)
     valor_ant = Column('ValorAnterior', String(200), nullable=False)
     valor_novo = Column('ValorNovo', String(200), nullable=False)

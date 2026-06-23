@@ -74,15 +74,25 @@ class MandatoryForFillingExcept(Exception):
 #Exceções HTTP
 
 class NaoAlterado(ExceptionHTTP):
-    def __init__(self, entidade):
+    def __init__(self, entidade, identificador):
         super().__init__(
             code=400,
             error=f"NÃO ALTERADO",
             message=f"O {type(entidade).__name__} enviado é idêntico ao salvo, portanto a requisição não será realizada!",
             detail=[
-                {"field":f"{entidade.id}","issue":"identical value"}
+                {
+                    "field":f"{chave}",
+                    'value':f"{valor}",
+                    "issue":"identical value"}
+                for chave, valor in identificador.items() if chave != "_sa_instance_state"
+            ] if type(identificador) == dict else [
+                {
+                    "field":"id",
+                    "value":identificador,
+                    "issue":"identical value"
+                }
             ],
-        )
+        ) 
 
 # 401
 class NaoAutenticado(ExceptionHTTP):

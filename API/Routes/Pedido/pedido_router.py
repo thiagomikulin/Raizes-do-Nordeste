@@ -1,19 +1,17 @@
 from API.Routes.base import APIRouter
 from Application.base import verificar_token, verificar_permissao
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
+from Application.chamada_rota import criar_entidade, editar_entidade, excluir_entidade, visualizar_entidade
 
 
-from Application.chamada_rota import criar_entidade, editar_entidade, visualizar_entidade
+from API.Schemas.Pedido.sPedido import CriacaoSchema, EdicaoSchema
+from API.Schemas.Pedido.sPedItens import InternoItemCriacaoSchema, ItemCriacaoSchema, ItemEdicaoSchema, ItemExclusaoSchema
 
-from API.Schemas.Pedido.sPedido import *
+from Application.Vendas.fPedido import verificar_dono_pedido, progredir_status
 
-from Application.Vendas.fPedido import verificar_pedido_schema_criar,verificar_pedido_schema_editar , verificar_tipo_pedido, verificar_dono_pedido, progredir_status
 from Infrastructure.Models.Vendas.mPedido import Pedido
+from Infrastructure.Models.Vendas.mPedidoItens import ItensPed
 
-
-from Infrastructure.Repositories.Vendas.rePedido import criar_pedido_bd, pedido_existe
-from Infrastructure.Repositories.Persona.reCliente import cliente_existe
-from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 from Domain.__exceptions__ import ExceptionGenerica, ExceptionHTTP
 
@@ -32,12 +30,6 @@ async def criar_pedido(schema: CriacaoSchema, sessao: Session = Depends(criar_se
         #Pode verificar também se o usuário (se for usuário) é um trabalhador da mesma filial que o pedido. Se não for, deve impedir a criação (implementação futura)
         #Validação de mesa, cliente e entrega feita no schema
         pedido = criar_entidade(Pedido, schema, ator, sessao, campo_verificacao=None, lista_regras_validacao=None)
-        # verificar_pedido_schema_criar(schema)
-        # verificar_permissao(ator, 'pedido', 'criar')
-        # verificar_tipo_pedido(schema) #consistência de mesas, clientes e entregas
-        # cliente_existe(schema.cliente, sessao)
-        # pedido = criar_pedido_bd(schema, sessao, ator)
-        # salvar_log_bd('criar','pedidos','id',pedido['pedido']['id'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -131,18 +123,62 @@ async def consultar_pedido(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Itens - Adicionar
+@pedido_router.post('/{id}/itens/adicionar')
+async def adicionar_item_pedido(id: int, schema: ItemCriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    schema_int = InternoItemCriacaoSchema(**schema.model_dump(),id_ped=id)
+    try:
+        item_pedido = criar_entidade(ItensPed, schema_int, ator, sessao, ['id_ped', 'variacao'])
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    return item_pedido
+    
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Itens - Remover
+@pedido_router.delete('/{id_ped}/itens/{id}/remover')
+async def remover_item_pedido(id_ped: int, id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    schema = ItemExclusaoSchema(id_ped=id_ped, id=id)
+    try:
+        item_deletado = excluir_entidade(ItensPed, schema, ator, sessao, ['id', 'id_ped'])
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    return item_deletado
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Itens - Editar
+@pedido_router.put('/{id_ped}/itens/{id}/editar')
+async def editar_item_ped(schema: ItemEdicaoSchema, id_ped: int, id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    dict_campos = {'id_ped':id_ped, 'id':id}
+    try:
+        #Validação prévia se esse item pertence a esse pedido
+        visualizar_entidade(ItensPed, sessao, ator, dict_campos)
+        item_editado = editar_entidade(id, ItensPed, schema, ator, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    return item_editado
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Itens - Consultar
+@pedido_router.get('/{id}/itens/')
+async def consultar_itens_pedido(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    dict_campos = {"id_ped":id}
+    try:
+        lista_itens = visualizar_entidade(ItensPed, sessao, ator, dict_campos)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    return lista_itens
 
 
 

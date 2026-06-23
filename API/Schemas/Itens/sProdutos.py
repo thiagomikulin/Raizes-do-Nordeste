@@ -4,3 +4,6 @@ class CriacaoSchema(BaseModel):
   nome: str
   # variacoes: relationship
   #ativo: bool
+
+class EdicaoSchema(BaseModel):
+  nome: str

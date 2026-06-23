@@ -104,13 +104,18 @@ def verificar_permissao(ator, permissao: str, modulo:str, tipo: str=None):
         return permissoes[permissao][0:indice_dominio]
 
 def verificar_entidade_atualizacao(schema, entidade):
+    print('schema', schema)
+    print('entidade', entidade)
     campos = []
     dict_ent = entidade.__dict__
+    print('dict_ent',dict_ent)
     for chave, valor in schema.__dict__.items():
         coluna = dict_ent[chave]
+        print('coluna', coluna)
         if coluna != valor:
             campos.append(chave)
     if len(campos) == 0:
-        raise NaoAlterado(entidade)
+        raise NaoAlterado(entidade, dict_ent)
         #coluna = getattr(entidade, item)
+    print(campos)
     return campos

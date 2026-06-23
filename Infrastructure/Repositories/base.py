@@ -6,7 +6,7 @@ from main import db, sessionmaker, Session, bcrypt_context
 
 from Application.base import *
 
-from Infrastructure.Models.base import EnumPy
+from Infrastructure.Models.base import EnumPy, inspect
 
 from Domain.__exceptions__ import Conflito, NaoEncontrado
 
@@ -135,17 +135,39 @@ def exec_busca(entidade, dict_campos: dict, sessao, permissoes):
     lista = []
     for itens in retorno:
         item = {}
-        for chave, valor in itens.__dict__.items():
-            if chave in ['senha', 'cpf', 'scanFace', 'conta_banc']: #Dados sensíveis
+
+        mapa_campos = inspect(itens)
+        for coluna in mapa_campos.mapper.column_attrs:
+            nome = coluna.key
+
+            #Campos normais
+            if nome in ['senha', 'cpf', 'scanFace', 'conta_banc']: #Dados sensíveis
                 continue
-            else:
-                item[chave] = valor
+
+            item[nome] = getattr(itens, nome)
+            
+
+
+        #Relationship
+        for relacao in mapa_campos.mapper.relationships:
+            nome = relacao.key
+
+            item[nome] = getattr(itens, nome)
+
+        #Controle de permissão de view de usuário
         if tipo == 'Usuario':
             cargo = f'{tipo} - {item['cargo'].value}'
             if cargo in permissoes:
                 lista.append(item)
         else:
             lista.append(item)
+        
+
+        # for chave, valor in itens.__dict__.items():
+        #     if chave in ['senha', 'cpf', 'scanFace', 'conta_banc']: #Dados sensíveis
+        #         continue
+        #     else:
+        #         item[chave] = valor
     
 
     if not lista:
@@ -155,9 +177,18 @@ def exec_busca(entidade, dict_campos: dict, sessao, permissoes):
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def verificar_entidade_existe(entidade, id, sessao:Session):
-    check = sessao.query(entidade).filter(entidade.id == id).first()
-    if not check:
-        raise NaoEncontrado({"id":id})
+    if type(id) == dict:
+        print(id)
+        for chave, valor in id.items():
+            coluna = getattr(entidade, chave)
+            check = sessao.query(entidade).filter(coluna == valor).first()
+        if not check:
+            raise NaoEncontrado({chave, valor} for chave, valor in id.items())
+    else:
+        print('valida aqui')
+        check = sessao.query(entidade).filter(entidade.id == id).first()
+        if not check:
+            raise NaoEncontrado({"id":id})
     return check
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -175,8 +206,17 @@ def editar_entidade_bd(schema, nome_entidade, entidade, campos, sessao:Session, 
         setattr(entidade, campo, schema_dump[campo])
     sessao.commit()
     sessao.refresh(entidade)
+    itens = list(entidade.__dict__.items())
+    lista_str = []
+    for chave, valor in itens:
+        lista_str.append(f'{chave} - {valor}')
+    lista_str.pop(0)
+    if len(lista_str) > 1:
+        mensagem = ' e '.join(lista_str)
+    else:
+        mensagem = lista_str[0]
     return {
-        "message":f"{nome_entidade} {entidade.id} atualizado com sucesso!",
+        "message":f"O {nome_entidade} com {mensagem} foi atualizado com sucesso!",
         f"{nome_entidade}":{chave:valor.value if isinstance(valor, Enum) else valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
     }
 

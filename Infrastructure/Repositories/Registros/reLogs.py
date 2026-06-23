@@ -43,16 +43,29 @@ def salvar_log_bd(acao, tabela, valor_novo, ator, sessao: Session,campos:list=No
             else:
                 antigos = ''
 
+        print('quase lá')  
+
+        if type(campo_id) == dict:
+            ids_mod = list(campo_id.values())
+            ids_mod = [str(id) for id in ids_mod]
+            print(ids_mod)
+            id_modificado = ' , '.join(ids_mod)
+            print('passou')
+        else:
+            id_modificado = campo_id
+    
+
         novo_log = Log(
             acao, 
             tabela, 
-            valor_novo[campo_id],
+            id_modificado,
             f'{campo_salvo}',
             f'{antigos}', 
             f'{novos}', 
             type(ator).__name__, 
             str(ator.id))
-        print('aqui')
+        print('aqui finalmente')
+        print(novo_log.__dict__.items())
         sessao.add(novo_log)
     sessao.commit()
     return True

@@ -6,3 +6,7 @@ class CriacaoSchema(BaseModel):
   # filiais: relationship
   # ingredientes: relationship
   preco_unitario: float
+
+class EdicaoSchema(BaseModel):
+  nome: str
+  preco_unitario: float
