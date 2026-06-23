@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 
 from enum import Enum
 
+# A ideia por traz dessa ""implementação"" de mock de pagamento seria como uma solicitação de pix, gerada e direcionada a um CPF específico 
+
 app = FastAPI()
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -60,15 +62,30 @@ async def estornar_pagamento(id: int):
 
 @app.patch('/pagamentos/{id}/cancelar')
 async def cancelar_pagamento(id:int):
-    pass
+    pagamento = pagamentos.get(id)
+    if pagamento is None:
+        raise HTTPException(status_code=404, detail='Pagamento não encontrado')
+
+pagamentos[id].cancelarPagamento()
 
 @app.patch('/pagamentos/{id}/aprovar')
 async def aprovar_pagamento(id: int):
-    pass
+    pagamento = pagamentos.get(id)
+    if pagamento is None:
+        raise HTTPException(status_code=404, detail='Pagamento não encontrado')
+
+pagamentos[id].aprovarPagamento()
+
 
 
 @app.get('/pagamentos')
 async def consultar_pagamento(
     id: int | None=None
 ):
-    pass
+    pagamento = pagamentos.get(id)
+    if pagamento is None:
+        raise HTTPException(status_code=404, detail='Pagamento não encontrado')
+
+return pagamentos[id]
+
+    
