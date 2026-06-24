@@ -64,3 +64,7 @@ def progredir_status(pedido:Pedido, sessao: Session):
         case "Em Trânsito":
             status="Recebido"
     return status_pedido_db(pedido, status, sessao)
+
+
+def valida_status_pedido(pedido: Pedido, status_request: StatusPed):
+    pass
