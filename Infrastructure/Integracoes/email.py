@@ -31,7 +31,6 @@ def solicitar_reset_senha(email):
     mensagem.attach(MIMEText(corpo, 'plain'))
 
     with smtplib.SMTP("smtp.gmail.com", 587) as servidor:
-        print('teste')
         servidor.starttls()
         servidor.login(enviador, senha)
         servidor.send_message(mensagem)

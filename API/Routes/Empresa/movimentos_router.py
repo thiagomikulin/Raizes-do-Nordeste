@@ -1,9 +1,12 @@
 #Base
+from datetime import date
+
 from API.Routes.base import *
 from Application.base import verificar_permissao, verificar_token
+from Infrastructure.Models.Registros.mMovimentoItens import ItensMovimento
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 
-from Application.chamada_rota import criar_entidade
+from Application.chamada_rota import criar_entidade, editar_entidade, excluir_entidade, visualizar_entidade
 
 #Exceptions
 from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
@@ -11,10 +14,10 @@ from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 #Requisitos
-from API.Schemas.Empresa.sMovimentos import CriacaoSchema, EdicaoSchema, ItemCriacaoSchema
+from API.Schemas.Empresa.sMovimentos import CriacaoSchema, EdicaoSchema, InternoItemCriacaoSchema, ItemCriacaoSchema, ItemEdicaoSchema, ItemExclusaoSchema
 from Application.Registros.fMovimentos import validar_schema_movimento_criacao, validar_schema_movimento_edicao, exec_busca
 from Infrastructure.Repositories.Registros.reMovimentos import verificar_movimento_criacao, criar_movimento_bd
-from Infrastructure.Models.Registros.mMovimentos import Movimento
+from Infrastructure.Models.Registros.mMovimentos import Movimento, StatusMov, TipoMov
 
 movimentos_router = APIRouter(prefix='/movimentos', tags=['Empresa - Movimentos'])
 
@@ -23,11 +26,6 @@ movimentos_router = APIRouter(prefix='/movimentos', tags=['Empresa - Movimentos'
 async def criar_movimento(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         movimento = criar_entidade(Movimento, schema, ator, sessao, campo_verificacao=["chave_nota"])
-        # validar_schema_movimento_criacao(schema)
-        # verificar_permissao(ator, 'movimento', 'criar', schema.tipo_mov)
-        # verificar_movimento_criacao(schema.chave_nota, sessao)
-        # movimento = criar_movimento_bd(schema, sessao)
-        # salvar_log_bd('criar','movimento','id',movimento['movimento']['id'], ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -42,18 +40,26 @@ async def criar_movimento(schema: CriacaoSchema, sessao:Session = Depends(criar_
 @movimentos_router.get('/')
 async def listar_movimentos(
     id: int | None=None,
-    datahora: str | None=None,
-    status: str | None=None,
+    datahora: date | None=None,
+    status: StatusMov | None=None,
     filial: int | None=None,
-    tipo_mov: int | None=None,
+    tipo_mov: TipoMov | None=None,
     validade: str | None=None,
     chave_nota: str | None=None,
     sessao: Session = Depends(criar_sessao), 
     ator = Depends(verificar_token)
 ):
+    dict_campos = {
+        'id':id,
+        'datahora':datahora,
+        'status':status,
+        'filial':filial,
+        'tipo_mov':tipo_mov,
+        'validade':validade,
+        'chave_nota':chave_nota
+    }
     try:
-        verificar_permissao(ator, 'movimentos', 'listar', tipo_mov)
-        lista = exec_busca(id, datahora, status, filial, tipo_mov, validade, chave_nota, sessao, ator)
+        lista = visualizar_entidade(Movimento, sessao, ator, dict_campos)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -64,15 +70,10 @@ async def listar_movimentos(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Editar
-@movimentos_router.put('/{id}')
+@movimentos_router.put('/{id}/editar')
 async def editar_movimento(id: int, schema: EdicaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        validar_schema_movimento_edicao(schema)
-        verificar_permissao(ator, 'movimento', 'editar', schema.tipoMov)
-        movimento = verificar_movimento_existe(schema.chave_nota, sessao)
-        verificar_movimento_atualizacao(schema, movimento)
-        movimento_editado = editar_movimento_bd(schema, sessao)
-        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+        movimento_editado = editar_entidade(id, Movimento, schema, ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -100,12 +101,23 @@ async def avancar_movimento(id: int, sessao:Session = Depends(criar_sessao), ato
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Itens - Consultar
-@movimentos_router.get('/{id}/itens')
-async def listar_movimento_itens(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+@movimentos_router.get('/{movimentacao}/itens/')
+async def listar_movimento_itens(
+    id: int | None=None, 
+    ingrediente: int | None=None,
+    movimentacao: int | None=None,
+    validade: date | None=None,
+    sessao:Session = Depends(criar_sessao), 
+    ator=Depends(verificar_token)):
+    dict_campos = {
+        "id":id,
+        "ingrediente":ingrediente,
+        "movimentacao":movimentacao,
+        "validade":validade
+    }
+
     try:
-        verificar_permissao(ator, 'movimentos', 'itens - consultar')
-        itens = exec_busca()
-        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+        itens = visualizar_entidade(ItensMovimento, sessao, ator, dict_campos)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -117,48 +129,51 @@ async def listar_movimento_itens(id: int, sessao:Session = Depends(criar_sessao)
 
 # Itens - Adicionar
 @movimentos_router.post('/{id}/itens/adicionar')
-async def adicionar_movimento_item(schema: ItemCriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+async def adicionar_movimento_item(id: int, schema: ItemCriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    schema_interno = InternoItemCriacaoSchema(
+        movimentacao=id, 
+        ingrediente = schema.ingrediente,
+        quantidade = schema.quantidade,
+        validade = schema.validade
+    )
     try:
-        validar_schema_movimento_item_criacao(schema)
-        verificar_permissao(ator, 'movimentos', 'itens - adicionar')
-        verificar_movimento_item_add(schema.id, sessao)
-        novo_item = adicionar_movimento_item_bd(schema, sessao)
-        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+        item_movimento_novo = criar_entidade(ItensMovimento, schema_interno, ator, sessao, ['ingrediente', 'movimentacao'])
     except ExceptionHTTP:
         raise
     except Exception as e:
         raise ExceptionGenerica(e)
     else:
-        return 
+        return item_movimento_novo
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Itens - Editar
 @movimentos_router.put('/{id}/itens/{id_item}')
-async def editar_movimento_item(sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+async def editar_movimento_item(schema: ItemEdicaoSchema, id: int, id_item: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    dict_campos = {'movimentacao':id, 'id':id_item}
     try:
-        verificar_permissao(ator, 'movimentos', 'itens - editar')
-        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+        visualizar_entidade(ItensMovimento, sessao, ator, dict_campos)
+        item_movimento_editado = editar_entidade(id, ItensMovimento, schema, ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
         raise ExceptionGenerica(e)
     else:
-        return 
+        return item_movimento_editado
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Itens - Excluir
 @movimentos_router.delete('/{id}/itens/{id_item}/excluir')
 async def excluir_movimento_item(id: int, id_item: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    schema = ItemExclusaoSchema(movimentacao=id, id=id_item)
     try:
-        verificar_permissao(ator, 'movimentos', 'itens - excluir')
-        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+        item_movimento_excluido = excluir_entidade(ItensMovimento, schema, ator, sessao, ['id', 'movimentacao'])
     except ExceptionHTTP:
         raise
     except Exception as e:
         raise ExceptionGenerica(e)
     else:
-        return 
+        return item_movimento_excluido
 
 
 

@@ -38,11 +38,11 @@ class Movimento(Base):
     validade = Column('Validade', DateTime, nullable=False)
     chave_nota = Column('ChaveNota', String(44), nullable=True) #Se for saída, não terá nota logo na movimentação, apenas para registro dos gerentes
 
-    def __init__(self,filial, tipo_mov, validade, chave_nota=None):
+    def __init__(self,filial, tipoMov, validade, chave_nota=None):
         self.datahora = datetime.datetime.now()
         self.status = StatusMov.ENTREGA
         self.filial = filial
-        self.tipoMov = tipo_mov
+        self.tipoMov = tipoMov
         #Não tem itens
         self.validade = validade
         self.chave_nota = chave_nota

@@ -10,16 +10,13 @@ from Application.chamada_rota import ativar_entidade, criar_entidade, desativar_
 
 #Exceptions
 from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
-#Logs
-from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 #Complementares
 from Infrastructure.Models.Vendas.mPedido import Pedido, StatusCode, TiposPed, CanalPedido, TipoLogin, FormaPagamento
 
 #Requisitos
 from API.Schemas.Empresa.sFilial import CriacaoSchema, EdicaoSchema
-from Application.Empresa.fFilial import verificar_schema_criacao, verificar_schema_edicao, exec_busca, verificar_alteracao
-from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_criacao, criar_filial_bd, verificar_filial_existe, desativar_filial_bd, ativar_filial_bd, atualizar_filial_db, criar_estoque_vinculado
+from Infrastructure.Repositories.Empresa.reFilial import criar_estoque_vinculado
 
 
 filial_router = APIRouter(prefix='/filiais', tags=['Empresa - Filial'])
@@ -163,7 +160,7 @@ async def consultar_vendas_filial(
 # Associar Campanhas
 @filial_router.post('/{id}/campanha/{id_campanha}/associar')
 async def associar_filial_campanha(id: int, id_campanha: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    schema = sPromoFilialCriacao(**{'promocao':id_campanha, 'filial':id})
+    schema = sPromoFilialCriacao(promocao=id_campanha, filial=id)
     try:
         relacao_criada = criar_entidade(PromoFilial, schema, ator, sessao, ['promocao', 'filial'])
     except ExceptionHTTP:

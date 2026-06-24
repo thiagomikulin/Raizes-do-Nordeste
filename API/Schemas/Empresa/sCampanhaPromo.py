@@ -9,3 +9,4 @@ class CriacaoSchema(BaseModel):
 class EdicaoSchema(BaseModel):
     nome: str
     desconto: int
+    validade: date

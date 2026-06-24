@@ -5,7 +5,7 @@ from Infrastructure.Models.Conectores.mUsuarioFilial import UsuarioFilial
 from Domain.__exceptions__ import Conflito
 
 def vincular_filial_bd(id_usuario, id_filial, sessao: Session):
-    print('teste')
+    
     usu_fil = UsuarioFilial(id_usuario, id_filial)
     sessao.add(usu_fil)
     sessao.commit()

@@ -3,9 +3,9 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from passlib.context import CryptContext
+from cryptography.fernet import Fernet
 from dotenv import load_dotenv
 import os
-import uvicorn
 
 from time import sleep
 
@@ -22,9 +22,11 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_DATABASE = os.getenv("DB_DATABASE")
 DB_HOST = os.getenv("DB_HOST")
 
-
+SECRET_DECRYPTABLE = os.getenv("SECRET_DECRYPTABLE")
 
 ACCESS_TOKEN_EXPIRE_MINUTES=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+
+fernet = Fernet(SECRET_DECRYPTABLE)
 
 from Infrastructure.Models.__init__ import *
 

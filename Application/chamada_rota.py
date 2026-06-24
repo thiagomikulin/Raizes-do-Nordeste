@@ -19,14 +19,13 @@ def criar_entidade(entidade, schema, ator, sessao: Session, campo_verificacao: l
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
             regra()            
-    entidade_nova = criar_entidade_bd(entidade, schema, sessao, ator)
+    entidade_nova = criar_entidade_bd(entidade, schema, sessao, ator, campo_verificacao)
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:
             regra(entidade_nova, sessao)
     if nome_entidade in ['UsuarioFilial', 'PromoFilial', 'ItemReceita', 'VariacaoFilial']:
         id = campo_verificacao
         campo_id = campo_verificacao[0]
-        print(campo_id)
     else:
         id = ['id']
         campo_id = 'id'
@@ -47,11 +46,11 @@ def excluir_entidade(entidade, schema, ator, sessao: Session, campo_verificacao:
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:
             regra(entidade_excluida, sessao)
-    # if nome_entidade in ['UsuarioFilial']:
-    #     id = campo_verificacao
-    # else:
-    #     id = ['id']
-    # salvar_log_bd('criar', entidade.__tablename__, entidade_excluida[nome_entidade], ator, sessao, id)
+    if nome_entidade in ['UsuarioFilial']:
+        id = campo_verificacao
+    else:
+        id = ['id']
+    salvar_log_bd('excluir', entidade.__tablename__, entidade_excluida[nome_entidade], ator, sessao, id)
     return entidade_excluida
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -87,7 +86,6 @@ def editar_entidade(id, entidade, schema, ator, sessao: Session, lista_regras_va
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:
             regra(edicao, sessao)
-    print('teste2323232')
     salvar_log_bd('editar', entidade.__tablename__, edicao[nome_entidade], ator, sessao, campos, campos_antigos, id)
     return edicao
 

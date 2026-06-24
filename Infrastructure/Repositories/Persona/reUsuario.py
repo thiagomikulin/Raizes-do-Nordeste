@@ -76,7 +76,6 @@ def buscar_usuarios(id, nome, email, cargo, ativo, sessao: Session, ator:Usuario
         busca = busca.filter(Usuario.id == id)
 
     if nome:
-        print(nome)
         busca = busca.filter(Usuario.nome.contains(nome))
 
     if email:

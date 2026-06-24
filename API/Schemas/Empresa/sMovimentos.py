@@ -11,7 +11,25 @@ class CriacaoSchema(BaseModel):
     chave_nota: str
 
 class EdicaoSchema(BaseModel):
-    pass
+    tipoMov: TipoMov
+    validade: date
+    chave_nota: str
 
 class ItemCriacaoSchema(BaseModel):
-    pass
+    ingrediente: int
+    quantidade: int
+    validade: date
+
+class InternoItemCriacaoSchema(BaseModel):
+    ingrediente: int
+    movimentacao: int
+    quantidade: int
+    validade: date
+
+class ItemEdicaoSchema(BaseModel):
+    quantidade: int
+    validade: date
+
+class ItemExclusaoSchema(BaseModel):
+    movimentacao: int
+    id: int

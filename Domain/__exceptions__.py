@@ -191,7 +191,6 @@ class Conflito(ExceptionHTTP):
             descricao = " e ".join(lista)
         else:
             descricao = lista[0]
-        print('teste')
         mensagem = f'Já existe um {entidade} com {descricao} cadastrado no sistema'
         super().__init__(
             code=409,

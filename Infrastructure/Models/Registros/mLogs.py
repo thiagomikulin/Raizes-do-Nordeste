@@ -19,11 +19,26 @@ class Tabelas(str, EnumPy):
     PROMOFILIAL = 'filiaisPromos'
     ITEMRECEITA = 'receitasItens'
 
+class Acoes(str, EnumPy):
+    CRIAR = 'criar'
+    ATIVAR = 'ativar'
+    DESATIVAR = 'desativar'
+    EDITAR = 'editar'
+    EXCLUIR = 'excluir'
+    ALTERAR_STATUS = 'alterar status'
+
 class Log(Base):
     __tablename__ = 'logs'
 
     id = Column('ID', Integer, primary_key=True, autoincrement=True)
-    acao = Column('Acao', String(80), nullable=False)
+    acao = Column(
+        'Acao', 
+        AlEnum(
+            Acoes,
+            values_callable=lambda enum: [e.value for e in enum]
+        ), 
+        nullable=False
+    )
     tabela = Column(
         'Tabela',
         AlEnum(

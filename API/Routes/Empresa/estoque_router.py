@@ -1,22 +1,16 @@
 #Bases
 from API.Routes.base import *
+from Application.chamada_rota import criar_entidade, editar_entidade, visualizar_entidade
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
-from Application.base import verificar_permissao, verificar_token
+from Application.base import verificar_token
 
 #Exceptions
 from Domain.__exceptions__ import ExceptionGenerica, ExceptionHTTP
 
-#Logs
-from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
-
 #Requisitos
-from API.Schemas.Empresa.sEstoque import ItemCriacaoSchema, ItemEdicaoSchema
-from Application.Empresa.fEstoqueItens import validar_schema_estoqueitem_criar, exec_busca
-from Infrastructure.Repositories.Empresa.reEstoque import verificar_estoque_existe
-from Infrastructure.Repositories.Empresa.reEstoqueItens import criar_estoque_itens_bd, verificar_item_existe, editar_estoque_itens_bd
-
-#Complementares
-from Infrastructure.Repositories.Item.reIngrediente import verificar_ingrediente_existe
+from API.Schemas.Empresa.sEstoque import InternoItemCriacaoSchema, ItemCriacaoSchema, ItemEdicaoSchema
+from Infrastructure.Models.Empresa.mEstoqueItens import EstoqueItens
+from Infrastructure.Models.Empresa.mEstoque import Estoque
 
 
 estoque_router = APIRouter(prefix='/estoque', tags=['Empresa - Estoque']) 
@@ -32,9 +26,13 @@ async def listar_estoque(
     sessao:Session = Depends(criar_sessao), 
     ator=Depends(verificar_token)
     ):
+    dict_campos = {
+        "id":id,
+        'filial':filial,
+        'ativo':ativo
+    }
     try:
-        verificar_permissao(ator, 'estoque', 'listar')
-        lista = exec_busca(id, filial, ativo, sessao, ator)
+        lista = visualizar_entidade(Estoque, sessao, ator, dict_campos)
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -46,20 +44,16 @@ async def listar_estoque(
 
 # Itens - Criar (EstoqueItens)
 @estoque_router.post('{id}/itens/criar')
-async def criar_estoque_itens(id: int, schema: ItemCriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+async def criar_estoque_itens(id_estoque: int, schema: ItemCriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    schema_interno = InternoItemCriacaoSchema(estoque=id_estoque, ingrediente=schema.ingrediente)
     try:
-        validar_schema_estoqueitem_criar(schema)
-        verificar_permissao(ator, 'estoque', 'criar item')
-        estoque = verificar_estoque_existe(id, sessao)
-        ingrediente = verificar_ingrediente_existe(schema.ingrediente, sessao)
-        item = criar_estoque_itens_bd(id, schema, sessao)
-        salvar_log_bd('criar','EstoqueItem','id',item['id'], ator, sessao)
+        item_novo = criar_entidade(EstoqueItens, schema_interno, ator, sessao, ['estoque', 'ingrediente'])
     except ExceptionHTTP:
         raise
     except Exception as e:
-        raise ExceptionGenerica
+        raise ExceptionGenerica(e)
     else:
-        return item
+        return item_novo
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -67,15 +61,11 @@ async def criar_estoque_itens(id: int, schema: ItemCriacaoSchema, sessao:Session
 @estoque_router.post('{id}/itens/editar')
 async def editar_estoque_itens(id: int, schema:ItemEdicaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        verificar_permissao(ator, 'estoque', 'editar item')
-        estoque = verificar_estoque_existe(id, sessao)
-        item = verificar_item_existe(schema, sessao)
-        item_editado = editar_estoque_itens_bd(id, schema, sessao)
-        salvar_log_bd('editar','EstoqueItem','id',item_editado['id'], ator, sessao)
+        item_editado = editar_entidade(id, EstoqueItens, schema, ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
-        raise ExceptionGenerica
+        raise ExceptionGenerica(e)
     else:
         return item_editado
 

@@ -6,7 +6,11 @@ class CriacaoSchema(BaseModel):
     ativo: bool
 
 class ItemCriacaoSchema(BaseModel):
-    pass
+    ingrediente: int
+
+class InternoItemCriacaoSchema(BaseModel):
+    estoque: int
+    ingrediente: int
 
 class ItemEdicaoSchema(BaseModel):
-    pass
+    quantidade: int
