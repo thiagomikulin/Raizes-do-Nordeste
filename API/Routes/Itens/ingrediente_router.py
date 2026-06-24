@@ -3,7 +3,7 @@ from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Application.base import verificar_token, verificar_permissao
 from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 
-from Application.chamada_rota import ativar_entidade, criar_entidade, desativar_entidade, editar_entidade, visualizar_entidade
+from Application.chamada_rota import ativar_entidade, atualizar_campo, criar_entidade, desativar_entidade, editar_entidade, visualizar_entidade
 
 #logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
@@ -99,12 +99,12 @@ async def desativar_ingrediente(id: int, sessao: Session = Depends (criar_sessao
 
 # Alterar período 
 @ingrediente_router.patch('/{id}/periodo')
-async def alterar_periodo(sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
+async def alterar_periodo(id: int, periodo: PeriodoAno,sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
-        salvar_log_bd('criar','variacao','id',ingrediente['id'], ator, sessao)
+        periodo_atualizado = atualizar_campo(Ingrediente, id, 'periodo', periodo, ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
         raise ExceptionGenerica
     else:
-        return 
+        return periodo_atualizado

@@ -3,7 +3,7 @@ from API.Routes.base import *
 from Application.base import criar_token, verificar_permissao, verificar_token, timedelta
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 
-from Application.chamada_rota import ativar_entidade, criar_entidade, desativar_entidade, editar_entidade, visualizar_entidade
+from Application.chamada_rota import ativar_entidade, atualizar_campo, criar_entidade, desativar_entidade, editar_entidade, visualizar_entidade
 
 #Exceptions
 from Domain.__exceptions__ import PermissionExcept, ConflictExcept, SchemaInvalido, Conflito, SemPermissao, ExceptionHTTP, ExceptionGenerica
@@ -138,13 +138,12 @@ async def desativar_cliente(id: int, sessao: Session = Depends(criar_sessao), at
 @cliente_router.put('/{id}/fidelidade')
 async def atualizar_fidelidade(id: int, fidelidade: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        verificar_cliente_existe()
-        verificar_permissao(ator, 'cliente', 'atualizar fidelidade')
-        fidelidade_atu = atualizar_fidelidade_valida(id, fidelidade, sessao)
+        fidelidade = atualizar_campo(Cliente, id, 'fidelidade', fidelidade, ator, sessao)
     except ExceptionHTTP:
         raise
     except Exception as e:
         raise ExceptionGenerica(e)
+    return fidelidade
 
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -26,6 +26,7 @@ class Acoes(str, EnumPy):
     EDITAR = 'editar'
     EXCLUIR = 'excluir'
     ALTERAR_STATUS = 'alterar status'
+    ATUALIZAR_CAMPO = 'atualizar campo'
 
 class Log(Base):
     __tablename__ = 'logs'

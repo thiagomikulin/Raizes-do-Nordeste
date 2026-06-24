@@ -2,7 +2,7 @@ from enum import Enum
 
 from Application.base import verificar_permissao, verificar_entidade_atualizacao
 
-from Infrastructure.Repositories.base import ativar_entidade_bd, desativar_entidade_bd, editar_entidade_bd, excluir_entidade_bd, verificar_entidade, criar_entidade_bd, Session, exec_busca, verificar_entidade_existe
+from Infrastructure.Repositories.base import ativar_entidade_bd, desativar_entidade_bd, editar_campo_entidade_bd, editar_entidade_bd, excluir_entidade_bd, verificar_entidade, criar_entidade_bd, Session, exec_busca, verificar_entidade_existe
 #Logs
 from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
@@ -125,21 +125,30 @@ def desativar_entidade(entidade, ator, id: int, sessao: Session, lista_regras_va
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#Opcional (já funciona no Usuário e Cliente)
 def autenticar_entidade():
     pass
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#Opcional (já funciona no Usuário e Cliente)
 def atualizar_token():
     pass
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#Opcional (já funciona no Usuário e Cliente)
 def solicitar_reset_senha():
     pass
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Inclui --> Fidelidade, Status
-def atualizar_campo():
-    pass
+def atualizar_campo(entidade, id: int, campo: str, valor, ator, sessao: Session):
+    nome_entidade = entidade.__name__
+    verificar_permissao(ator, 'atualizar campo',nome_entidade)
+    entidade_consultada = verificar_entidade_existe(entidade, id, sessao)
+    valor_anterior = getattr(entidade_consultada, campo)
+    atualizado = editar_campo_entidade_bd(entidade_consultada, campo, valor, nome_entidade, sessao)
+    salvar_log_bd('atualizar campo', entidade.__tablename__, {f'{campo}':str(valor)}, ator, sessao, [campo], {f'{campo}':valor_anterior})
+    return atualizado
