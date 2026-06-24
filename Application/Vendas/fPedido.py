@@ -67,4 +67,12 @@ def progredir_status(pedido:Pedido, sessao: Session):
 
 
 def valida_status_pedido(pedido: Pedido, status_request: StatusPed):
-    pass
+    match pedido.status:
+        case "Aberto":
+            if pedido.itens is None:
+                raise 
+            status_esperado = "Fechado"
+        case "Fechado":
+            if pedido.statusPagamento != "Aprovado":
+                pass
+            status_esperado = "Preparação"
