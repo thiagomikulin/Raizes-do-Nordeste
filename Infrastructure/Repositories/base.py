@@ -42,7 +42,7 @@ def verificar_entidade(entidade, schema, nome_entidade, campos: list, sessao: Se
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def criar_entidade_bd(entidade, schema, sessao, ator, chaves):
+def criar_entidade_bd(entidade, schema, sessao, ator, chaves=['id']):
     schema_dump = schema.model_dump()
     if entidade.__name__ == 'Pedido':
         schema_dump['tipo_criador'] = f'{ator.__class__.__name__}'
@@ -58,10 +58,14 @@ def criar_entidade_bd(entidade, schema, sessao, ator, chaves):
     dados_entidade = {chave:valor for chave, valor in nova_entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']} 
     campos = [f'{chave} = {valor}' for chave, valor in schema_dump.items() if chave not in ['senha', 'cpf', 'conta_banc']]
     retorno = ''
+    print(campos)
     if len(campos) > 1 :
+        print('aqui ó')
+        print(chaves)
         for campo in range(len(chaves)):
             retorno += f' e {campos[campo]}' if campo > 0 else f'{campos[campo]}'
     else:
+        print('aqui')
         retorno = campos[0]
     return {
         'message':f"{entidade.__name__} {retorno} criado com sucesso!",

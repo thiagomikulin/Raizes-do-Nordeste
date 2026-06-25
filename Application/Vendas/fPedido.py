@@ -32,17 +32,22 @@ def verificar_dono_pedido(ator, pedido:Pedido):
 
 def progredir_status(pedido:Pedido, sessao: Session):
 
+    print(pedido)
     match pedido.status:
         #Se o pedido estiver atualmente como aberto
         #Validações: mais de 1 item; estoque dos itens suficiente
         case 'Aberto':
-            if len(pedido.itens) > 0 and consultar_quantidade_estoque(pedido, sessao):
+            if len(pedido.itens) == 0:
+                raise ItensInsuficientes #Criar nova exception (não é possível fechar pedido sem itens)
+            elif consultar_quantidade_estoque(pedido, sessao):
+                pass
+
+            else:
                 status = 'Fechado'
                 id_pag = mock_solicitar_pagamento(pedido.filial.conta_banc, pedido.cliente.cpf, pedido.total)
                 pedido.id_pagamento = id_pag
                 status_pedido_db(pedido, status, sessao)
-            else:
-                raise ItensInsuficientes #Criar nova exception (não é possível fechar pedido sem itens)
+                
         case 'Fechado':
             mock_consultar_pagamento(pedido.id_pagamento)
             status = 'Preparação'

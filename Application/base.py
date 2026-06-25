@@ -93,11 +93,20 @@ def verificar_permissao(ator, permissao: str, modulo:str, tipo: str=None):
 
     #Verifica se o domínio do ator abarca a permissão
 
+    print('aqui')
+
+    print(permissao)
+    print(permissoes)
+
     if permissao not in permissoes:
+        print(permissoes[permissao])
         raise SemPermissao(ator=ator, permissao=permissao)
     
+    print('aqui')
+
     #Suplementa o tipo se tiver (EX: Usuario - Atendente)
     #Segunda verificação (se pode modificar o modulo específico!!!)
+    print(tipo)
     if tipo is not None:
         modulo += f" - {tipo}" if '-' not in modulo else '' #Suplemento para evitar acúmulo de tipo
         if modulo not in permissoes[permissao]:
@@ -112,6 +121,9 @@ def verificar_permissao(ator, permissao: str, modulo:str, tipo: str=None):
     else:
         if modulo not in permissoes[permissao]:
             raise SemPermissao(ator=ator, permissao=permissao)
+        indice_dominio = permissoes[permissao].index(modulo)
+        print(modulo, permissoes[permissao][indice_dominio])
+        return permissoes[permissao][indice_dominio]
 
 
 def verificar_entidade_atualizacao(schema, entidade):

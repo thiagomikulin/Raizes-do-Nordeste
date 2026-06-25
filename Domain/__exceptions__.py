@@ -278,3 +278,14 @@ class FalhaNaSolicitacao(ExceptionHTTP):
                 {"field":'integration', "issue":"failed"}
             ],
         )
+
+class EstoqueInsuficiente(ExceptionHTTP):
+    def __init__(self, item):
+        super().__init__(
+            code=404,
+            error=f'ESTOQUE INSUFICIENTE',
+            message=f'Não temos estoque suficiente do item {item.id}!',
+            detail=[
+                {"field":'quantidade', "issue":"not enough"}
+            ],
+        )    

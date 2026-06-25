@@ -63,7 +63,7 @@ async def atualizar_status_pedido(id: int, sessao: Session = Depends(criar_sessa
     #OBS: colocar validação extra para clientes (só atualizam status de pedido para Recebido - confirma recebimento)
     try:
         pedido = pedido_existe(id, sessao) #verifica se o pedido existe
-        verificar_permissao(ator, 'pedido', 'atualizar_status') #verifica se o ator pode criar
+        verificar_permissao(ator, 'atualizar campo', 'Pedido') #verifica se o ator pode criar
         verificar_dono_pedido(ator, pedido) #verifica se o ator é cliente e se for, se o pedido é dele
         pedido_update = progredir_status(pedido, sessao) #atualiza o status do pedido manualmente
     except ExceptionHTTP:

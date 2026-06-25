@@ -9,6 +9,9 @@ Para que o projeto possa rodar localmente em sua máquina, é necessário ter in
   * Necessário para isolar a API do seu sistema operacional, evitando portanto erros de conflito de importação com seu sistema operacional
 * Docker compose <https://docs.docker.com/compose/install> (versão 1.29.2)
   * necessário para operacionalizar tanto o banco de dados quanto a aplicação simultaneamente, em ambientes separados, mas integrados
+* Para sistemas Windows --> Docker Desktop
+  * necessário para rodar o servidor a partir de máquinas Windows (comandos com script não funcionam em máquinas Windows)
+  * Pode ser utilizado também para sistemas Linux opcionalmente (o projeto já vem com um script executável para Linux)
 
 ## Aplicações usadas:
 
@@ -36,18 +39,23 @@ Para rodar o projeto, é necessário importar todo o código para dentro de sua 
       1. Esta senha pode ser gerada pela conta do google também (seguindo este tutorial: https://support.google.com/wallet/answer/2461835?hl=pt-BR)
    10. ACCESS_TOKEN_EXPIRE_MINUTES=30
       1. OBS: não será necessário copiar os arquivos manualmente para o env. A execução das próximas etapas fará esse processo automaticamente.
-5. Altere a permissão de execução do arquivo "run_server.sh" para permitir execução
-6. Clique no run_server.sh (obs: selecione a opção de executar pelo terminal)
-   1. Este script executa o compose up do container
-   2. Caso o script não funcione, executar no terminal a partir da pasta do projeto:
-      1. cp .env.example .env
-      2. docker-compose up --build
-      3. Para encerrar após o uso:
-         1. Ctrl+C
-         2. docker-compose down
-7. Após algum tempo, no terminal, exibirá uma mensagem de que a aplicação está rodando pela URL "http://localhost:8000/docs".
-8. Acesse a URL "http://localhost:8000/docs" e você poderá ver o servidor funcionando!
-9. Caso queira encerrar o servidor após o uso, basta voltar ao terminal e apertar Ctrl+C
+5.  Para sistemas Windows
+    1.  Abra o Docker Desktop
+    2.  ...
+6.  Para sistemas Linux
+   1. Altere a permissão de execução do arquivo "run_server.sh" para permitir execução
+   2. Clique no run_server.sh (obs: selecione a opção de executar pelo terminal)
+      1. Este script executa o compose up do container
+      2. Caso o script não funcione, executar no terminal a partir da pasta do projeto:
+         1. cp .env.example .env
+         2. docker-compose up --build
+         3. Para encerrar após o uso:
+            1. Ctrl+C
+            2. docker-compose down
+    3.  Após algum tempo, no terminal, exibirá uma mensagem de que a aplicação está rodando pela URL "http://localhost:8000/docs".
+7.  Acesse a URL "http://localhost:8000/docs" e você poderá ver o servidor funcionando!
+    1.  Em sistemas Linux, caso queira encerrar o servidor após o uso, basta voltar ao terminal aberto e apertar Ctrl+C
+        1.  Este processo deverá encerrar automaticamente instâncias abertas do docker-compose, persistindo o banco de dados
 
 Através dos comandos Docker, tanto a aplicação quanto o banco de dados devem rodar localmente em sua máquina.
 Caso queira visualizar o banco de dados, precisará ser criada uma conexão com este (OBS: para a elaboração do guia a seguir, foi utilizado como base de referência o SGBD dBeaver):

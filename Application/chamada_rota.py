@@ -21,8 +21,9 @@ def criar_entidade(entidade, schema, ator, sessao: Session, campo_verificacao: l
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
             regra()          
-
-    entidade_nova = criar_entidade_bd(entidade, schema, sessao, ator, campo_verificacao)
+    print('campos verifica',campo_verificacao)
+    entidade_nova = criar_entidade_bd(entidade, schema, sessao, ator, campo_verificacao if campo_verificacao is not None else ['id'],)
+    print('teste')
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:
             regra(entidade_nova, sessao)
