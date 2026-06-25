@@ -11,6 +11,7 @@ Para que o projeto possa rodar localmente em sua máquina, é necessário ter in
   * necessário para operacionalizar tanto o banco de dados quanto a aplicação simultaneamente, em ambientes separados, mas integrados
 * Para sistemas Windows --> Docker Desktop
   * necessário para rodar o servidor a partir de máquinas Windows (comandos com script não funcionam em máquinas Windows)
+  *  O docker precisará também ter o Windows Subserver for Linux para rodar o Docker. Geralmente, é instalado junto ao docker, mas pode ser necessário reiniciar o sistema.
   * Pode ser utilizado também para sistemas Linux opcionalmente (o projeto já vem com um script executável para Linux)
 
 ## Aplicações usadas:
@@ -41,7 +42,11 @@ Para rodar o projeto, é necessário importar todo o código para dentro de sua 
       1. OBS: não será necessário copiar os arquivos manualmente para o env. A execução das próximas etapas fará esse processo automaticamente.
 5.  Para sistemas Windows
     1.  Abra o Docker Desktop
-    2.  ...
+    2.  Na pasta do projeto, abra o terminal
+    3.  Rode os seguintes comandos
+    4.  copy .env.example .env
+    5.  docker-compose up --build
+    6.  A partir deste ponto, você poderá visualizar o containter e a operação deste através do terminal do Docker Desktop 
 6.  Para sistemas Linux
    1. Altere a permissão de execução do arquivo "run_server.sh" para permitir execução
    2. Clique no run_server.sh (obs: selecione a opção de executar pelo terminal)
