@@ -66,7 +66,7 @@ async def cancelar_pagamento(id:int):
     if pagamento is None:
         raise HTTPException(status_code=404, detail='Pagamento não encontrado')
 
-pagamentos[id].cancelarPagamento()
+    pagamentos[id].cancelarPagamento()
 
 @app.patch('/pagamentos/{id}/aprovar')
 async def aprovar_pagamento(id: int):
@@ -74,7 +74,7 @@ async def aprovar_pagamento(id: int):
     if pagamento is None:
         raise HTTPException(status_code=404, detail='Pagamento não encontrado')
 
-pagamentos[id].aprovarPagamento()
+    pagamentos[id].aprovarPagamento()
 
 
 
