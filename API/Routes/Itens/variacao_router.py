@@ -8,7 +8,6 @@ from Application.chamada_rota import ativar_entidade, criar_entidade, desativar_
 #Recursos Variação
 from API.Schemas.Itens.sVariacoes import CriacaoSchema, EdicaoSchema
 from API.Schemas.Conectores.sItemReceita import InternoReceitaCriacaoSchema, InternoReceitaEdicaoSchema, ReceitaCriacaoSchema, ReceitaExclusaoSchema, ReceitaEdicaoSchema
-from Application.Item.fVariacao import verificar_schema_criacao_variacao
 from Infrastructure.Models.Item.mVariacao import Variacao
 from Infrastructure.Models.Conectores.mItemReceita import ItemReceita
 from Infrastructure.Models.Conectores.mVariacaoFilial import VariacaoFilial

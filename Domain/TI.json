@@ -47,7 +47,7 @@
 
         "ItemReceita",
 
-        "Logs",
+        "Log",
         "Movimento",
         "ItensMovimento"
     ],
@@ -117,7 +117,7 @@
         "PromoFilial"
     ],
     "cancelar":[
-
+        "Pedido"
     ],
     "atualizar campo":[
         "Pedido",

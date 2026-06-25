@@ -2,12 +2,10 @@ from API.Routes.base import APIRouter
 from Application.base import verificar_permissao, verificar_token
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
-from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 from Application.chamada_rota import ativar_entidade, criar_entidade, desativar_entidade, editar_entidade, visualizar_entidade
 
 from API.Schemas.Itens.sProdutos import CriacaoSchema, EdicaoSchema
-from Application.Item.fProduto import verificar_schema_criacao_produto
 from Infrastructure.Models.Item.mProduto import Produto
 
 

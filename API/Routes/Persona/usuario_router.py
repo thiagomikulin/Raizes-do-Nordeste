@@ -22,10 +22,6 @@ from Infrastructure.Repositories.Persona.reUsuario import criar_usuario_bd, veri
 from Infrastructure.Models.Persona.mUsuario import Usuario
 from Infrastructure.Models.Conectores.mUsuarioFilial import UsuarioFilial
 
-
-#Complementares
-from Infrastructure.Repositories.Conectores.reUsuarioFilial import verificar_vinculo_filial, vincular_filial_bd, desvincular_filial_bd, verificar_vinculo_filial_desv
-
 from API.Schemas.Conectores.sUsuarioFilial import sUsuarioFilialCriacao, sUsuarioFilialExclusao
 
 from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_existe

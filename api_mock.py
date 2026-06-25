@@ -41,7 +41,7 @@ class PagamentoMock():
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 pagamentos = {}
 
-@app.get('/pagamento/solicitar')
+@app.get('/pagamentos/solicitar')
 async def solicitar_pagamento(conta: str, cpf: str, valor: float):
     pagamento = PagamentoMock(conta, cpf, valor)
     pagamentos[pagamento.id] = pagamento
@@ -86,6 +86,6 @@ async def consultar_pagamento(
     if pagamento is None:
         raise HTTPException(status_code=404, detail='Pagamento não encontrado')
 
-return pagamentos[id]
+    return pagamentos[id]
 
     

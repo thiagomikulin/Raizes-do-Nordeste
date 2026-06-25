@@ -15,8 +15,6 @@ from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 #Requisitos
 from API.Schemas.Empresa.sMovimentos import CriacaoSchema, EdicaoSchema, InternoItemCriacaoSchema, ItemCriacaoSchema, ItemEdicaoSchema, ItemExclusaoSchema
-from Application.Registros.fMovimentos import validar_schema_movimento_criacao, validar_schema_movimento_edicao, exec_busca
-from Infrastructure.Repositories.Registros.reMovimentos import verificar_movimento_criacao, criar_movimento_bd
 from Infrastructure.Models.Registros.mMovimentos import Movimento, StatusMov, TipoMov
 
 movimentos_router = APIRouter(prefix='/movimentos', tags=['Empresa - Movimentos'])

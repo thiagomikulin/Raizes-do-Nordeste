@@ -1,6 +1,7 @@
 #Bases
 from API.Routes.base import *
 from Application.chamada_rota import criar_entidade, editar_entidade, visualizar_entidade
+from Application.Empresa.fEstoque import consultar_quantidade_estoque, consultar_quantidade_estoque_individual
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Application.base import verificar_token
 
@@ -42,10 +43,20 @@ async def listar_estoque(
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+@estoque_router.get('/itens/quantidade/')
+async def exibir_quantidades(id_variacao: int, id_estoque: int, sessao:Session = Depends(criar_sessao)):
+    try:
+        consultado = consultar_quantidade_estoque_individual(id_variacao, id_estoque, sessao)
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    return consultado
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 # Itens - Criar (EstoqueItens)
 @estoque_router.post('{id}/itens/criar')
 async def criar_estoque_itens(id_estoque: int, schema: ItemCriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    schema_interno = InternoItemCriacaoSchema(estoque=id_estoque, ingrediente=schema.ingrediente)
+    schema_interno = InternoItemCriacaoSchema(estoque=id_estoque, ingrediente=schema.ingrediente, unidade_medida=schema.unidade_medida)
     try:
         item_novo = criar_entidade(EstoqueItens, schema_interno, ator, sessao, ['estoque', 'ingrediente'])
     except ExceptionHTTP:

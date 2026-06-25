@@ -14,11 +14,14 @@ from Infrastructure.Models.base import TipoLogin
 #Função de criar entidade (para quaisquer criações, exige permissão, a ser controlada pelo JSON)
 def criar_entidade(entidade, schema, ator, sessao: Session, campo_verificacao: list=None, lista_regras_validacao: list = None, lista_regras_pos:list=None):
     nome_entidade = entidade.__name__
+    print(nome_entidade)
     verificar_permissao(ator, 'criar',nome_entidade, tipo='Não Classificado' if nome_entidade in ['Usuario', 'UsuarioFilial'] else None) #colocar validação para cargo internamente
     verificar_entidade(entidade, schema, nome_entidade, campo_verificacao, sessao, 'criar')
+    #Execução de regras complementares
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
-            regra()            
+            regra()          
+
     entidade_nova = criar_entidade_bd(entidade, schema, sessao, ator, campo_verificacao)
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:

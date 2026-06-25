@@ -7,10 +7,12 @@ class CriacaoSchema(BaseModel):
 
 class ItemCriacaoSchema(BaseModel):
     ingrediente: int
+    unidade_medida: str
 
 class InternoItemCriacaoSchema(BaseModel):
     estoque: int
     ingrediente: int
+    unidade_medida: str
 
 class ItemEdicaoSchema(BaseModel):
     quantidade: int

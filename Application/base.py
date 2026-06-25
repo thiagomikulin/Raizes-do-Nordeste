@@ -1,4 +1,6 @@
 #Módulos externos
+from Infrastructure.Models.Persona.mCliente import Cliente
+from Infrastructure.Models.Persona.mUsuario import Usuario
 from fastapi import Depends, Request # type: ignore
 import json
 from jose import jwt, JWTError  # type: ignore
@@ -13,9 +15,7 @@ from Domain.__exceptions__ import NaoAlterado, NaoAutenticado, AcessoNaoEncontra
 #Bases
 from Infrastructure.Repositories.base import Session, criar_sessao
 
-#Infrastructure - Repositories
-from Infrastructure.Repositories.Persona.reUsuario import Usuario
-from Infrastructure.Repositories.Persona.reCliente import Cliente
+
 
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -84,24 +84,35 @@ def verificar_permissao(ator, permissao: str, modulo:str, tipo: str=None):
     #Define o domínio com base no ator
     if isinstance(ator, Usuario):
         dominio = ator.cargo.name.replace(' ','')
+        print(dominio)
     else:
-        dominio = 'Cliente'
+        dominio = 'CLIENTE'
 
     with open(f"./Domain/{dominio}.json", encoding='utf-8') as arquivo:
         permissoes = json.load(arquivo)
 
     #Verifica se o domínio do ator abarca a permissão
+
     if permissao not in permissoes:
         raise SemPermissao(ator=ator, permissao=permissao)
     
-    
     #Suplementa o tipo se tiver (EX: Usuario - Atendente)
+    #Segunda verificação (se pode modificar o modulo específico!!!)
     if tipo is not None:
         modulo += f" - {tipo}" if '-' not in modulo else '' #Suplemento para evitar acúmulo de tipo
+        if modulo not in permissoes[permissao]:
+            raise SemPermissao(ator=ator, permissao=permissao)
         return [permissoes[permissao].index(modulo)]
     elif tipo is None and modulo == 'Usuario':
+        modulo = f'{modulo} - {dominio}'
+        if modulo not in permissoes[permissao]:
+            raise SemPermissao(ator=ator, permissao=permissao)
         indice_dominio = permissoes[permissao].index(f'{modulo} - {dominio}')
         return permissoes[permissao][0:indice_dominio]
+    else:
+        if modulo not in permissoes[permissao]:
+            raise SemPermissao(ator=ator, permissao=permissao)
+
 
 def verificar_entidade_atualizacao(schema, entidade):
     campos = []

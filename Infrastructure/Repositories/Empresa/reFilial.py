@@ -57,4 +57,3 @@ def criar_estoque_vinculado(filial: dict, sessao: Session):
     sessao.add(estoque)
     sessao.commit()
     return
-

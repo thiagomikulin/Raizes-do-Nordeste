@@ -1,37 +1,21 @@
+from Application.base import verificar_permissao
+from Application.Empresa.fEstoque import consultar_quantidade_estoque
 from Infrastructure.Repositories.base import Session
 
 from API.Schemas.Pedido.sPedido import CriacaoSchema, EdicaoSchema
 
-from Infrastructure.Models.Vendas.mPedido import Pedido
+from Infrastructure.Models.Vendas.mPedido import Pedido, StatusCode
 
 from Infrastructure.Repositories.Vendas.rePedido import status_pedido_db
 
-from Domain.__exceptions__ import SchemaInvalido, CamposObrigatorios, PermissionExcept, SemPermissao
+from Domain.__exceptions__ import ItensInsuficientes, SchemaInvalido, CamposObrigatorios, PermissionExcept, SemPermissao
 
 #Complementares
 from Infrastructure.Models.Empresa.mFilial import Filial
-from Infrastructure.Integracoes.mock import mock_solicitar_pagamento
-
-def verificar_pedido_schema_criar(schema: CriacaoSchema):
-    if not schema.filial or not schema.tipoPedido or not schema.canalPedido or not schema.forma_pagamento:
-        raise SchemaInvalido(schema)
+from Infrastructure.Integracoes.mock import mock_consultar_pagamento, mock_solicitar_pagamento
     
-def verificar_pedido_schema_editar(schema: EdicaoSchema):
-    if not schema.tipoPedido or not schema.cliente or not schema.forma_pagamento:
-        raise SchemaInvalido
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def verificar_tipo_pedido(schema: CriacaoSchema):
-    if schema.tipoPedido == 'Entrega' and (not schema.endereco and not schema.cliente):
-        raise MandatoryForFillingExcept({schema.tipoPedido:['endereco','cliente']})
-    elif schema.tipoPedido == 'Mesa' and not schema.mesa:
-        raise MandatoryForFillingExcept({schema.tipoPedido:['mesa']})
-    elif schema.tipoPedido == 'Retirada' and not schema.chamada:
-        raise MandatoryForFillingExcept({schema.tipoPedido:['chamada']})
-    elif schema.tipoPedido == 'Balcão' and (not schema.chamada and not schema.cliente):
-        raise MandatoryForFillingExcept({schema.tipoPedido:['chamada','cliente']})
-    else:
-        return
-    
 def verificar_dono_pedido(ator, pedido:Pedido):
     if type(ator).__name__ == 'Cliente':
         if ator.id != pedido.cliente:
@@ -44,15 +28,23 @@ def verificar_dono_pedido(ator, pedido:Pedido):
     else:
         return True
     
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 def progredir_status(pedido:Pedido, sessao: Session):
+
     match pedido.status:
+        #Se o pedido estiver atualmente como aberto
+        #Validações: mais de 1 item; estoque dos itens suficiente
         case 'Aberto':
-            if len(pedido.itens) > 0:
+            if len(pedido.itens) > 0 and consultar_quantidade_estoque(pedido, sessao):
                 status = 'Fechado'
-                mock_solicitar_pagamento(pedido.filial.conta_banc, pedido.cliente.cpf, pedido.total)
+                id_pag = mock_solicitar_pagamento(pedido.filial.conta_banc, pedido.cliente.cpf, pedido.total)
+                pedido.id_pagamento = id_pag
+                status_pedido_db(pedido, status, sessao)
             else:
-                raise SemPermissao #Criar nova exception (não é possível fechar pedido sem itens)
+                raise ItensInsuficientes #Criar nova exception (não é possível fechar pedido sem itens)
         case 'Fechado':
+            mock_consultar_pagamento(pedido.id_pagamento)
             status = 'Preparação'
         case 'Preparação':
             status="Aguardando Coleta"
@@ -65,14 +57,20 @@ def progredir_status(pedido:Pedido, sessao: Session):
             status="Recebido"
     return status_pedido_db(pedido, status, sessao)
 
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def valida_status_pedido(pedido: Pedido, status_request: StatusPed):
-    match pedido.status:
-        case "Aberto":
-            if pedido.itens is None:
-                raise 
-            status_esperado = "Fechado"
-        case "Fechado":
-            if pedido.statusPagamento != "Aprovado":
-                pass
-            status_esperado = "Preparação"
+# def cancelar_pedido(id, ator, sessao:Session):
+#     verificar_permissao(ator, 'cancelar', 'Pedido')
+#     pedido = buscar_pedido()
+#     verificar_dono_pedido(ator, pedido)
+#     if pedido.status in [
+#         StatusCode.PREPARACAO, 
+#         StatusCode.AGUARDACOLETA, 
+#         StatusCode.TRANSITO,
+#         StatusCode.CANCELADO,
+#         StatusCode.RECEBIDO,
+#         StatusCode.ESTORNADO]:
+#             raise 
+#     else:
+#         pedido_cancelado = 
+    

@@ -60,7 +60,7 @@ async def startup_event():
             sleep(2)
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-oauth2_schema = OAuth2PasswordBearer(tokenUrl='usuarios/login-form')
+oauth2_schema = OAuth2PasswordBearer(tokenUrl='usuarios/login-form', auto_error=False)
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

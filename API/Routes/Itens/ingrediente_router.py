@@ -10,8 +10,6 @@ from Infrastructure.Repositories.Registros.reLogs import salvar_log_bd
 
 #Recursos de ingrediente
 from API.Schemas.Itens.sIngredientes import CriacaoSchema, EdicaoSchema
-from Application.Item.fIngrediente import verificar_schema_criacao_ingrediente
-from Infrastructure.Repositories.Item.reIngrediente import verificar_ingrediente_existe, criar_ingrediente_db
 from Infrastructure.Models.Item.mIngrediente import Ingrediente, PeriodoAno
 
 ingrediente_router = APIRouter(prefix='/ingredientes', tags=['Itens - Ingredientes'])

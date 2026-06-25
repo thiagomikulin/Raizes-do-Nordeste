@@ -7,7 +7,6 @@ from API.Schemas.Persona.sUsuario import *
 
 #Infrastructure
 from Infrastructure.Repositories.Persona.reUsuario import *
-from Infrastructure.Repositories.Persona.reCliente import *
 
 from Domain.__exceptions__ import SchemaInvalido, AcessoInvalido
 

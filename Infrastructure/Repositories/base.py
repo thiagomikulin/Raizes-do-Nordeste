@@ -208,6 +208,8 @@ def editar_entidade_bd(schema, nome_entidade, entidade, campos, sessao:Session, 
         f"{nome_entidade}":{chave:valor.value if isinstance(valor, Enum) else valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
     }
 
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 def editar_campo_entidade_bd(entidade, campo, valor, nome_entidade, sessao: Session):
     setattr(entidade, campo, valor)
     sessao.commit()

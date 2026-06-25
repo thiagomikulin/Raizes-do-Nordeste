@@ -17,7 +17,7 @@ def cliente_existe(id, sessao: Session):
     if id:
         cliente = sessao.query(Cliente).filter(Cliente.id == id).first()
         if not cliente:
-            raise NotFoundExcept(campos=["id"])
+            raise NaoEncontrado(campos={'id':id})
         else:
             return
     else:

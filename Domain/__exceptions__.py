@@ -256,3 +256,25 @@ class FormatoInvalido(ExceptionHTTP):
                 {"field":campo.lower(), "issue":"invalid format"}
             ],
         )
+
+class ItensInsuficientes(ExceptionHTTP):
+    def __init__(self):
+        super().__init__(
+            code=404,
+            error=f'ITENS INSUFICIENTES',
+            message=f'Este pedido não tem itens, e por isso, não poderá ser alterado para Fechado',
+            detail=[
+                {"field":'itens', "issue":"empty"}
+            ],
+        )
+
+class FalhaNaSolicitacao(ExceptionHTTP):
+    def __init__(self):
+        super().__init__(
+            code=404,
+            error=f'FALHA NA SOLICITAÇÃO',
+            message=f'Houve uma falha na comunicação com o seu sistema de pagamentos. Contate uma de nossas unidades!',
+            detail=[
+                {"field":'integration', "issue":"failed"}
+            ],
+        )

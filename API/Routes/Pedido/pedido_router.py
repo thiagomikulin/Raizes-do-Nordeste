@@ -1,5 +1,6 @@
 from API.Routes.base import APIRouter
 from Application.base import verificar_token, verificar_permissao
+from Infrastructure.Repositories.Pedido.rePedido import pedido_existe
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Application.chamada_rota import criar_entidade, editar_entidade, excluir_entidade, visualizar_entidade
 
@@ -65,8 +66,10 @@ async def atualizar_status_pedido(id: int, sessao: Session = Depends(criar_sessa
         verificar_permissao(ator, 'pedido', 'atualizar_status') #verifica se o ator pode criar
         verificar_dono_pedido(ator, pedido) #verifica se o ator é cliente e se for, se o pedido é dele
         pedido_update = progredir_status(pedido, sessao) #atualiza o status do pedido manualmente
-    except NotFoundExcept as e:
-        raise NaoEncontrado(path, e.campos)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
     else:
         return pedido_update
     
@@ -127,7 +130,7 @@ async def consultar_pedido(
 async def adicionar_item_pedido(id: int, schema: ItemCriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema_int = InternoItemCriacaoSchema(**schema.model_dump(),id_ped=id)
     try:
-        item_pedido = criar_entidade(ItensPed, schema_int, ator, sessao, ['id_ped', 'variacao'])
+        item_pedido = criar_entidade(ItensPed, schema_int, ator, sessao, ['id_ped', 'variacao'], lista_regras_validacao=[])
     except ExceptionHTTP:
         raise
     except Exception as e:
