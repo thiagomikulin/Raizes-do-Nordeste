@@ -8,14 +8,19 @@ def mock_solicitar_pagamento(conta: str, cpf:str, valor: float):
         "cpf":cpf,
         "valor":valor
     }
-    retorno = requests.post('0.0.0.0:5000/pagamentos/solicitar', corpo)
+    retorno = requests.post('http://mock:5000/pagamentos/solicitar', json=corpo)
+    print(retorno.status_code)
+    print(retorno.json())
     if retorno.status_code != 200:
         raise FalhaNaSolicitacao()
+    return retorno.json()
     
 def mock_consultar_pagamento(id):
-    corpo = {'id':id}
-    retorno = requests.get('0.0.0.0:5000/pagamentos/', corpo)
+    parametro = {
+        "id":id
+    }
+    retorno = requests.get('http://mock:5000/pagamentos/', params=parametro)
     if retorno.status_code != 200:
-        raise FalhaNaSolicitacao
+        raise FalhaNaSolicitacao()
     else:
-        return retorno
+        return retorno.json()

@@ -3,7 +3,7 @@ services:
     build: 
       context: .
       dockerfile: dockerfile
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    command: bash -c "alembic -c Infrastructure/alembic.ini stamp head && alembic -c Infrastructure/alembic.ini upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"
     container_name: raizes_do_nordeste
     ports:
       - "8000:8000"

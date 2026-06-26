@@ -49,13 +49,14 @@ def criar_pedido_bd(schema:CriacaoSchema, sessao:Session, ator):
     }
 
 def status_pedido_db(pedido:Pedido, status: str, sessao: Session):
-    pedido.status == status
+    pedido.status = status
+    print(status)
     sessao.commit()
     return {
         "message":"Status atualizado com sucesso!",
         "pedido":{
             "id":pedido.id,
-            "status":pedido.status
+            "status":status
         }
     }
     

@@ -3,7 +3,7 @@ from Domain.__exceptions__ import SenhaCurta, FormatoInvalido
 
 
 class CriacaoSchema(BaseModel):
-    nome: str = Field(default='Seu Nome', min_length=15)
+    nome: str = Field(default='Seu Nome', min_length=10)
     email: str = Field(default='seuemail@dominio.com', min_length=15)
     cpf: str = Field(default='999.999.999-99')
     scanFace:Optional[str]

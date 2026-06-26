@@ -289,3 +289,14 @@ class EstoqueInsuficiente(ExceptionHTTP):
                 {"field":'quantidade', "issue":"not enough"}
             ],
         )    
+
+class AlteraPedidoNaoPermitido(ExceptionHTTP):
+    def __init__(self, status):
+        super().__init__(
+            code=404,
+            error=f'PEDIDO {status.upper()}',
+            message=f'Não é permitido alterar pedidos com status {status.lower()}!',
+            detail=[
+                {"field":'status', "issue":"Cancelado"}
+            ],
+        )    

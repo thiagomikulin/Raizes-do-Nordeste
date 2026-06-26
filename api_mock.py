@@ -1,10 +1,14 @@
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
 from enum import Enum
 
 # A ideia por traz dessa ""implementação"" de mock de pagamento seria como uma solicitação de pix, gerada e direcionada a um CPF específico 
 
-app = FastAPI()
+app = FastAPI(
+    title='Mock API',
+    description='API para pagamentos mock, apenas para teste da Raízes do Nordeste'
+)
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -41,9 +45,17 @@ class PagamentoMock():
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 pagamentos = {}
 
-@app.get('/pagamentos/solicitar')
-async def solicitar_pagamento(conta: str, cpf: str, valor: float):
-    pagamento = PagamentoMock(conta, cpf, valor)
+class SolicitarPagamento(BaseModel):
+    conta: str
+    cpf: str
+    valor: float
+
+    class Config:
+        from_attributes=True
+
+@app.post('/pagamentos/solicitar', status_code=200)
+async def solicitar_pagamento(schema: SolicitarPagamento):
+    pagamento = PagamentoMock(schema.conta, schema.cpf, schema.valor)
     pagamentos[pagamento.id] = pagamento
     return {
         "message":"Pagamento solicitado!",
@@ -85,7 +97,6 @@ async def consultar_pagamento(
     pagamento = pagamentos.get(id)
     if pagamento is None:
         raise HTTPException(status_code=404, detail='Pagamento não encontrado')
-
     return pagamentos[id]
 
     
