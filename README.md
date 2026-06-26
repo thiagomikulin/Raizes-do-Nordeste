@@ -37,14 +37,15 @@ Para rodar o projeto, é necessário importar todo o código para dentro de sua 
    7. EMAIL_PW=senhaemail (para envio de email de reset de senha)
       1. Esta senha pode ser gerada pela conta do google também (seguindo este tutorial: https://support.google.com/wallet/answer/2461835?hl=pt-BR)
    8. SECRET_DECRYPTABLE = chave_fernet (chave utilizada para encoding específico da conta bancária - que precisa ser descriptografada para ser enviada ao bd)
-      1. Pode ser gerado pelo link [https://generate.plus/en/base64#google_vignette ](https://randomkeygen.com/secret-key)
+      1. Pode ser gerado pelo link https://randomkeygen.com/secret-key 
    9. SECRET_KEY=sua_chave
    10. SECRET_KEY_REFRESH=chave_refresh
+       1.  Ambas podem ser geradas via https://acte.ltd/utils/randomkeygen
    11. ALGORITHM=HS256
    12. ACCESS_TOKEN_EXPIRE_MINUTES=30 (minutos antes do access_token expirar)
 
    
-   15. ACCESS_TOKEN_EXPIRE_MINUTES=30
+   13. ACCESS_TOKEN_EXPIRE_MINUTES=30
       1. OBS: não será necessário copiar os arquivos manualmente para o env. A execução das próximas etapas fará esse processo automaticamente.
 5.  Para sistemas Windows
     1.  Abra o Docker Desktop

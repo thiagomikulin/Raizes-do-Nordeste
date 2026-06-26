@@ -27,7 +27,7 @@ filial_router = APIRouter(prefix='/filiais', tags=['Empresa - Filial'])
 @filial_router.post('/criar')
 async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
-        filial = criar_entidade(Filial, schema, ator, sessao, campo_verificacao=['conta_banc'], lista_regras_pos=[criar_estoque_vinculado])
+        filial = criar_entidade(Filial, schema, ator, sessao, lista_regras_pos=[criar_estoque_vinculado])
     except ExceptionHTTP:
         raise
     except Exception as e:

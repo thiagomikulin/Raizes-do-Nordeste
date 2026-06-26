@@ -35,7 +35,15 @@ app = FastAPI()
 
 
 #Criação do BD
-db = create_engine(f'mysql+mysqldb://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:3306/{DB_DATABASE}')
+print({
+    "DB_HOST": DB_HOST,
+    "DB_USER": DB_USER,
+    "DB_DATABASE": DB_DATABASE,
+})
+url = f'mysql+mysqldb://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:3306/{DB_DATABASE}'
+
+
+db = create_engine(url)
 
 
 @app.on_event("startup")

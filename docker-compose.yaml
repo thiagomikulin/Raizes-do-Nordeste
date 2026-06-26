@@ -3,11 +3,13 @@ services:
     build: 
       context: .
       dockerfile: dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     container_name: raizes_do_nordeste
     ports:
       - "8000:8000"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     restart: always
 
   mock:
@@ -20,6 +22,11 @@ services:
 
   mysql:
     image: mysql:lts
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
     container_name: db_mysql
     environment:
       MYSQL_USER: ${DB_USER}

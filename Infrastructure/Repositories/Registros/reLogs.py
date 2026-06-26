@@ -48,7 +48,6 @@ def salvar_log_bd(acao, tabela, valor_novo, ator, sessao: Session,campos:list=No
             f'{novos}', 
             type(ator).__name__, 
             str(ator.id))
-        print(novo_log.acao)
         sessao.add(novo_log)
     sessao.commit()
     return True

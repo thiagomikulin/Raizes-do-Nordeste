@@ -7,22 +7,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 #Cópia do env example
-cp .env.example .env
-
-#Detecção de SO
-UNAME=$(uname)
-
-if [ "$UNAME" == "Linux" ] ; then
-	echo "Linux"
-    xdg-open http://0.0.0.0:8000/docs
-
-elif [ "$UNAME" == "Darwin" ] ; then
-	echo "Darwin"
-    open http://0.0.0.0:8000/docs
-elif [[ "$UNAME" == CYGWIN* || "$UNAME" == MINGW* ]] ; then
-	echo "Windows"
-    start http://0.0.0.0:8000/docs
-fi
+#cp .env.example .env
 
 #Construção da API
 docker-compose up --build

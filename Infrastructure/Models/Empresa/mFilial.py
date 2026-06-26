@@ -1,4 +1,4 @@
-from Infrastructure.Models.base import Base, Column, Integer, String, Boolean, EnumPy, AlEnum, relationship,  ForeignKey
+from Infrastructure.Models.base import Base, Column, Integer, String, Boolean, EnumPy, AlEnum, relationship,  ForeignKey, LargeBinary
 
 from Infrastructure.Models.Empresa.mCampanhaPromo import CampanhaPromo
 
@@ -23,7 +23,7 @@ class Filial(Base):
     endereco = Column('Endereco', String(100), nullable=False)
     ativo = Column('Ativo', Boolean, default=True, nullable=False)
     estoque = relationship("Estoque")
-    conta_banc = Column('ContaBanco', String(100), nullable=False)
+    conta_banc = Column('ContaBanco', LargeBinary, nullable=False)
     campanha_promo = relationship('PromoFilial')
 
     def __init__(self, cidade, endereco, conta_banc):

@@ -50,7 +50,9 @@ def criar_entidade_bd(entidade, schema, sessao, ator, chaves=['id']):
     if "senha" in schema_dump:
         schema_dump['senha'] = bcrypt_context.hash(schema_dump["senha"])
     if "conta_banc" in schema_dump:
-        schema_dump['conta_banc'] = fernet.encrypt(schema_dump["conta_banc"])
+        valor = fernet.encrypt(schema_dump["conta_banc"].encode('utf-8'))
+        print(len(valor))
+        schema_dump['conta_banc'] = valor
     nova_entidade = entidade(**schema_dump)
     sessao.add(nova_entidade)
     sessao.commit()
@@ -58,14 +60,10 @@ def criar_entidade_bd(entidade, schema, sessao, ator, chaves=['id']):
     dados_entidade = {chave:valor for chave, valor in nova_entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']} 
     campos = [f'{chave} = {valor}' for chave, valor in schema_dump.items() if chave not in ['senha', 'cpf', 'conta_banc']]
     retorno = ''
-    print(campos)
     if len(campos) > 1 :
-        print('aqui ó')
-        print(chaves)
         for campo in range(len(chaves)):
             retorno += f' e {campos[campo]}' if campo > 0 else f'{campos[campo]}'
     else:
-        print('aqui')
         retorno = campos[0]
     return {
         'message':f"{entidade.__name__} {retorno} criado com sucesso!",
