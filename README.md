@@ -37,19 +37,17 @@ Para rodar o projeto, é necessário importar todo o código para dentro de sua 
    7. EMAIL_PW=senhaemail (para envio de email de reset de senha)
       1. Esta senha pode ser gerada pela conta do google também (seguindo este tutorial: https://support.google.com/wallet/answer/2461835?hl=pt-BR)
    8. SECRET_DECRYPTABLE = chave_fernet (chave utilizada para encoding específico da conta bancária - que precisa ser descriptografada para ser enviada ao bd)
-      1. Pode ser gerado pelo link https://randomkeygen.com/secret-key 
+      1. Pode ser gerado pelo link https://randomkeygen.com/secret-key
+      2. Precisa obrigatoriamente seguir o padrão da chave - 32 bytes / Base 64
    9. SECRET_KEY=sua_chave
    10. SECRET_KEY_REFRESH=chave_refresh
        1.  Ambas podem ser geradas via https://acte.ltd/utils/randomkeygen
    11. ALGORITHM=HS256
    12. ACCESS_TOKEN_EXPIRE_MINUTES=30 (minutos antes do access_token expirar)
-
-   
-   13. ACCESS_TOKEN_EXPIRE_MINUTES=30
       1. OBS: não será necessário copiar os arquivos manualmente para o env. A execução das próximas etapas fará esse processo automaticamente.
 5.  Para sistemas Windows
     1.  Abra o Docker Desktop
-    2.  Na pasta do projeto, abra o terminal
+    2.  Na pasta do projeto, abra o terminal (em prompt de comando)
     3.  Rode os seguintes comandos
     4.  copy .env.example .env
     5.  docker-compose up --build
@@ -68,6 +66,8 @@ Para rodar o projeto, é necessário importar todo o código para dentro de sua 
 7.  Acesse a URL "http://localhost:8000/docs" e você poderá ver o servidor funcionando!
     1.  Em sistemas Linux, caso queira encerrar o servidor após o uso, basta voltar ao terminal aberto e apertar Ctrl+C
         1.  Este processo deverá encerrar automaticamente instâncias abertas do docker-compose, persistindo o banco de dados
+8. Em sistemas Windows, basta voltar ao Docker Desktop, e clicar no botão de parar, que o container será fechado.
+    1. Caso queira executar novamente, é necessário apenas reabrir o Docker Desktop e rodar a aplicação clicando no play do container
 
 Através dos comandos Docker, tanto a aplicação quanto o banco de dados devem rodar localmente em sua máquina.
 Caso queira visualizar o banco de dados, precisará ser criada uma conexão com este (OBS: para a elaboração do guia a seguir, foi utilizado como base de referência o SGBD dBeaver):
