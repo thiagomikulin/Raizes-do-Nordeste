@@ -4,7 +4,7 @@ from Domain.__exceptions__ import SenhaCurta
 
 class LoginSchema(BaseModel):
     email:str = Field(default='seuemail@dominio.com', min_length=10)
-    senha:str = Field(default='senhade8caracteres', min_length=8)
+    senha:str = Field(default='senhacurta3caracteres', min_length=3)
 
     class Config:
         from_attributes=True
@@ -12,7 +12,7 @@ class LoginSchema(BaseModel):
 class CriacaoSchema(BaseModel):
     nome: str = Field(default='Seu Nome', min_length=10)
     email: str = Field(default='seuemail@dominio.com', min_length=10)
-    senha: str = Field(default='senhade8caracteres', min_length=8)
+    senha: str = Field(default='senhacurta3caracteres', min_length=3)
 
     class Config:
         from_attributes = True

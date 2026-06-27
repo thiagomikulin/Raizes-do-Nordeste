@@ -58,15 +58,8 @@ def criar_entidade_bd(entidade, schema, sessao, ator, chaves=['id']):
     sessao.commit()
     sessao.refresh(nova_entidade)
     dados_entidade = {chave:valor for chave, valor in nova_entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']} 
-    campos = [f'{chave} = {valor}' for chave, valor in schema_dump.items() if chave not in ['senha', 'cpf', 'conta_banc']]
-    retorno = ''
-    if len(campos) > 1 :
-        for campo in range(len(chaves)):
-            retorno += f' e {campos[campo]}' if campo > 0 else f'{campos[campo]}'
-    else:
-        retorno = campos[0]
     return {
-        'message':f"{entidade.__name__} {retorno} criado com sucesso!",
+        'message':f"{entidade.__name__} criado com sucesso!",
         f"{entidade.__name__}":dados_entidade 
         
     }
@@ -97,7 +90,7 @@ def excluir_entidade_bd(entidade, schema, sessao:Session):
     sessao.delete(retorno)
     sessao.commit()
     return {
-        "message":f"O {entidade.__name__} com {mensagem} foi excluído com sucesso!",
+        "message":f"O {entidade.__name__} foi excluído com sucesso!",
         f"{entidade.__name__}":dados_excluido
     }
 
@@ -201,12 +194,8 @@ def editar_entidade_bd(schema, nome_entidade, entidade, campos, sessao:Session, 
     for chave, valor in itens:
         lista_str.append(f'{chave} - {valor}')
     lista_str.pop(0)
-    if len(lista_str) > 1:
-        mensagem = ' e '.join(lista_str)
-    else:
-        mensagem = lista_str[0]
     return {
-        "message":f"O {nome_entidade} com {mensagem} foi atualizado com sucesso!",
+        "message":f"O {nome_entidade} foi atualizado com sucesso!",
         f"{nome_entidade}":{chave:valor.value if isinstance(valor, Enum) else valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
     }
 
@@ -230,7 +219,7 @@ def ativar_entidade_bd(entidade, nome_entidade, sessao):
     entidade.ativo = True
     sessao.commit()
     return {
-        "message":f'{nome_entidade} {entidade.id} ativado com sucesso!',
+        "message":f'{nome_entidade} {entidade.id} foi ativado com sucesso!',
         f'{nome_entidade}':{chave:valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
     }
 
@@ -242,7 +231,7 @@ def desativar_entidade_bd(entidade, nome_entidade, sessao):
     entidade.ativo = False
     sessao.commit()
     return {
-        "message":f'{nome_entidade} {entidade.id} desativado com sucesso!',
+        "message":f'{nome_entidade} {entidade.id} foi desativado com sucesso!',
         f'{nome_entidade}':{chave:valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
     }
 
