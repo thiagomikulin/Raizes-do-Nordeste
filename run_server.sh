@@ -7,7 +7,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 #Cópia do env example
-#cp .env.example .env
+cp .env.example .env
 
 #Construção da API
 docker-compose up --build

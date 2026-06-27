@@ -20,7 +20,7 @@ def criar_entidade(entidade, schema, ator, sessao: Session, campo_verificacao: l
     #Execução de regras complementares
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
-            regra()          
+            regra(schema, sessao)          
     entidade_nova = criar_entidade_bd(entidade, schema, sessao, ator, campo_verificacao if campo_verificacao is not None else ['id'],)
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:

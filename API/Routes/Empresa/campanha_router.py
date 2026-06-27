@@ -1,6 +1,8 @@
 #Bases
 from datetime import date
 
+
+
 from API.Routes.base import *
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Application.base import verificar_token
@@ -19,7 +21,7 @@ from Infrastructure.Models.Conectores.mPromoFilial import PromoFilial
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-campanha_router = APIRouter(prefix='/campanhas', tags=['Empresa - Campanha']) #organizar por pasta pai pode ser interessante
+campanha_router = APIRouter(prefix='/campanhas', tags=['Empresa - Campanhas']) #organizar por pasta pai pode ser interessante
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

@@ -21,7 +21,7 @@ from Infrastructure.Integracoes.email import solicitar_reset_senha
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-cliente_router = APIRouter(prefix='/clientes', tags=['Persona - Cliente'])
+cliente_router = APIRouter(prefix='/clientes', tags=['Persona - Clientes'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

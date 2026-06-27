@@ -1,3 +1,5 @@
+from Infrastructure.Models.Item.mVariacao import Variacao
+from Infrastructure.Models.Vendas.mPedidoItens import ItensPed
 from Infrastructure.Repositories.base import Session
 
 
@@ -61,3 +63,14 @@ def status_pedido_db(pedido:Pedido, status: str, sessao: Session):
     }
     
 
+def aumentar_valor_pedido_db(item_ped: ItensPed, pedido: Pedido, sessao: Session):
+    variacao = sessao.query(Variacao).filter(Variacao.id == item_ped.variacao).first()
+    pedido.valor += variacao.preco_unitario
+    sessao.commit()
+    return
+
+def diminuir_valor_pedido_db(item_ped: ItensPed, pedido: Pedido, sessao: Session):
+    variacao = sessao.query(Variacao).filter(Variacao.id == item_ped.variacao).first()
+    pedido.valor -= variacao.preco_unitario
+    sessao.commit()
+    return

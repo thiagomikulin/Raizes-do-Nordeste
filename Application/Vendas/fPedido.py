@@ -1,3 +1,4 @@
+from Infrastructure.Models.Vendas.mPedidoItens import ItensPed
 from Infrastructure.Repositories.Persona.reCliente import verificar_cliente_existe
 from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_existe
 from main import fernet
@@ -9,13 +10,13 @@ from API.Schemas.Pedido.sPedido import CriacaoSchema, EdicaoSchema
 
 from Infrastructure.Models.Vendas.mPedido import Pedido, StatusCode, StatusPagamento
 
-from Infrastructure.Repositories.Vendas.rePedido import status_pedido_db
+from Infrastructure.Repositories.Vendas.rePedido import aumentar_valor_pedido_db, diminuir_valor_pedido_db, pedido_existe, status_pedido_db
 
 from Domain.__exceptions__ import AlteraPedidoNaoPermitido, ItensInsuficientes, SchemaInvalido, CamposObrigatorios, PermissionExcept, SemPermissao
 
 #Complementares
 from Infrastructure.Models.Empresa.mFilial import Filial
-from Infrastructure.Integracoes.mock import mock_consultar_pagamento, mock_solicitar_pagamento
+from Infrastructure.Integracoes.mock import mock_cancelar_pagamento, mock_consultar_pagamento, mock_solicitar_pagamento
     
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -83,18 +84,22 @@ def progredir_status(pedido:Pedido, sessao: Session):
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-# def cancelar_pedido(id, ator, sessao:Session):
-#     verificar_permissao(ator, 'cancelar', 'Pedido')
-#     pedido = buscar_pedido()
-#     verificar_dono_pedido(ator, pedido)
-#     if pedido.status in [
-#         StatusCode.PREPARACAO, 
-#         StatusCode.AGUARDACOLETA, 
-#         StatusCode.TRANSITO,
-#         StatusCode.CANCELADO,
-#         StatusCode.RECEBIDO,
-#         StatusCode.ESTORNADO]:
-#             raise 
-#     else:
-#         pedido_cancelado = 
+def cancelar_status(pedido: Pedido, sessao:Session):
+    pag_cancelado = mock_cancelar_pagamento(pedido.id_pagamento)
+    if pag_cancelado.status_code != 200:
+        raise
+    else:
+        pedido_cancelado = status_pedido_db(pedido, 'Cancelado', sessao)
+        return pedido_cancelado
     
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    
+def aumentar_valor_pedido(item_ped: ItensPed, sessao: Session):
+    pedido = pedido_existe(item_ped.id_ped, sessao)
+    aumentar_valor_pedido_db(item_ped, pedido, sessao)
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+def diminuir_valor_pedido(item_ped: ItensPed, sessao: Session):
+    pedido = pedido_existe(item_ped.id_ped, sessao)
+    diminuir_valor_pedido_db(item_ped, pedido, sessao)

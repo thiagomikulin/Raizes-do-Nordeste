@@ -27,7 +27,7 @@ from API.Schemas.Conectores.sUsuarioFilial import sUsuarioFilialCriacao, sUsuari
 from Infrastructure.Repositories.Empresa.reFilial import verificar_filial_existe
 from Infrastructure.Integracoes.email import solicitar_reset_senha
 
-usuario_router = APIRouter(prefix='/usuarios', tags=['Persona - Usuário'])
+usuario_router = APIRouter(prefix='/usuarios', tags=['Persona - Usuários'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

@@ -19,7 +19,7 @@ from API.Schemas.Empresa.sFilial import CriacaoSchema, EdicaoSchema
 from Infrastructure.Repositories.Empresa.reFilial import criar_estoque_vinculado
 
 
-filial_router = APIRouter(prefix='/filiais', tags=['Empresa - Filial'])
+filial_router = APIRouter(prefix='/filiais', tags=['Empresa - Filiais'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

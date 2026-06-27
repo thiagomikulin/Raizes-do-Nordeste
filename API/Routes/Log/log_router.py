@@ -8,7 +8,7 @@ from Domain.__exceptions__ import ExceptionHTTP, ExceptionGenerica
 
 from Infrastructure.Models.Registros.mLogs import Log
 
-log_router = APIRouter(prefix='/logs', tags=['Log'])
+log_router = APIRouter(prefix='/logs', tags=['Logs'])
 
 # Consultar
 @log_router.get('/')

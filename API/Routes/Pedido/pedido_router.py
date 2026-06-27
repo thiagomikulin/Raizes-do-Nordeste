@@ -1,5 +1,7 @@
 from API.Routes.base import APIRouter
 from Application.base import verificar_token, verificar_permissao
+from Application.Empresa.fEstoque import consultar_quantidade_estoque
+from Infrastructure.Repositories.Vendas.rePedido import status_pedido_db
 from Infrastructure.Repositories.Pedido.rePedido import pedido_existe
 from Infrastructure.Repositories.base import Session, Depends, criar_sessao
 from Application.chamada_rota import criar_entidade, editar_entidade, excluir_entidade, visualizar_entidade
@@ -8,7 +10,7 @@ from Application.chamada_rota import criar_entidade, editar_entidade, excluir_en
 from API.Schemas.Pedido.sPedido import CriacaoSchema, EdicaoSchema
 from API.Schemas.Pedido.sPedItens import InternoItemCriacaoSchema, ItemCriacaoSchema, ItemEdicaoSchema, ItemExclusaoSchema
 
-from Application.Vendas.fPedido import verificar_dono_pedido, progredir_status
+from Application.Vendas.fPedido import aumentar_valor_pedido, cancelar_status, diminuir_valor_pedido, verificar_dono_pedido, progredir_status
 
 from Infrastructure.Models.Vendas.mPedido import Pedido
 from Infrastructure.Models.Vendas.mPedidoItens import ItensPed
@@ -16,7 +18,7 @@ from Infrastructure.Models.Vendas.mPedidoItens import ItensPed
 
 from Domain.__exceptions__ import ExceptionGenerica, ExceptionHTTP
 
-pedido_router = APIRouter(prefix='/pedidos', tags=['Pedido'])
+pedido_router = APIRouter(prefix='/pedidos', tags=['Pedidos'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -58,8 +60,6 @@ async def editar_pedido(id:int, schema: EdicaoSchema, sessao: Session = Depends(
 # AtualizarStatus
 @pedido_router.patch('/status/{id}')
 async def atualizar_status_pedido(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    path = f'/pedidos/status/{id}'
-
     #OBS: colocar validação extra para clientes (só atualizam status de pedido para Recebido - confirma recebimento)
     try:
         pedido = pedido_existe(id, sessao) #verifica se o pedido existe
@@ -74,6 +74,22 @@ async def atualizar_status_pedido(id: int, sessao: Session = Depends(criar_sessa
         return pedido_update
     
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+# Cancelar
+@pedido_router.patch('/status/{id}/cancelar')
+async def cancelar_pedido(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    try:
+        pedido = pedido_existe(id, sessao) #verifica se o pedido existe
+        verificar_permissao(ator, 'atualizar campo', 'Pedido') #verifica se o ator pode criar
+        verificar_dono_pedido(ator, pedido) #verifica se o ator é cliente e se for, se o pedido é dele
+        pedido_cancelado = cancelar_status(pedido, sessao)
+    except ExceptionHTTP:
+        raise
+    except Exception as e:
+        raise ExceptionGenerica(e)
+    else:
+        return pedido_cancelado
 
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -121,16 +137,12 @@ async def consultar_pedido(
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-# Cancelar
-
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
 # Itens - Adicionar
 @pedido_router.post('/{id}/itens/adicionar')
 async def adicionar_item_pedido(id: int, schema: ItemCriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema_int = InternoItemCriacaoSchema(**schema.model_dump(),id_ped=id)
     try:
-        item_pedido = criar_entidade(ItensPed, schema_int, ator, sessao, ['id_ped', 'variacao'], lista_regras_validacao=[])
+        item_pedido = criar_entidade(ItensPed, schema_int, ator, sessao, ['id_ped', 'variacao'], lista_regras_validacao=[consultar_quantidade_estoque],lista_regras_pos=[aumentar_valor_pedido])
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -145,7 +157,7 @@ async def adicionar_item_pedido(id: int, schema: ItemCriacaoSchema, sessao: Sess
 async def remover_item_pedido(id_ped: int, id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema = ItemExclusaoSchema(id_ped=id_ped, id=id)
     try:
-        item_deletado = excluir_entidade(ItensPed, schema, ator, sessao, ['id', 'id_ped'])
+        item_deletado = excluir_entidade(ItensPed, schema, ator, sessao, ['id', 'id_ped'], lista_regras_pos=[diminuir_valor_pedido])
     except ExceptionHTTP:
         raise
     except Exception as e:

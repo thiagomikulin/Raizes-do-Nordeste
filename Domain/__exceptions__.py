@@ -1,5 +1,6 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 
 from datetime import datetime
 from typing import Optional
@@ -30,6 +31,29 @@ async def handler_de_excecao(request: Request, exc: ExceptionHTTP):
             "path":request.url.path
         }
     )
+
+@app.exception_handler(RequestValidationError)
+async def erro_validacao(request: Request, exc: RequestValidationError):
+    detalhe = []
+    for erro in exc.errors():
+        detalhe.append(
+            {
+                "field":".".join(str(campo) for campo in erro['loc'][1:]),
+                "issue":erro['type']
+            }
+        )
+    
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error":"CAMPOS PREENCHIDOS INCORRETAMENTE",
+            "message":"Os campos não foram preenchidos corretamente! Verifique e tente novamente.",
+            "details":detalhe,
+            "timestamp":datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+            "path":request.url.path
+        }
+    )
+
 
 #Opcional, já retorna no ExceptionGenerica
 # @app.exception_handler(MySQLdb.IntegrityError)
@@ -298,5 +322,17 @@ class AlteraPedidoNaoPermitido(ExceptionHTTP):
             message=f'Não é permitido alterar pedidos com status {status.lower()}!',
             detail=[
                 {"field":'status', "issue":"Cancelado"}
+            ],
+        )    
+
+class ErroDeSchema(ExceptionHTTP):
+    def __init__(self, e):
+        erros = e.errors()
+        super().__init__(
+            code=404,
+            error=f'ERRO NO ENVIO',
+            message=f'Houve um erro no envio das informações! Verifique os campos!',
+            detail=[
+                {erro['type'] - erro['loc']}for erro in erros
             ],
         )    

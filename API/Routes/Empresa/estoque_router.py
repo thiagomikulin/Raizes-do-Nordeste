@@ -14,7 +14,7 @@ from Infrastructure.Models.Empresa.mEstoqueItens import EstoqueItens
 from Infrastructure.Models.Empresa.mEstoque import Estoque
 
 
-estoque_router = APIRouter(prefix='/estoque', tags=['Empresa - Estoque']) 
+estoque_router = APIRouter(prefix='/estoque', tags=['Empresa - Estoques']) 
 
 # OBS: CRIAÇÃO AUTOMÁTICA NA CRIAÇÃO DA FILIAL
 

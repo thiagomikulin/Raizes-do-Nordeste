@@ -24,3 +24,13 @@ def mock_consultar_pagamento(id):
         raise FalhaNaSolicitacao()
     else:
         return retorno.json()
+    
+def mock_cancelar_pagamento(id):
+    parametro = {
+        "id":id
+    }
+    retorno = requests.get('http://mock:5000/pagamentos/{id}/cancelar', params=parametro)
+    if retorno.status_code != 200:
+        raise FalhaNaSolicitacao()
+    else:
+        return retorno.json
