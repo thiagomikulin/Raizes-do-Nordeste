@@ -53,7 +53,7 @@ db = create_engine(url)
 async def startup_event():
     for tentativa in range(30):
         try:
-            Base.metadata.create_all(db)
+            #Base.metadata.create_all(db)
             print('Banco conectado')
             senha_root_cripto = bcrypt_context.hash('root')
             user_ceo = Usuario('root', 'root@root.com', senha_root_cripto, True, 'CEO')

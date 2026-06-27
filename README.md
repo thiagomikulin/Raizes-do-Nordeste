@@ -76,7 +76,7 @@ Caso queira visualizar o banco de dados, precisará ser criada uma conexão com 
 2. Selecione a opção de conectar a um banco MySQL
 3. Selecione conexão de host
 4. Preenchimento de campos:
-   1. Server Host: mysql
+   1. Server Host: localhost
    2. Port: porta definida no .env.example
    3. Database: db definido no .env.example
    4. Username: usuario definido no .env.example
