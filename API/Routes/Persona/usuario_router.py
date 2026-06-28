@@ -201,8 +201,8 @@ async def reset_senha(email: str, sessao: Session = Depends(criar_sessao)):
 
 #Usuário - Associar a filial (RF-U08)
 @usuario_router.post('/{usuario}/filiais/{filial}/vincular', status_code=201)
-async def vincular_filial(id: int=0, id_filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    schema = sUsuarioFilialCriacao(**{'usuario':id, 'filial':id_filial})
+async def vincular_filial(usuario: int=0, filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    schema = sUsuarioFilialCriacao(**{'usuario':usuario, 'filial':filial})
     try:
         vinculo = criar_entidade(UsuarioFilial, schema, ator, sessao, ['usuario', 'filial'])
     except ExceptionHTTP:
@@ -216,9 +216,9 @@ async def vincular_filial(id: int=0, id_filial:int=0, sessao: Session = Depends(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Usuário - Desassociar a filial (RF-U09)
-@usuario_router.delete('/{id}/filiais/{id_filial}/desvincular')
-async def desvincular_filial(id: int=0, id_filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    schema = sUsuarioFilialExclusao(**{'usuario':id, 'filial':id_filial})
+@usuario_router.delete('/{usuario}/filiais/{filial}/desvincular')
+async def desvincular_filial(usuario: int=0, filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+    schema = sUsuarioFilialExclusao(**{'usuario':usuario, 'filial':filial})
     try:
         desvinculo = excluir_entidade(UsuarioFilial, schema, ator, sessao, ['usuario', 'filial'])
     except ExceptionHTTP:

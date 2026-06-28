@@ -82,11 +82,6 @@ def excluir_entidade_bd(entidade, schema, sessao:Session):
     #Retorno de tudo
     retorno = busca.first()
     dados_excluido = {chave:valor for chave, valor in retorno.__dict__.items()}
-    campos = [f'{chave} = {valor}' for chave, valor in schema_dump.items()]
-    if len(campos) > 1:
-        mensagem = ' e '.join(campos)
-    else:
-        mensagem = campos[0]
     sessao.delete(retorno)
     sessao.commit()
     return {

@@ -37,7 +37,7 @@ async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_ses
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Atualizar
-@filial_router.put('/{id}')
+@filial_router.put('/{id}/atualizar')
 async def atualizar_filial(id: int, schema: EdicaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         filial_alterada = editar_entidade(id, Filial, schema, ator, sessao)
@@ -178,7 +178,7 @@ async def associar_filial_campanha(id: int, id_campanha: int, sessao:Session = D
 async def desassociar_filial_campanha(id: int, id_campanha: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema = sPromoFilialExclusao(**{'filial':id, 'promocao':id_campanha})
     try:
-        relacao_desfeita = excluir_entidade(PromoFilial, schema, ator, sessao, ['filial','promocao'])
+        relacao_desfeita = excluir_entidade(PromoFilial, schema, ator, sessao, campo_verificacao=['filial','promocao'])
     except ExceptionHTTP:
         raise
     except Exception as e:

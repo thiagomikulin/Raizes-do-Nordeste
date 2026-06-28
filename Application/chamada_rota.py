@@ -48,11 +48,12 @@ def excluir_entidade(entidade, schema, ator, sessao: Session, campo_verificacao:
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:
             regra(entidade_excluida, sessao)
-    if nome_entidade in ['UsuarioFilial']:
+    if nome_entidade in ['UsuarioFilial', 'PromoFilial', 'ItemReceita', 'VariacaoFilial']:
         id = campo_verificacao
+        campo_id = campo_verificacao[0]
     else:
         id = ['id']
-    salvar_log_bd('excluir', entidade.__tablename__, entidade_excluida[nome_entidade], ator, sessao, id)
+    salvar_log_bd('excluir', entidade.__tablename__, entidade_excluida[nome_entidade], ator, sessao, id, campo_id=campo_id)
     return entidade_excluida
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

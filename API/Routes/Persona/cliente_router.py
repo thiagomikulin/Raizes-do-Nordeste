@@ -190,7 +190,7 @@ async def login(schema: LoginSchema, sessao: Session=Depends(criar_sessao)):
 #Cliente - Atualizar Token (RF-C08)
 @cliente_router.post('/refresh')
 async def refresh_token(ator=Depends(verificar_token)):
-    ac = criar_token(ator.id)
+    ac = criar_token(ator.id, Cliente)
     return {
         "access_token":ac,
         "token_type":"Bearer"
