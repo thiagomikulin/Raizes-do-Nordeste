@@ -20,7 +20,7 @@ from Infrastructure.Models.Registros.mMovimentos import Movimento, StatusMov, Ti
 movimentos_router = APIRouter(prefix='/movimentos', tags=['Empresa - Movimentos'])
 
 # Criar entrada
-@movimentos_router.post('/criar')
+@movimentos_router.post('/criar', status_code=201)
 async def criar_movimento(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         movimento = criar_entidade(Movimento, schema, ator, sessao, campo_verificacao=["chave_nota"])
@@ -81,20 +81,21 @@ async def editar_movimento(id: int, schema: EdicaoSchema, sessao: Session = Depe
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-# Avançar movimento
-@movimentos_router.patch('/{id}/status')
-async def avancar_movimento(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    try:
-        verificar_permissao(ator, 'movimento', 'avançar')
-        movimento = verificar_movimento_existe(id, sessao)
-        mov_atualizado = avancar_movimento_bd(movimento, sessao)
-        salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
-    except ExceptionHTTP:
-        raise
-    except Exception as e:
-        raise ExceptionGenerica(e)
-    else:
-        return mov_atualizado
+#NÃO IMPLEMENTADO PELO TEMPO
+# # Avançar movimento
+# @movimentos_router.patch('/{id}/status')
+# async def avancar_movimento(id: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
+#     try:
+#         verificar_permissao(ator, 'movimento', 'avançar')
+#         movimento = verificar_movimento_existe(id, sessao)
+#         mov_atualizado = avancar_movimento_bd(movimento, sessao)
+#         salvar_log_bd('criar','variacao','id',variacao['id'], ator, sessao)
+#     except ExceptionHTTP:
+#         raise
+#     except Exception as e:
+#         raise ExceptionGenerica(e)
+#     else:
+#         return mov_atualizado
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -126,7 +127,7 @@ async def listar_movimento_itens(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Itens - Adicionar
-@movimentos_router.post('/{id}/itens/adicionar')
+@movimentos_router.post('/{id}/itens/adicionar', status_code=201)
 async def adicionar_movimento_item(id: int, schema: ItemCriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema_interno = InternoItemCriacaoSchema(
         movimentacao=id, 

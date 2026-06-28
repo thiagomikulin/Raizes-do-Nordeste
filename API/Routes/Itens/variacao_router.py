@@ -23,7 +23,7 @@ variacao_router = APIRouter(prefix='/variacoes', tags=['Itens - Variações'])
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Criar
-@variacao_router.post('/criar')
+@variacao_router.post('/criar', status_code=201)
 async def criar_variacao(schema: CriacaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
         variacao = criar_entidade(Variacao, schema, ator, sessao, campo_verificacao=['nome'])
@@ -108,7 +108,7 @@ async def desativar_variacao(id: int, sessao: Session = Depends (criar_sessao), 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Adicionar item Receita
-@variacao_router.post('/{id_variacao}/receita/{id_ingrediente}/adicionar')
+@variacao_router.post('/{id_variacao}/receita/{id_ingrediente}/adicionar', status_code=201)
 async def adicionar_item_receita(id_variacao: int, id_ingrediente: int, schema: ReceitaCriacaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     template = schema.model_dump()
     schema_interno = InternoReceitaCriacaoSchema(quantidade=template['quantidade'], unidade_medida=template['unidade_medida'],variacao=id_variacao, ingrediente=id_ingrediente)
@@ -156,8 +156,8 @@ async def remover_item_receita(id_variacao: int, id_ingrediente: int,sessao: Ses
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Associar com filial
-@variacao_router.post('/{id_variacao}/filial/{id_filial}/associar')
-async def criar_variacao_filial(id_variacao: int, id_filial: int, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
+@variacao_router.post('/{id_variacao}/filial/{id_filial}/associar', status_code=201)
+async def vincular_filial(id_variacao: int, id_filial: int, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     schema = sVariacaoFilialCriacao(variacao=id_variacao, filial=id_filial)
     try:
         variacao_filial_criada = criar_entidade(VariacaoFilial, schema, ator, sessao, ['variacao', 'filial'])
@@ -171,8 +171,8 @@ async def criar_variacao_filial(id_variacao: int, id_filial: int, sessao: Sessio
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Desassociar com filial
-@variacao_router.delete('/{id_variacao}/filial/{id_filial}')
-async def apagar_variacao_filial(id_variacao:int, id_filial: int, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
+@variacao_router.delete('/{id_variacao}/filial/{id_filial}/desassociar')
+async def desvincular_filial(id_variacao:int, id_filial: int, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     schema = sVariacaoFilialExclusao(variacao=id_variacao, filial=id_filial)
     try:
         variacao_filial_excluida = excluir_entidade(VariacaoFilial, schema, ator, sessao, ['variacao', 'filial'])

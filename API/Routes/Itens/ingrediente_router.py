@@ -17,7 +17,7 @@ ingrediente_router = APIRouter(prefix='/ingredientes', tags=['Itens - Ingredient
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Criar
-@ingrediente_router.post('/criar')
+@ingrediente_router.post('/criar', status_code=201)
 async def criar_ingrediente(schema: CriacaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
         ingrediente = criar_entidade(Ingrediente, schema, ator, sessao, campo_verificacao=['nome'])
@@ -31,7 +31,7 @@ async def criar_ingrediente(schema: CriacaoSchema, sessao: Session = Depends (cr
 
 # Consultar
 @ingrediente_router.get('/')
-async def consulta_ingrediente(
+async def listar_ingrediente(
     id: int | None=None,
     nome: str | None=None,
     periodo: PeriodoAno | None=None,
@@ -54,7 +54,7 @@ async def consulta_ingrediente(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Editar
-@ingrediente_router.put('/{id}')
+@ingrediente_router.put('/{id}/editar')
 async def editar_ingrediente(id: int, schema: EdicaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
         ingrediente_alterado = editar_entidade(id, Ingrediente, schema, ator, sessao)

@@ -26,7 +26,7 @@ cliente_router = APIRouter(prefix='/clientes', tags=['Persona - Clientes'])
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Clientes - Criar (RF-C01)
-@cliente_router.post('/criar')
+@cliente_router.post('/criar', status_code=201)
 async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     '''
     Esta rota realiza a criação de um cliente no sistema
@@ -93,7 +93,7 @@ async def listar_clientes(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Clientes - Editar (RF-C03)
-@cliente_router.put('/{id}')
+@cliente_router.put('/{id}/editar')
 async def atualizar_cliente(id: int, schema: EdicaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         edicao = editar_entidade(id, Cliente,schema, ator, sessao)
@@ -106,7 +106,7 @@ async def atualizar_cliente(id: int, schema: EdicaoSchema, sessao: Session = Dep
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Clientes - Ativar (RF-C04)
-@cliente_router.put('/{id}/ativar')
+@cliente_router.patch('/{id}/ativar')
 async def ativar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         ativado = ativar_entidade(Cliente, ator, id, sessao)
@@ -120,7 +120,7 @@ async def ativar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Clientes - Desativar (RF-C04)
-@cliente_router.put('/{id}/desativar')
+@cliente_router.patch('/{id}/desativar')
 async def desativar_cliente(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         desativado = desativar_entidade(Cliente, ator, id, sessao)
@@ -135,7 +135,7 @@ async def desativar_cliente(id: int, sessao: Session = Depends(criar_sessao), at
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Clientes - Atualizar fidelidade (RF-C05)
-@cliente_router.put('/{id}/fidelidade')
+@cliente_router.patch('/{id}/fidelidade')
 async def atualizar_fidelidade(id: int, fidelidade: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         fidelidade = atualizar_campo(Cliente, id, 'fidelidade', fidelidade, ator, sessao)

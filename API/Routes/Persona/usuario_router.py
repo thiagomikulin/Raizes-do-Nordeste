@@ -58,7 +58,6 @@ async def listar_usuarios(
     email: str | None = None,
     cargo:str | None = None, 
     ativo: bool | None = True,
-    filial: int | None = None,
     sessao: Session = 
     Depends(criar_sessao), 
     ator = Depends(verificar_token)
@@ -73,7 +72,6 @@ async def listar_usuarios(
         'email':email,
         'cargo':cargo,
         'ativo':ativo,
-        'filial':filial
     }
     try:
         lista = visualizar_entidade(Usuario, sessao, ator, dict_campos)
@@ -202,7 +200,7 @@ async def reset_senha(email: str, sessao: Session = Depends(criar_sessao)):
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Usuário - Associar a filial (RF-U08)
-@usuario_router.post('/{usuario}/filiais/{filial}/vincular')
+@usuario_router.post('/{usuario}/filiais/{filial}/vincular', status_code=201)
 async def vincular_filial(id: int=0, id_filial:int=0, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema = sUsuarioFilialCriacao(**{'usuario':id, 'filial':id_filial})
     try:

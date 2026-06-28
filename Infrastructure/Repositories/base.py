@@ -215,23 +215,23 @@ def editar_campo_entidade_bd(entidade, campo, valor, nome_entidade, sessao: Sess
 
 def ativar_entidade_bd(entidade, nome_entidade, sessao):
     if entidade.ativo == True:
-        raise NaoAlterado(entidade)
+        raise NaoAlterado(entidade, {'ativo':entidade.ativo})
     entidade.ativo = True
     sessao.commit()
     return {
         "message":f'{nome_entidade} {entidade.id} foi ativado com sucesso!',
-        f'{nome_entidade}':{chave:valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
+        f'{nome_entidade}':{chave:valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc', 'scanFace']}
     }
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def desativar_entidade_bd(entidade, nome_entidade, sessao):
     if entidade.ativo == False:
-        raise NaoAlterado(entidade)
+        raise NaoAlterado(entidade, {'ativo':entidade.ativo})
     entidade.ativo = False
     sessao.commit()
     return {
         "message":f'{nome_entidade} {entidade.id} foi desativado com sucesso!',
-        f'{nome_entidade}':{chave:valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc']}
+        f'{nome_entidade}':{chave:valor for chave, valor in entidade.__dict__.items() if chave not in ['senha', 'cpf', 'conta_banc', 'scanFace']}
     }
 

@@ -66,7 +66,7 @@ def verificar_cliente_existe(sessao: Session, email=None, id=None, cpf=None):
 
 def desativar_cliente_bd(cliente: Cliente, sessao: Session):
     if cliente.ativo == False:
-        raise NaoAlterado(cliente)
+        raise NaoAlterado(cliente,  {'ativo':cliente.ativo})
     cliente.ativo = False
     sessao.commit()
     return {
@@ -80,7 +80,7 @@ def desativar_cliente_bd(cliente: Cliente, sessao: Session):
 
 def ativar_cliente_bd(cliente: Cliente, sessao:Session):
     if cliente.ativo == True:
-        raise NaoAlterado(cliente)
+        raise NaoAlterado(cliente, {'ativo':cliente.ativo})
     cliente.ativo = True
     sessao.commit()
     return {

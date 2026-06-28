@@ -36,7 +36,8 @@
         "Pedido"
     ],
     "atualizar campo":[
-        "Pedido"
+        "Pedido",
+        "Cliente"
     ],
     "autenticar":true,
     "atualizar_token":true

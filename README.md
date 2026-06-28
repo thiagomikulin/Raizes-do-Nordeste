@@ -5,11 +5,12 @@ Este projeto foi desenvolvido com a premissa de gerenciar vendas, estoque e dema
 # Requisitos do projeto
 
 Para que o projeto possa rodar localmente em sua máquina, é necessário ter instalado:
-* Docker <https://docs.docker.com/get-started/get-docker/> (versão 29.1.3)
-  * Necessário para isolar a API do seu sistema operacional, evitando portanto erros de conflito de importação com seu sistema operacional
-* Docker compose <https://docs.docker.com/compose/install> (versão 1.29.2)
-  * necessário para operacionalizar tanto o banco de dados quanto a aplicação simultaneamente, em ambientes separados, mas integrados
-* Para sistemas Windows --> Docker Desktop
+* Em máquinas Linux:
+  * Docker <https://docs.docker.com/get-started/get-docker/> (versão 29.1.3)
+    * Necessário para isolar a API do seu sistema operacional, evitando portanto erros de conflito de importação com seu sistema operacional
+  * Docker compose <https://docs.docker.com/compose/install> (versão 1.29.2)
+    * necessário para operacionalizar tanto o banco de dados quanto a aplicação simultaneamente, em ambientes separados, mas integrados
+* Para sistemas Windows --> Docker Desktop <https://docs.docker.com/desktop/setup/install/windows-install/>
   * necessário para rodar o servidor a partir de máquinas Windows (comandos com script não funcionam em máquinas Windows)
   *  O docker precisará também ter o Windows Subserver for Linux para rodar o Docker. Geralmente, é instalado junto ao docker, mas pode ser necessário reiniciar o sistema.
   * Pode ser utilizado também para sistemas Linux opcionalmente (o projeto já vem com um script executável para Linux)
@@ -126,3 +127,5 @@ Quaisquer implementações adicionais ou alterações no banco de dados deverão
    1. Se retornar algum erro, verificar pelo código e arquivo. As mensagens costumam indicar a origem do erro pelo próprio arquivo
 3. Depois de enviado o versionamento da modelagem, executar o comando: alembic -c Infrastructure/alembic.ini upgrade head
    1. Caso retorne algum erro nesta etapa, será necessário excluir o versionamento anterior enviado. Os versionamentos ficam armazenados em: Infrastructure/alembic/versions (é possível identificar pela mensagem)
+4. Estas mudanças inicialmente estarão apenas no ambiente local. Para oficializá-las no container, será necessário realizar as migrações através do container (com os arquivos alterados)
+   1. Este guia <https://www.youtube.com/watch?v=91j6zOoIP4g> demonstra como realizar a migration.

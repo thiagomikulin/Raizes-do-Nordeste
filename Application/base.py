@@ -63,7 +63,7 @@ def verificar_token(request: Request, token:str=Depends(oauth2_schema), sessao:S
     if not ator:
         raise AcessoNaoEncontrado()
     elif ator.ativo == False:
-        raise NaoAtivo
+        raise NaoAtivo(ator)
     return ator
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -109,7 +109,7 @@ def verificar_permissao(ator, permissao: str, modulo:str, tipo: str=None):
         modulo = f'{modulo} - {dominio}'
         if modulo not in permissoes[permissao]:
             raise SemPermissao(ator=ator, permissao=permissao)
-        indice_dominio = permissoes[permissao].index(f'{modulo} - {dominio}')
+        indice_dominio = permissoes[permissao].index(f'{modulo}')
         return permissoes[permissao][0:indice_dominio]
     else:
         if modulo not in permissoes[permissao]:

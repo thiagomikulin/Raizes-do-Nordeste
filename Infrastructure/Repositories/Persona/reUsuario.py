@@ -43,7 +43,7 @@ def verificar_usuario_atualizacao(schema, usuario_bd):
     if usuario_bd.cargo != schema.cargo:
         campos.append('cargo')
     if len(campos) == 0:
-        raise NaoAlterado(usuario_bd)
+        raise NaoAlterado(usuario_bd, {'id':usuario_bd.id})
     
     return campos
 
@@ -128,7 +128,7 @@ def editar_usuario_bd(schema: EdicaoSchema, usuario: Usuario, campos: list, sess
 
 def ativar_usuario_bd(usuario: Usuario, sessao: Session):
     if usuario.ativo == True:
-        raise NaoAlterado(usuario)
+        raise NaoAlterado(usuario, {'ativo':usuario.ativo})
     else:
         usuario.ativo = True
         sessao.commit()
@@ -143,7 +143,7 @@ def ativar_usuario_bd(usuario: Usuario, sessao: Session):
     
 def desativar_usuario_bd(usuario: Usuario, sessao: Session):
     if usuario.ativo == False:
-        raise NaoAlterado(usuario)
+        raise NaoAlterado(usuario, {'ativo':usuario.ativo})
     else:
         usuario.ativo = False
         sessao.commit()

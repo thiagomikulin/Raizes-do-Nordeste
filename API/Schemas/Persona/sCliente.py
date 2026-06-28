@@ -1,11 +1,11 @@
 from API.Schemas.base import *
-from Domain.__exceptions__ import SenhaCurta, FormatoInvalido
+from Domain.__exceptions__ import FormatoInvalido
 
 
 class CriacaoSchema(BaseModel):
-    nome: str = Field(default='Seu Nome', min_length=10)
-    email: str = Field(default='seuemail@dominio.com', min_length=15)
-    cpf: str = Field(default='999.999.999-99')
+    nome: str = Field(min_length=10)
+    email: str 
+    cpf: str = Field()
     scanFace:Optional[str]
     senha:str
     endereco:Optional[str]
@@ -49,10 +49,10 @@ class LoginSchema(BaseModel):
 
 
 class EdicaoSchema(BaseModel):
-    nome: str = Field(default='Nome a alterar', min_length=15)
-    email: str = Field(default='seuemail@dominio.com', min_length=15)
-    endereco:str = Field(default='Rua ______, Nº __, Complemento ___')
-    data_nasc:date = Field(default='1900-01-01')
+    nome: str = Field(min_length=10)
+    email: str = Field(min_length=10)
+    endereco:str
+    data_nasc:date
     
 
     

@@ -26,7 +26,7 @@ campanha_router = APIRouter(prefix='/campanhas', tags=['Empresa - Campanhas']) #
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Criar
-@campanha_router.post('/criar')
+@campanha_router.post('/criar', status_code=201)
 async def criar_campanha(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         campanha = criar_entidade(CampanhaPromo, schema, sessao, campo_verificacao=['nome'], ator=ator)
@@ -69,7 +69,7 @@ async def buscar_campanha(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Editar
-@campanha_router.put('/{id}')
+@campanha_router.put('/{id}/editar')
 async def editar_campanha(schema: EdicaoSchema, id: int,  sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         campanha_edit = editar_entidade(id, CampanhaPromo, schema, ator, sessao)
@@ -111,7 +111,7 @@ async def desativar_campanhapromo(id: int, sessao:Session = Depends(criar_sessao
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Vincular Filial (UsuarioFilial)
-@campanha_router.post('/{id}/filial/{id_filial}/vincular')
+@campanha_router.post('/{id}/filial/{id_filial}/vincular', status_code=201)
 async def vincular_filial(id: int, id_filial: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema = sPromoFilialCriacao(promocao=id, filial=id_filial)
     try:

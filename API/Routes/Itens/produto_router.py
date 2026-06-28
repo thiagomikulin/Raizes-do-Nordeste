@@ -9,12 +9,12 @@ from API.Schemas.Itens.sProdutos import CriacaoSchema, EdicaoSchema
 from Infrastructure.Models.Item.mProduto import Produto
 
 
-produto_router = APIRouter(prefix='/produto', tags=['Itens - Produtos'])
+produto_router = APIRouter(prefix='/produtos', tags=['Itens - Produtos'])
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Criar
-@produto_router.post('/criar')
+@produto_router.post('/criar', status_code=201)
 async def criar_produto(schema: CriacaoSchema, sessao: Session = Depends (criar_sessao), ator = Depends(verificar_token)):
     try:
         produto = criar_entidade(Produto, schema, ator, sessao, campo_verificacao=['nome'])
@@ -28,8 +28,8 @@ async def criar_produto(schema: CriacaoSchema, sessao: Session = Depends (criar_
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Listar
-@produto_router.get('/produto')
-async def get_produto(
+@produto_router.get('/')
+async def listar_produto(
     id: int | None=None,
     nome: int | None=None,
     ativo: int | None=None,
@@ -61,11 +61,6 @@ async def editar_produto(id: int, schema: EdicaoSchema, sessao: Session = Depend
         raise ExceptionGenerica
     else:
         return produto_editado
-
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-# Consultar Quantidade
-
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

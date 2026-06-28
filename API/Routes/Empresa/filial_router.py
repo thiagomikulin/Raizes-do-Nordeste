@@ -24,7 +24,7 @@ filial_router = APIRouter(prefix='/filiais', tags=['Empresa - Filiais'])
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #Filial - Criar (RF-F01)
-@filial_router.post('/criar')
+@filial_router.post('/criar', status_code=201)
 async def criar_filial(schema: CriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         filial = criar_entidade(Filial, schema, ator, sessao, lista_regras_pos=[criar_estoque_vinculado])
@@ -158,7 +158,7 @@ async def consultar_vendas_filial(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Associar Campanhas
-@filial_router.post('/{id}/campanha/{id_campanha}/associar')
+@filial_router.post('/{id}/campanha/{id_campanha}/associar', status_code=201)
 async def associar_filial_campanha(id: int, id_campanha: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema = sPromoFilialCriacao(promocao=id_campanha, filial=id)
     try:

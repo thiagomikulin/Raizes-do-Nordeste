@@ -97,6 +97,7 @@ class MandatoryForFillingExcept(Exception):
 
 #Exceções HTTP
 
+#400
 class NaoAlterado(ExceptionHTTP):
     def __init__(self, entidade, identificador):
         super().__init__(
@@ -108,7 +109,7 @@ class NaoAlterado(ExceptionHTTP):
                     "field":f"{chave}",
                     'value':f"{valor}",
                     "issue":"identical value"}
-                for chave, valor in identificador.items() if chave != "_sa_instance_state"
+                for chave, valor in identificador.items() if chave not in ["_sa_instance_state", "cpf", "senha", "conta_banc"]
             ] if type(identificador) == dict else [
                 {
                     "field":"id",
@@ -117,6 +118,27 @@ class NaoAlterado(ExceptionHTTP):
                 }
             ],
         ) 
+
+class SchemaInvalido(ExceptionHTTP):
+    def __init__(self, schema):
+        super().__init__(
+            code = 400,
+            error='CAMPOS PREENCHIDOS INCORRETAMENTE',
+            message="Os campos não foram preenchidos corretamente! Verifique e tente novamente",
+            detail=[{"field":attr, "issue":"required"} for attr, val in schema.__dict__.items() if not val and schema.model_fields[attr].is_required()], #Retorna o atributo na lista de atributos e valores se o valor não existir
+        )
+
+class CamposObrigatorios(ExceptionHTTP):
+    def __init__(self, campos):
+        super().__init__(
+            code = 400,
+            error='CAMPOS PREENCHIDOS INCORRETAMENTE',
+            message="Alguns campos obrigatórios requisitados não foram preenchidos! Tente novamente",
+            detail=[{"field":attr, "issue":f"{val} required"} for attr, val in campos.items()],
+        )
+
+
+#-----------------------------------------------------------------------------------------
 
 # 401
 class NaoAutenticado(ExceptionHTTP):
@@ -144,6 +166,19 @@ class AcessoInvalido(ExceptionHTTP):
     
 #-----------------------------------------------------------------------------------------
 
+class SemPermissao(ExceptionHTTP):
+    def __init__(self, ator, permissao:str):
+        super().__init__(
+            code=403,
+            error='NÃO AUTORIZADO',
+            message=f'Seu acesso não tem permissão para {permissao} este conteúdo! Entre em contato com a equipe técnica!',
+            detail=[
+                {'field':'cargo' if type(ator)==Usuario else 'cliente', 'issue': 'not authorized'}
+            ],
+        )
+
+#-----------------------------------------------------------------------------------------
+
 #404
 
 class Desativado(ExceptionHTTP):
@@ -154,6 +189,17 @@ class Desativado(ExceptionHTTP):
             message='Parece que seu acesso foi desativado! Entre em contato com a equipe técnica!',
             detail=[
                 {"field":"ativo", "issue":"deactivated"}
+            ],
+        )
+
+class NaoAtivo(ExceptionHTTP):
+    def __init__(self, ator):
+        super().__init__(
+            code=404,
+            error="ACESSO DESATIVADO",
+            message="Parece que este acesso foi desativado! Entre em contato com o suporte!",
+            detail=[
+                {"field":f"{type(ator).__name__}","issue":"deactivated"}
             ],
         )
 
@@ -177,37 +223,9 @@ class NaoEncontrado(ExceptionHTTP):
             detail=campos,
         )
 
-#detail=[{"field":chave, "issue":f" '{campos[chave]}' not found" for chave, valor in campos} ],
+#-----------------------------------------------------------------------------------------
 
-class SchemaInvalido(ExceptionHTTP):
-    def __init__(self, schema):
-        super().__init__(
-            code = 400,
-            error='CAMPOS PREENCHIDOS INCORRETAMENTE',
-            message="Os campos não foram preenchidos corretamente! Verifique e tente novamente",
-            detail=[{"field":attr, "issue":"required"} for attr, val in schema.__dict__.items() if not val and schema.model_fields[attr].is_required()], #Retorna o atributo na lista de atributos e valores se o valor não existir
-        )
-
-class CamposObrigatorios(ExceptionHTTP):
-    def __init__(self, campos):
-        super().__init__(
-            code = 400,
-            error='CAMPOS PREENCHIDOS INCORRETAMENTE',
-            message="Alguns campos obrigatórios requisitados não foram preenchidos! Tente novamente",
-            detail=[{"field":attr, "issue":f"{val} required"} for attr, val in campos.items()],
-        )
-
-class SemPermissao(ExceptionHTTP):
-    def __init__(self, ator, permissao:str):
-        super().__init__(
-            code=403,
-            error='NÃO AUTORIZADO',
-            message=f'Seu acesso não tem permissão para {permissao} este conteúdo! Entre em contato com a equipe técnica!',
-            detail=[
-                {'field':'cargo' if type(ator)==Usuario else 'cliente', 'issue': 'not authorized'}
-            ],
-        )
-
+#409
 class Conflito(ExceptionHTTP):
     def __init__(self, entidade, encontrados: dict):
         lista = [f'{chave} = {valor}' for chave, valor in encontrados.items()]
@@ -222,17 +240,6 @@ class Conflito(ExceptionHTTP):
             message=mensagem,
             detail=[
                 {"field":campo,"issue":"duplicated value"} for campo, valor in encontrados.items()
-            ],
-        )
-
-class NaoAtivo(ExceptionHTTP):
-    def __init__(self, ator):
-        super().__init__(
-            code=500,
-            error="ACESSO DESATIVADO",
-            message="Parece que este acesso foi desativado! Entre em contato com o suporte!",
-            detail=[
-                {"field":f"{type(ator).__name__}","issue":"deactivated"}
             ],
         )
 
@@ -258,22 +265,10 @@ class ExceptionRequest(ExceptionHTTP):
             ],
         )
 
-
-class SenhaCurta(ExceptionHTTP):
-    def __init__(self):
-        super().__init__(
-            code=404,
-            error='SENHA DESPADRONIZADA',
-            message='A senha precisa ter pelo menos 8 caracteres',
-            detail=[
-                {"field":"senha", "issue":"invalid format"}
-            ],
-        )
-
 class FormatoInvalido(ExceptionHTTP):
     def __init__(self, campo):
         super().__init__(
-            code=404,
+            code=400,
             error=f'{campo} Inválido',
             message=f'Este {campo} não usa o formato padrão! Tente novamente!',
             detail=[
@@ -284,7 +279,7 @@ class FormatoInvalido(ExceptionHTTP):
 class ItensInsuficientes(ExceptionHTTP):
     def __init__(self):
         super().__init__(
-            code=404,
+            code=403,
             error=f'ITENS INSUFICIENTES',
             message=f'Este pedido não tem itens, e por isso, não poderá ser alterado para Fechado',
             detail=[
@@ -295,7 +290,7 @@ class ItensInsuficientes(ExceptionHTTP):
 class FalhaNaSolicitacao(ExceptionHTTP):
     def __init__(self):
         super().__init__(
-            code=404,
+            code=502,
             error=f'FALHA NA SOLICITAÇÃO',
             message=f'Houve uma falha na comunicação com o seu sistema de pagamentos. Contate uma de nossas unidades!',
             detail=[
@@ -306,7 +301,7 @@ class FalhaNaSolicitacao(ExceptionHTTP):
 class EstoqueInsuficiente(ExceptionHTTP):
     def __init__(self, item):
         super().__init__(
-            code=404,
+            code=403,
             error=f'ESTOQUE INSUFICIENTE',
             message=f'Não temos estoque suficiente do item {item.id}!',
             detail=[
@@ -317,22 +312,10 @@ class EstoqueInsuficiente(ExceptionHTTP):
 class AlteraPedidoNaoPermitido(ExceptionHTTP):
     def __init__(self, status):
         super().__init__(
-            code=404,
+            code=403,
             error=f'PEDIDO {status.upper()}',
             message=f'Não é permitido alterar pedidos com status {status.lower()}!',
             detail=[
                 {"field":'status', "issue":"Cancelado"}
-            ],
-        )    
-
-class ErroDeSchema(ExceptionHTTP):
-    def __init__(self, e):
-        erros = e.errors()
-        super().__init__(
-            code=404,
-            error=f'ERRO NO ENVIO',
-            message=f'Houve um erro no envio das informações! Verifique os campos!',
-            detail=[
-                {erro['type'] - erro['loc']}for erro in erros
             ],
         )    

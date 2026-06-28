@@ -14,7 +14,7 @@ from Infrastructure.Models.Empresa.mEstoqueItens import EstoqueItens
 from Infrastructure.Models.Empresa.mEstoque import Estoque
 
 
-estoque_router = APIRouter(prefix='/estoque', tags=['Empresa - Estoques']) 
+estoque_router = APIRouter(prefix='/estoques', tags=['Empresa - Estoques']) 
 
 # OBS: CRIAÇÃO AUTOMÁTICA NA CRIAÇÃO DA FILIAL
 
@@ -54,7 +54,7 @@ async def exibir_quantidades(id_variacao: int, id_estoque: int, sessao:Session =
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Itens - Criar (EstoqueItens)
-@estoque_router.post('{id}/itens/criar')
+@estoque_router.post('/{id}/itens/criar', status_code=201)
 async def criar_estoque_itens(id_estoque: int, schema: ItemCriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema_interno = InternoItemCriacaoSchema(estoque=id_estoque, ingrediente=schema.ingrediente, unidade_medida=schema.unidade_medida)
     try:
@@ -69,7 +69,7 @@ async def criar_estoque_itens(id_estoque: int, schema: ItemCriacaoSchema, sessao
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Itens - Editar (EstoqueItens)
-@estoque_router.post('{id}/itens/editar')
+@estoque_router.put('/itens/{id}/editar')
 async def editar_estoque_itens(id: int, schema:ItemEdicaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         item_editado = editar_entidade(id, EstoqueItens, schema, ator, sessao)

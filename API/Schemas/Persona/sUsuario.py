@@ -1,23 +1,22 @@
 from API.Schemas.base import *
 from Infrastructure.Models.Persona.mUsuario import Cargo
-from Domain.__exceptions__ import SenhaCurta
 
 class LoginSchema(BaseModel):
-    email:str = Field(default='seuemail@dominio.com', min_length=10)
-    senha:str = Field(default='senhacurta3caracteres', min_length=3)
+    email:str = Field(min_length=10)
+    senha:str = Field(min_length=3)
 
     class Config:
         from_attributes=True
 
 class CriacaoSchema(BaseModel):
-    nome: str = Field(default='Seu Nome', min_length=10)
-    email: str = Field(default='seuemail@dominio.com', min_length=10)
-    senha: str = Field(default='senhacurta3caracteres', min_length=3)
+    nome: str = Field( min_length=10)
+    email: str = Field(min_length=10)
+    senha: str = Field(min_length=3)
 
     class Config:
         from_attributes = True
 
 class EdicaoSchema(BaseModel):
-    nome: str = Field(default='Nome a alterar', min_length=10)
-    email: str = Field(default='seuemail@dominio.com', min_length=14)
+    nome: str = Field(min_length=10)
+    email: str = Field(min_length=14)
     cargo: Cargo

@@ -23,7 +23,7 @@ pedido_router = APIRouter(prefix='/pedidos', tags=['Pedidos'])
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Criar
-@pedido_router.post('/criar')
+@pedido_router.post('/criar', status_code=201)
 async def criar_pedido(schema: CriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     """
     Cria um novo pedido a partir dos dados passados
@@ -101,7 +101,7 @@ async def consultar_pedido(
     filial: int | None=None,
     status:str | None=None,
     tipo:str | None=None,
-    canal:str | None=None,
+    canalPedido:str | None=None,
     tipo_criador:str | None=None,
     id_criador:int | None=None,
     cliente:int | None=None,
@@ -116,7 +116,7 @@ async def consultar_pedido(
         "filial":filial, 
         "status":status, 
         "tipo":tipo, 
-        "canal":canal, 
+        "canal":canalPedido, 
         "tipo_criador":tipo_criador, 
         "id_criador":id_criador, 
         "cliente":cliente, 
@@ -138,7 +138,7 @@ async def consultar_pedido(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Itens - Adicionar
-@pedido_router.post('/{id}/itens/adicionar')
+@pedido_router.post('/{id}/itens/adicionar', status_code=201)
 async def adicionar_item_pedido(id: int, schema: ItemCriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema_int = InternoItemCriacaoSchema(**schema.model_dump(),id_ped=id)
     try:
