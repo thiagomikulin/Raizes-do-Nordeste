@@ -42,4 +42,4 @@ services:
 
 volumes:
   mysql_data:
-    name: "banco_raizes_do_nordeste"
+    name: "banco_raizes_do_nordeste" 
