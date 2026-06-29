@@ -8,6 +8,11 @@ class ItemEdicaoSchema(BaseModel):
   variacao: int
   quantidade: int
 
+class InternoItemEdicaoSchema(BaseModel):
+  id: int
+  variacao: int
+  quantidade: int
+
 class InternoItemCriacaoSchema(BaseModel):
   id_ped: int
   variacao: int

@@ -15,12 +15,13 @@
         "Ingrediente",
 
         "ItemReceita",
+        "PromoFilial",
+        "VariacaoFilial",
         "UsuarioFilial - Não Classificado",
         "UsuarioFilial - Cozinheiro",
         "UsuarioFilial - Atendente",
         "UsuarioFilial - Gerente",
         "UsuarioFilial - TI",
-        "PromoFilial",
 
         "Movimento",
         "ItensMovimento"
@@ -60,6 +61,7 @@
 
         "Filial",
         "EstoqueItens",
+        "CampanhaPromo",
 
         "Pedido",
         "ItensPed",

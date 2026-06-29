@@ -65,20 +65,36 @@ async def solicitar_pagamento(schema: SolicitarPagamento):
         }
     }
 
-@app.patch('/pagamentos/{id}/estornar')
+@app.patch('/pagamentos/{id}/estornar', status_code=200)
 async def estornar_pagamento(id: int):
     pagamento = pagamentos.get(id)
     if pagamento is None:
         raise HTTPException(status_code=404, detail='Pagamento não encontrado')
     pagamentos[id].estornarPagamento()
+    return {
+        "message":"Pagamento estornado!",
+        "pagamento":{
+            "id":pagamento.id,
+            "status":pagamento.status
+        }
+    }
 
-@app.patch('/pagamentos/{id}/cancelar')
+
+@app.patch('/pagamentos/{id}/cancelar', status_code=200)
 async def cancelar_pagamento(id:int):
     pagamento = pagamentos.get(id)
     if pagamento is None:
         raise HTTPException(status_code=404, detail='Pagamento não encontrado')
 
     pagamentos[id].cancelarPagamento()
+    return {
+        "message":"Pagamento cancelado!",
+        "pagamento":{
+            "id":pagamento.id,
+            "status":pagamento.status
+        }
+    }
+
 
 @app.patch('/pagamentos/{id}/aprovar')
 async def aprovar_pagamento(id: int):
@@ -87,6 +103,14 @@ async def aprovar_pagamento(id: int):
         raise HTTPException(status_code=404, detail='Pagamento não encontrado')
 
     pagamentos[id].aprovarPagamento()
+    return {
+        "message":"Pagamento aprovado!",
+        "pagamento":{
+            "id":pagamento.id,
+            "status":pagamento.status
+        }
+    }
+
 
 
 

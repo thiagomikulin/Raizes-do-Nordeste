@@ -52,7 +52,7 @@ async def listar_movimentos(
         'datahora':datahora,
         'status':status,
         'filial':filial,
-        'tipo_mov':tipo_mov,
+        'tipoMov':tipo_mov,
         'validade':validade,
         'chave_nota':chave_nota
     }
@@ -146,7 +146,7 @@ async def adicionar_movimento_item(id: int, schema: ItemCriacaoSchema, sessao:Se
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # Itens - Editar
-@movimentos_router.put('/{id}/itens/{id_item}')
+@movimentos_router.put('/{id}/itens/{id_item}/editar')
 async def editar_movimento_item(schema: ItemEdicaoSchema, id: int, id_item: int, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     dict_campos = {'movimentacao':id, 'id':id_item}
     try:

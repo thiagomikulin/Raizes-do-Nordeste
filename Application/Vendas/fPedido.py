@@ -23,10 +23,10 @@ from Infrastructure.Integracoes.mock import mock_cancelar_pagamento, mock_consul
 def verificar_dono_pedido(ator, pedido:Pedido):
     if type(ator).__name__ == 'Cliente':
         if ator.id != pedido.cliente:
-            raise SemPermissao(ator)
+            raise SemPermissao(ator, 'atualizar status')
         else:
             if pedido.status != 'Aberto':
-                raise SemPermissao(ator)
+                raise SemPermissao(ator, 'atualizar status')
             return True
         
     else:
@@ -35,7 +35,6 @@ def verificar_dono_pedido(ator, pedido:Pedido):
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 def progredir_status(pedido:Pedido, sessao: Session):
-
     match pedido.status:
         #Se o pedido estiver atualmente como aberto
         #Validações: mais de 1 item; estoque dos itens suficiente
@@ -68,7 +67,17 @@ def progredir_status(pedido:Pedido, sessao: Session):
                 pedido.status_pagamento = resultado_pagamento['status']
                 novo_status = 'Preparação'
         case 'Preparação':
-            novo_status="Aguardando Coleta"
+            resultado_pagamento = mock_consultar_pagamento(pedido.id_pagamento)
+            print('')
+            if resultado_pagamento['status'] == 'Cancelado':
+                pedido.status_pagamento = resultado_pagamento['status']
+                novo_status = 'Cancelado'
+            elif resultado_pagamento['status'] == 'Estornado':
+                pedido.status_pagamento = resultado_pagamento['status']
+                novo_status = 'Estornado'
+            elif resultado_pagamento['status'] == 'Aprovado':
+                pedido.status_pagamento = resultado_pagamento['status']
+                novo_status = 'Preparação'
         case "Aguardando Coleta":
             if pedido.tipo == 'Entrega':
                 novo_status = "Em Trânsito"
@@ -86,20 +95,33 @@ def progredir_status(pedido:Pedido, sessao: Session):
 
 def cancelar_status(pedido: Pedido, sessao:Session):
     pag_cancelado = mock_cancelar_pagamento(pedido.id_pagamento)
-    if pag_cancelado.status_code != 200:
-        raise
-    else:
-        pedido_cancelado = status_pedido_db(pedido, 'Cancelado', sessao)
-        return pedido_cancelado
+    pedido.status_pagamento = 'Cancelado'
+    pedido_cancelado = status_pedido_db(pedido, 'Cancelado', sessao)
+    return pedido_cancelado
     
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     
-def aumentar_valor_pedido(item_ped: ItensPed, sessao: Session):
-    pedido = pedido_existe(item_ped.id_ped, sessao)
+def aumentar_valor_pedido(item_ped, sessao: Session):
+    print(item_ped)
+    pedido = pedido_existe(item_ped['ItensPed']['id_ped'], sessao)
+    print('achou o pedido')
     aumentar_valor_pedido_db(item_ped, pedido, sessao)
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-def diminuir_valor_pedido(item_ped: ItensPed, sessao: Session):
-    pedido = pedido_existe(item_ped.id_ped, sessao)
+def diminuir_valor_pedido(item_ped, sessao: Session):
+    print(item_ped)
+    pedido = pedido_existe(item_ped['ItensPed']['id_ped'], sessao)
+    print('achou o pedido')
     diminuir_valor_pedido_db(item_ped, pedido, sessao)
+
+def detecta_alteracao_quantidade(item_ped: dict, item_ped_antigo, sessao:Session):
+    #Se a quantidade no banco for menor que a nova quantidade, ele aumentou o valor - aumentar
+    if item_ped_antigo['quantidade'] < item_ped['ItensPed']['quantidade']:
+        aumentar_valor_pedido(item_ped, sessao)
+    #Se a quantidade no banco for maior que a nova quantidade, ele reduziu o valor - diminuir
+    elif item_ped_antigo['quantidade'] > item_ped['ItensPed']['quantidade']:
+        diminuir_valor_pedido(item_ped, sessao)
+    #Senão, o valor é o mesmo
+    else:
+        return

@@ -34,6 +34,7 @@ async def criar_cliente(schema: CriacaoSchema, sessao: Session = Depends(criar_s
     ATENÇÃO! Utilizamos dados pessoais internamente em nosso sistema para a validação de promoções e asociações únicas.
     Seguem os usos internos de dados pessoais:
     - (obrigatório) CPF: associação de cliente único por CPF
+    - (obrigatório) e-mail: recuperação de conta (via link enviado pelo e-mail)
     - Data de nascimento: Para filtros específicos de preferência de produto, com base na idade
     - Escaneamento facial: para facilitar o login no sistema
     - Endereço: para permitir entregas a domicílio de pedidos

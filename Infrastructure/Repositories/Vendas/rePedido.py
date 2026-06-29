@@ -52,7 +52,6 @@ def criar_pedido_bd(schema:CriacaoSchema, sessao:Session, ator):
 
 def status_pedido_db(pedido:Pedido, status: str, sessao: Session):
     pedido.status = status
-    print(status)
     sessao.commit()
     return {
         "message":"Status atualizado com sucesso!",
@@ -63,14 +62,18 @@ def status_pedido_db(pedido:Pedido, status: str, sessao: Session):
     }
     
 
-def aumentar_valor_pedido_db(item_ped: ItensPed, pedido: Pedido, sessao: Session):
-    variacao = sessao.query(Variacao).filter(Variacao.id == item_ped.variacao).first()
-    pedido.valor += variacao.preco_unitario
+def aumentar_valor_pedido_db(item_ped, pedido: Pedido, sessao: Session):
+    variacao = sessao.query(Variacao).filter(Variacao.id == item_ped['ItensPed']['variacao']).first()
+    print(item_ped['ItensPed']['quantidade'])
+    pedido.soma_itens += variacao.preco_unitario * item_ped['ItensPed']['quantidade']
+    pedido.total += variacao.preco_unitario * item_ped['ItensPed']['quantidade']
     sessao.commit()
     return
 
 def diminuir_valor_pedido_db(item_ped: ItensPed, pedido: Pedido, sessao: Session):
-    variacao = sessao.query(Variacao).filter(Variacao.id == item_ped.variacao).first()
-    pedido.valor -= variacao.preco_unitario
+    variacao = sessao.query(Variacao).filter(Variacao.id == item_ped['ItensPed']['variacao']).first()
+    print(item_ped['ItensPed']['quantidade'])
+    pedido.soma_itens -= variacao.preco_unitario * item_ped['ItensPed']['quantidade']
+    pedido.total -= variacao.preco_unitario * item_ped['ItensPed']['quantidade']
     sessao.commit()
     return

@@ -6,7 +6,7 @@ from main import db, sessionmaker, Session, bcrypt_context, fernet
 
 from Application.base import *
 
-from Infrastructure.Models.base import EnumPy, inspect
+from Infrastructure.Models.base import EnumPy, inspect, and_
 
 from Domain.__exceptions__ import Conflito, NaoEncontrado
 
@@ -24,21 +24,20 @@ async def criar_sessao():
 def verificar_entidade(entidade, schema, nome_entidade, campos: list, sessao: Session, acao):
     if campos is None:
         return
-    else:
-        contador = 0
-        for campo in campos:
-            coluna = getattr(entidade, campo)
-            busca = sessao.query(entidade).filter(coluna == getattr(schema, campo)).first()
-            if busca:
-                contador += 1
-        if acao == 'criar':
-            if contador == len(campos):
-                encontrados = {f'{campo}':f'{getattr(schema, campo)}' for campo in campos}
-                raise Conflito(nome_entidade, encontrados)
-        elif acao == 'excluir':
-            if contador < len(campos):
-                raise NaoEncontrado(campos)
-            
+    filtros = [
+        getattr(entidade, campo) == getattr(schema, campo)
+        for campo in campos
+    ]
+
+    busca = sessao.query(entidade).filter(and_(*filtros)).first()
+    if acao == 'criar':
+        if busca:
+            encontrados = {f'{campo}':f'{getattr(schema, campo)}' for campo in campos}
+            raise Conflito(nome_entidade, encontrados)
+    elif acao == 'excluir':
+        if not busca:
+            raise NaoEncontrado(campos)
+        
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

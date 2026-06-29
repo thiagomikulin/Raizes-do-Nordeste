@@ -53,5 +53,4 @@ class EdicaoSchema(BaseModel):
   endereco: Optional[str]
   forma_pagamento: FormaPagamento
   desconto_fidelidade: int
-  status_pagamento: StatusPagamento
 

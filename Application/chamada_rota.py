@@ -53,6 +53,7 @@ def excluir_entidade(entidade, schema, ator, sessao: Session, campo_verificacao:
         campo_id = campo_verificacao[0]
     else:
         id = ['id']
+        campo_id = 'id'
     salvar_log_bd('excluir', entidade.__tablename__, entidade_excluida[nome_entidade], ator, sessao, id, campo_id=campo_id)
     return entidade_excluida
 
@@ -83,12 +84,11 @@ def editar_entidade(id, entidade, schema, ator, sessao: Session, lista_regras_va
     campos = verificar_entidade_atualizacao(schema, entidade_consultada)
     if lista_regras_validacao is not None:
         for regra in lista_regras_validacao:
-            regra()      
-    
+            regra(schema, sessao)      
     edicao = editar_entidade_bd(schema, nome_entidade, entidade_consultada, campos, sessao, ator)
     if lista_regras_pos is not None:
         for regra in lista_regras_pos:
-            regra(edicao, sessao)
+            regra(edicao, campos_antigos, sessao)
     salvar_log_bd('editar', entidade.__tablename__, edicao[nome_entidade], ator, sessao, campos, campos_antigos, id)
     return edicao
 

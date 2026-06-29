@@ -1,16 +1,17 @@
 from API.Routes.base import APIRouter
 from Application.base import verificar_token, verificar_permissao
-from Application.Empresa.fEstoque import consultar_quantidade_estoque
+from Application.Empresa.fEstoque import consultar_quantidade_estoque, consultar_quantidade_estoque_item, consultar_quantidade_estoque_variacao
+from Infrastructure.Models.Item.mVariacao import Variacao
 from Infrastructure.Repositories.Vendas.rePedido import status_pedido_db
 from Infrastructure.Repositories.Pedido.rePedido import pedido_existe
-from Infrastructure.Repositories.base import Session, Depends, criar_sessao
+from Infrastructure.Repositories.base import Session, Depends, criar_sessao, verificar_entidade_existe
 from Application.chamada_rota import criar_entidade, editar_entidade, excluir_entidade, visualizar_entidade
 
 
 from API.Schemas.Pedido.sPedido import CriacaoSchema, EdicaoSchema
-from API.Schemas.Pedido.sPedItens import InternoItemCriacaoSchema, ItemCriacaoSchema, ItemEdicaoSchema, ItemExclusaoSchema
+from API.Schemas.Pedido.sPedItens import InternoItemCriacaoSchema, InternoItemEdicaoSchema, ItemCriacaoSchema, ItemEdicaoSchema, ItemExclusaoSchema
 
-from Application.Vendas.fPedido import aumentar_valor_pedido, cancelar_status, diminuir_valor_pedido, verificar_dono_pedido, progredir_status
+from Application.Vendas.fPedido import aumentar_valor_pedido, cancelar_status, detecta_alteracao_quantidade, diminuir_valor_pedido, verificar_dono_pedido, progredir_status
 
 from Infrastructure.Models.Vendas.mPedido import Pedido
 from Infrastructure.Models.Vendas.mPedidoItens import ItensPed
@@ -58,7 +59,7 @@ async def editar_pedido(id:int, schema: EdicaoSchema, sessao: Session = Depends(
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # AtualizarStatus
-@pedido_router.patch('/status/{id}')
+@pedido_router.patch('/{id}/status')
 async def atualizar_status_pedido(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     #OBS: colocar validação extra para clientes (só atualizam status de pedido para Recebido - confirma recebimento)
     try:
@@ -77,7 +78,7 @@ async def atualizar_status_pedido(id: int, sessao: Session = Depends(criar_sessa
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Cancelar
-@pedido_router.patch('/status/{id}/cancelar')
+@pedido_router.patch('/{id}/status/cancelar')
 async def cancelar_pedido(id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     try:
         pedido = pedido_existe(id, sessao) #verifica se o pedido existe
@@ -140,9 +141,13 @@ async def consultar_pedido(
 # Itens - Adicionar
 @pedido_router.post('/{id}/itens/adicionar', status_code=201)
 async def adicionar_item_pedido(id: int, schema: ItemCriacaoSchema, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
-    schema_int = InternoItemCriacaoSchema(**schema.model_dump(),id_ped=id)
+    schema_int = InternoItemCriacaoSchema(variacao=schema.variacao, quantidade=schema.quantidade, id_ped=id)
     try:
-        item_pedido = criar_entidade(ItensPed, schema_int, ator, sessao, ['id_ped', 'variacao'], lista_regras_validacao=[consultar_quantidade_estoque],lista_regras_pos=[aumentar_valor_pedido])
+        #Pedido
+        verificar_entidade_existe(Pedido, id, sessao)
+        #Item do pedido
+        verificar_entidade_existe(Variacao, schema_int.variacao, sessao)
+        item_pedido = criar_entidade(ItensPed, schema_int, ator, sessao, ['id_ped', 'variacao'], lista_regras_validacao=[consultar_quantidade_estoque_variacao],lista_regras_pos=[aumentar_valor_pedido])
     except ExceptionHTTP:
         raise
     except Exception as e:
@@ -170,10 +175,11 @@ async def remover_item_pedido(id_ped: int, id: int, sessao: Session = Depends(cr
 @pedido_router.put('/{id_ped}/itens/{id}/editar')
 async def editar_item_ped(schema: ItemEdicaoSchema, id_ped: int, id: int, sessao: Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     dict_campos = {'id_ped':id_ped, 'id':id}
+    schema_int = InternoItemEdicaoSchema(id=id, variacao=schema.variacao, quantidade=schema.quantidade)
     try:
         #Validação prévia se esse item pertence a esse pedido
         visualizar_entidade(ItensPed, sessao, ator, dict_campos)
-        item_editado = editar_entidade(id, ItensPed, schema, ator, sessao)
+        item_editado = editar_entidade(id, ItensPed, schema_int, ator, sessao, lista_regras_validacao=[consultar_quantidade_estoque_item],lista_regras_pos=[detecta_alteracao_quantidade])
     except ExceptionHTTP:
         raise
     except Exception as e:

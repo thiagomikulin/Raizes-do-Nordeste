@@ -54,7 +54,7 @@ async def exibir_quantidades(id_variacao: int, id_estoque: int, sessao:Session =
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Itens - Criar (EstoqueItens)
-@estoque_router.post('/{id}/itens/criar', status_code=201)
+@estoque_router.post('/{id_estoque}/itens/criar', status_code=201)
 async def criar_estoque_itens(id_estoque: int, schema: ItemCriacaoSchema, sessao:Session = Depends(criar_sessao), ator=Depends(verificar_token)):
     schema_interno = InternoItemCriacaoSchema(estoque=id_estoque, ingrediente=schema.ingrediente, unidade_medida=schema.unidade_medida)
     try:

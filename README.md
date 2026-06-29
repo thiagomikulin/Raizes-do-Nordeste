@@ -113,6 +113,8 @@ Para consulta de cada uma das tabelas, utilize métodos SQL correspondentes
 
 Após colocar o servidor no ar, os testes poderão ser realizados por 2 meios:
 * URL http://localhost:8000/docs (documentação padrão da FastAPI em Swagger, com todos os PATHs)
+* URL Mock http://127.0.0.1:5000/docs/ (documentação padrão com os PATHs estimados de um sistema de pagamento mínimo)
+  * OBS: a proposta foi um sistema parecido com PIX, onde o usuário receberia uma cobrança em seu CPF
 * Collection com os testes realizados durante a implementação (que poderão ser baixada através do link: <>)
 
 # Implementações futuras

@@ -307,7 +307,9 @@ class EstoqueInsuficiente(ExceptionHTTP):
             detail=[
                 {"field":'quantidade', "issue":"not enough"}
             ],
-        )    
+        )   
+
+ 
 
 class AlteraPedidoNaoPermitido(ExceptionHTTP):
     def __init__(self, status):

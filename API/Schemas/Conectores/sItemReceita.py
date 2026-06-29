@@ -1,13 +1,13 @@
 from API.Schemas.base import *
 
 class ReceitaCriacaoSchema(BaseModel):
-    quantidade: int
+    quantidade: float
     unidade_medida: str
 
 class InternoReceitaCriacaoSchema(BaseModel):
     ingrediente: int
     variacao: int
-    quantidade: int
+    quantidade: float
     unidade_medida: str
 
 
@@ -16,11 +16,11 @@ class ReceitaExclusaoSchema(BaseModel):
     variacao: int
     
 class ReceitaEdicaoSchema(BaseModel):
-    quantidade: int
+    quantidade: float
     unidade_medida: str
 
 class InternoReceitaEdicaoSchema(BaseModel):
     ingrediente: int
     variacao: int
-    quantidade: int
+    quantidade: float
     unidade_medida: str
